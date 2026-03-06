@@ -1,0 +1,36 @@
+Backup : 24/02/26
+
+Implemented:
+
+1.screen 1:
+a. Real time gate implementation for multiple calset and gate
+b. Vary gain using left/right by 0.5.
+c. y-axis label outside the grid.
+d. Update the parameters on calset change (Press -> OK)
+
+
+
+2. Screen 2:
+
+1. Alphanumeric , numerics and alpha... correction done.
+2. Automatic update of date/Time is done
+
+3. Screen 3:
+
+1. Save key to save the details and navigate to Test Screen
+
+---> Screen 1:
+Automatic highlight of widget depending on cursor.
+
+---------------------------------------------------------------------
+Screen 1:
+
+1.Updating Gain, reject,range , Delay automatically.
+2. Limit corrections are done.
+
+
+
+
+
+
+

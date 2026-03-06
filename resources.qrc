@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/battery_outline.svg</file>
+        <file>images/audio.jpeg</file>
+    </qresource>
+</RCC>

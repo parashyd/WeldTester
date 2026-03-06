@@ -1,0 +1,349 @@
+/********************************************************************************
+** Form generated from reading UI file 'testscreen.ui'
+**
+** Created by: Qt User Interface Compiler version 5.15.13
+**
+** WARNING! All changes made in this file will be lost when recompiling UI file!
+********************************************************************************/
+
+#ifndef UI_TESTSCREEN_H
+#define UI_TESTSCREEN_H
+
+#include <QtCore/QVariant>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QMainWindow>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QWidget>
+#include <qcustomplot.h>
+
+QT_BEGIN_NAMESPACE
+
+class Ui_TestScreen
+{
+public:
+    QWidget *centralwidget;
+    QLabel *label_BP;
+    QLineEdit *lineEdit_SD1;
+    QLineEdit *lineEdit_calset;
+    QCustomPlot *Plot;
+    QLabel *label_PH;
+    QLineEdit *lineEdit_TH2;
+    QLineEdit *lineEdit_TH1;
+    QLineEdit *lineEdit_Range;
+    QLineEdit *lineEdit_PH1;
+    QLineEdit *lineEdit_SD2;
+    QLabel *label_calset_2;
+    QLineEdit *lineEdit_BP1;
+    QLineEdit *lineEdit_Machine;
+    QLabel *label_Reject;
+    QLabel *label_G2ST;
+    QLabel *label_G2ED;
+    QLineEdit *lineEdit_Velocity;
+    QLabel *label_G1ST;
+    QLabel *label_Range;
+    QLabel *label_meter;
+    QLabel *label_D;
+    QLabel *label_TH2;
+    QLineEdit *lineEdit_G2ED;
+    QLineEdit *lineEdit_P2P;
+    QLineEdit *lineEdit_Mode;
+    QLabel *label_TH1;
+    QLineEdit *lineEdit_G1ST;
+    QLineEdit *lineEdit_Angle;
+    QLabel *label_P2P;
+    QLineEdit *lineEdit_BP2;
+    QLabel *label_SD;
+    QLabel *label_Angle;
+    QLineEdit *lineEdit_Gain;
+    QLabel *label_G1ED;
+    QLabel *label_Gain;
+    QLineEdit *lineEdit_Reject;
+    QLineEdit *lineEdit_G2ST;
+    QLineEdit *lineEdit_D1;
+    QLabel *label_calset;
+    QLineEdit *lineEdit_D2;
+    QLabel *label_Velocity;
+    QLineEdit *lineEdit_PH2;
+    QLabel *label_Mode;
+    QLabel *label_Delay;
+    QLabel *label_Machine;
+    QLineEdit *lineEdit_G1ED;
+    QLineEdit *lineEdit_Delay;
+    QLineEdit *lineEdit_ch;
+    QLabel *label_battery;
+    QLabel *label_audioIndicator;
+    QLineEdit *lineEdit_CP;
+    QLabel *label_DAC;
+    QPushButton *pushButton;
+    QLabel *label_freeze;
+
+    void setupUi(QMainWindow *TestScreen)
+    {
+        if (TestScreen->objectName().isEmpty())
+            TestScreen->setObjectName(QString::fromUtf8("TestScreen"));
+        TestScreen->resize(640, 480);
+        centralwidget = new QWidget(TestScreen);
+        centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
+        label_BP = new QLabel(centralwidget);
+        label_BP->setObjectName(QString::fromUtf8("label_BP"));
+        label_BP->setGeometry(QRect(120, 440, 21, 25));
+        lineEdit_SD1 = new QLineEdit(centralwidget);
+        lineEdit_SD1->setObjectName(QString::fromUtf8("lineEdit_SD1"));
+        lineEdit_SD1->setGeometry(QRect(360, 440, 40, 25));
+        lineEdit_SD1->setReadOnly(true);
+        lineEdit_calset = new QLineEdit(centralwidget);
+        lineEdit_calset->setObjectName(QString::fromUtf8("lineEdit_calset"));
+        lineEdit_calset->setGeometry(QRect(190, 0, 40, 20));
+        lineEdit_calset->setReadOnly(false);
+        Plot = new QCustomPlot(centralwidget);
+        Plot->setObjectName(QString::fromUtf8("Plot"));
+        Plot->setGeometry(QRect(0, 30, 521, 400));
+        QFont font;
+        font.setUnderline(false);
+        Plot->setFont(font);
+        label_PH = new QLabel(centralwidget);
+        label_PH->setObjectName(QString::fromUtf8("label_PH"));
+        label_PH->setGeometry(QRect(10, 440, 21, 25));
+        lineEdit_TH2 = new QLineEdit(centralwidget);
+        lineEdit_TH2->setObjectName(QString::fromUtf8("lineEdit_TH2"));
+        lineEdit_TH2->setGeometry(QRect(580, 370, 40, 20));
+        lineEdit_TH1 = new QLineEdit(centralwidget);
+        lineEdit_TH1->setObjectName(QString::fromUtf8("lineEdit_TH1"));
+        lineEdit_TH1->setGeometry(QRect(580, 280, 40, 20));
+        lineEdit_Range = new QLineEdit(centralwidget);
+        lineEdit_Range->setObjectName(QString::fromUtf8("lineEdit_Range"));
+        lineEdit_Range->setGeometry(QRect(580, 100, 40, 20));
+        lineEdit_PH1 = new QLineEdit(centralwidget);
+        lineEdit_PH1->setObjectName(QString::fromUtf8("lineEdit_PH1"));
+        lineEdit_PH1->setGeometry(QRect(30, 440, 40, 25));
+        lineEdit_PH1->setReadOnly(true);
+        lineEdit_SD2 = new QLineEdit(centralwidget);
+        lineEdit_SD2->setObjectName(QString::fromUtf8("lineEdit_SD2"));
+        lineEdit_SD2->setGeometry(QRect(400, 440, 40, 25));
+        lineEdit_SD2->setReadOnly(true);
+        label_calset_2 = new QLabel(centralwidget);
+        label_calset_2->setObjectName(QString::fromUtf8("label_calset_2"));
+        label_calset_2->setGeometry(QRect(530, 40, 50, 20));
+        lineEdit_BP1 = new QLineEdit(centralwidget);
+        lineEdit_BP1->setObjectName(QString::fromUtf8("lineEdit_BP1"));
+        lineEdit_BP1->setGeometry(QRect(140, 440, 40, 25));
+        lineEdit_BP1->setReadOnly(true);
+        lineEdit_Machine = new QLineEdit(centralwidget);
+        lineEdit_Machine->setObjectName(QString::fromUtf8("lineEdit_Machine"));
+        lineEdit_Machine->setGeometry(QRect(60, 0, 71, 20));
+        lineEdit_Machine->setReadOnly(true);
+        label_Reject = new QLabel(centralwidget);
+        label_Reject->setObjectName(QString::fromUtf8("label_Reject"));
+        label_Reject->setGeometry(QRect(530, 160, 51, 20));
+        label_G2ST = new QLabel(centralwidget);
+        label_G2ST->setObjectName(QString::fromUtf8("label_G2ST"));
+        label_G2ST->setGeometry(QRect(530, 310, 41, 20));
+        label_G2ED = new QLabel(centralwidget);
+        label_G2ED->setObjectName(QString::fromUtf8("label_G2ED"));
+        label_G2ED->setGeometry(QRect(530, 340, 41, 20));
+        lineEdit_Velocity = new QLineEdit(centralwidget);
+        lineEdit_Velocity->setObjectName(QString::fromUtf8("lineEdit_Velocity"));
+        lineEdit_Velocity->setGeometry(QRect(300, 0, 40, 20));
+        lineEdit_Velocity->setReadOnly(false);
+        label_G1ST = new QLabel(centralwidget);
+        label_G1ST->setObjectName(QString::fromUtf8("label_G1ST"));
+        label_G1ST->setGeometry(QRect(530, 220, 41, 20));
+        label_Range = new QLabel(centralwidget);
+        label_Range->setObjectName(QString::fromUtf8("label_Range"));
+        label_Range->setGeometry(QRect(530, 100, 51, 20));
+        label_meter = new QLabel(centralwidget);
+        label_meter->setObjectName(QString::fromUtf8("label_meter"));
+        label_meter->setGeometry(QRect(340, 0, 31, 20));
+        label_meter->setTextFormat(Qt::TextFormat::MarkdownText);
+        label_D = new QLabel(centralwidget);
+        label_D->setObjectName(QString::fromUtf8("label_D"));
+        label_D->setGeometry(QRect(230, 440, 21, 25));
+        label_TH2 = new QLabel(centralwidget);
+        label_TH2->setObjectName(QString::fromUtf8("label_TH2"));
+        label_TH2->setGeometry(QRect(530, 370, 41, 20));
+        lineEdit_G2ED = new QLineEdit(centralwidget);
+        lineEdit_G2ED->setObjectName(QString::fromUtf8("lineEdit_G2ED"));
+        lineEdit_G2ED->setGeometry(QRect(580, 340, 40, 20));
+        lineEdit_P2P = new QLineEdit(centralwidget);
+        lineEdit_P2P->setObjectName(QString::fromUtf8("lineEdit_P2P"));
+        lineEdit_P2P->setGeometry(QRect(480, 440, 40, 25));
+        lineEdit_Mode = new QLineEdit(centralwidget);
+        lineEdit_Mode->setObjectName(QString::fromUtf8("lineEdit_Mode"));
+        lineEdit_Mode->setGeometry(QRect(420, 0, 40, 20));
+        lineEdit_Mode->setReadOnly(true);
+        label_TH1 = new QLabel(centralwidget);
+        label_TH1->setObjectName(QString::fromUtf8("label_TH1"));
+        label_TH1->setGeometry(QRect(530, 280, 41, 20));
+        lineEdit_G1ST = new QLineEdit(centralwidget);
+        lineEdit_G1ST->setObjectName(QString::fromUtf8("lineEdit_G1ST"));
+        lineEdit_G1ST->setGeometry(QRect(580, 220, 40, 20));
+        lineEdit_Angle = new QLineEdit(centralwidget);
+        lineEdit_Angle->setObjectName(QString::fromUtf8("lineEdit_Angle"));
+        lineEdit_Angle->setGeometry(QRect(580, 190, 40, 20));
+        label_P2P = new QLabel(centralwidget);
+        label_P2P->setObjectName(QString::fromUtf8("label_P2P"));
+        label_P2P->setGeometry(QRect(450, 440, 26, 25));
+        lineEdit_BP2 = new QLineEdit(centralwidget);
+        lineEdit_BP2->setObjectName(QString::fromUtf8("lineEdit_BP2"));
+        lineEdit_BP2->setGeometry(QRect(180, 440, 40, 25));
+        lineEdit_BP2->setReadOnly(true);
+        label_SD = new QLabel(centralwidget);
+        label_SD->setObjectName(QString::fromUtf8("label_SD"));
+        label_SD->setGeometry(QRect(340, 440, 21, 25));
+        label_Angle = new QLabel(centralwidget);
+        label_Angle->setObjectName(QString::fromUtf8("label_Angle"));
+        label_Angle->setGeometry(QRect(530, 190, 51, 20));
+        lineEdit_Gain = new QLineEdit(centralwidget);
+        lineEdit_Gain->setObjectName(QString::fromUtf8("lineEdit_Gain"));
+        lineEdit_Gain->setGeometry(QRect(580, 70, 40, 20));
+        label_G1ED = new QLabel(centralwidget);
+        label_G1ED->setObjectName(QString::fromUtf8("label_G1ED"));
+        label_G1ED->setGeometry(QRect(530, 250, 41, 20));
+        label_Gain = new QLabel(centralwidget);
+        label_Gain->setObjectName(QString::fromUtf8("label_Gain"));
+        label_Gain->setGeometry(QRect(530, 70, 51, 20));
+        lineEdit_Reject = new QLineEdit(centralwidget);
+        lineEdit_Reject->setObjectName(QString::fromUtf8("lineEdit_Reject"));
+        lineEdit_Reject->setGeometry(QRect(580, 160, 40, 20));
+        lineEdit_G2ST = new QLineEdit(centralwidget);
+        lineEdit_G2ST->setObjectName(QString::fromUtf8("lineEdit_G2ST"));
+        lineEdit_G2ST->setGeometry(QRect(580, 310, 40, 20));
+        lineEdit_D1 = new QLineEdit(centralwidget);
+        lineEdit_D1->setObjectName(QString::fromUtf8("lineEdit_D1"));
+        lineEdit_D1->setGeometry(QRect(250, 440, 40, 25));
+        lineEdit_D1->setReadOnly(true);
+        label_calset = new QLabel(centralwidget);
+        label_calset->setObjectName(QString::fromUtf8("label_calset"));
+        label_calset->setGeometry(QRect(140, 0, 41, 20));
+        lineEdit_D2 = new QLineEdit(centralwidget);
+        lineEdit_D2->setObjectName(QString::fromUtf8("lineEdit_D2"));
+        lineEdit_D2->setGeometry(QRect(290, 440, 40, 25));
+        lineEdit_D2->setReadOnly(true);
+        label_Velocity = new QLabel(centralwidget);
+        label_Velocity->setObjectName(QString::fromUtf8("label_Velocity"));
+        label_Velocity->setGeometry(QRect(240, 0, 61, 20));
+        lineEdit_PH2 = new QLineEdit(centralwidget);
+        lineEdit_PH2->setObjectName(QString::fromUtf8("lineEdit_PH2"));
+        lineEdit_PH2->setGeometry(QRect(70, 440, 40, 25));
+        lineEdit_PH2->setReadOnly(true);
+        label_Mode = new QLabel(centralwidget);
+        label_Mode->setObjectName(QString::fromUtf8("label_Mode"));
+        label_Mode->setGeometry(QRect(380, 0, 31, 20));
+        label_Delay = new QLabel(centralwidget);
+        label_Delay->setObjectName(QString::fromUtf8("label_Delay"));
+        label_Delay->setGeometry(QRect(530, 130, 51, 20));
+        label_Machine = new QLabel(centralwidget);
+        label_Machine->setObjectName(QString::fromUtf8("label_Machine"));
+        label_Machine->setGeometry(QRect(0, 0, 51, 20));
+        lineEdit_G1ED = new QLineEdit(centralwidget);
+        lineEdit_G1ED->setObjectName(QString::fromUtf8("lineEdit_G1ED"));
+        lineEdit_G1ED->setGeometry(QRect(580, 250, 40, 20));
+        lineEdit_Delay = new QLineEdit(centralwidget);
+        lineEdit_Delay->setObjectName(QString::fromUtf8("lineEdit_Delay"));
+        lineEdit_Delay->setGeometry(QRect(580, 130, 40, 20));
+        lineEdit_ch = new QLineEdit(centralwidget);
+        lineEdit_ch->setObjectName(QString::fromUtf8("lineEdit_ch"));
+        lineEdit_ch->setGeometry(QRect(580, 40, 40, 20));
+        label_battery = new QLabel(centralwidget);
+        label_battery->setObjectName(QString::fromUtf8("label_battery"));
+        label_battery->setGeometry(QRect(480, 0, 51, 21));
+        label_battery->setPixmap(QPixmap(QString::fromUtf8("images/battery_outline.svg")));
+        label_audioIndicator = new QLabel(centralwidget);
+        label_audioIndicator->setObjectName(QString::fromUtf8("label_audioIndicator"));
+        label_audioIndicator->setGeometry(QRect(560, 0, 41, 31));
+        label_audioIndicator->setPixmap(QPixmap(QString::fromUtf8("images/audio.jpeg")));
+        lineEdit_CP = new QLineEdit(centralwidget);
+        lineEdit_CP->setObjectName(QString::fromUtf8("lineEdit_CP"));
+        lineEdit_CP->setGeometry(QRect(580, 400, 40, 20));
+        lineEdit_CP->setAutoFillBackground(true);
+        label_DAC = new QLabel(centralwidget);
+        label_DAC->setObjectName(QString::fromUtf8("label_DAC"));
+        label_DAC->setGeometry(QRect(530, 400, 41, 20));
+        pushButton = new QPushButton(centralwidget);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setGeometry(QRect(550, 420, 51, 26));
+        QFont font1;
+        font1.setBold(true);
+        pushButton->setFont(font1);
+        label_freeze = new QLabel(centralwidget);
+        label_freeze->setObjectName(QString::fromUtf8("label_freeze"));
+        label_freeze->setGeometry(QRect(610, 0, 21, 21));
+        QFont font2;
+        font2.setPointSize(12);
+        font2.setBold(true);
+        font2.setUnderline(false);
+        label_freeze->setFont(font2);
+        label_freeze->setAutoFillBackground(false);
+        label_freeze->setFrameShape(QFrame::Shape::Box);
+        label_freeze->setMidLineWidth(1);
+        TestScreen->setCentralWidget(centralwidget);
+
+        retranslateUi(TestScreen);
+
+        QMetaObject::connectSlotsByName(TestScreen);
+    } // setupUi
+
+    void retranslateUi(QMainWindow *TestScreen)
+    {
+        TestScreen->setWindowTitle(QCoreApplication::translate("TestScreen", "TestScreen", nullptr));
+        label_BP->setText(QCoreApplication::translate("TestScreen", "BP", nullptr));
+        lineEdit_SD1->setText(QString());
+        lineEdit_calset->setText(QString());
+        label_PH->setText(QCoreApplication::translate("TestScreen", "PH", nullptr));
+        lineEdit_TH2->setText(QString());
+        lineEdit_TH1->setText(QString());
+        lineEdit_Range->setText(QString());
+        lineEdit_SD2->setText(QString());
+        label_calset_2->setText(QCoreApplication::translate("TestScreen", "CH No.", nullptr));
+        lineEdit_Machine->setText(QCoreApplication::translate("TestScreen", "AT-211D", nullptr));
+        label_Reject->setText(QCoreApplication::translate("TestScreen", "Reject", nullptr));
+        label_G2ST->setText(QCoreApplication::translate("TestScreen", "G2ST", nullptr));
+        label_G2ED->setText(QCoreApplication::translate("TestScreen", "G2ED", nullptr));
+        lineEdit_Velocity->setText(QString());
+        label_G1ST->setText(QCoreApplication::translate("TestScreen", "G1ST", nullptr));
+        label_Range->setText(QCoreApplication::translate("TestScreen", "Range", nullptr));
+        label_meter->setText(QCoreApplication::translate("TestScreen", "m/s", nullptr));
+        label_D->setText(QCoreApplication::translate("TestScreen", "D", nullptr));
+        label_TH2->setText(QCoreApplication::translate("TestScreen", "TH2", nullptr));
+        lineEdit_G2ED->setText(QString());
+        lineEdit_Mode->setText(QString());
+        label_TH1->setText(QCoreApplication::translate("TestScreen", "TH1", nullptr));
+        lineEdit_G1ST->setText(QString());
+        lineEdit_Angle->setText(QString());
+        label_P2P->setText(QCoreApplication::translate("TestScreen", "P2P", nullptr));
+        label_SD->setText(QCoreApplication::translate("TestScreen", "SD", nullptr));
+        label_Angle->setText(QCoreApplication::translate("TestScreen", "Angle", nullptr));
+        lineEdit_Gain->setText(QString());
+        label_G1ED->setText(QCoreApplication::translate("TestScreen", "G1ED", nullptr));
+        label_Gain->setText(QCoreApplication::translate("TestScreen", "Gain", nullptr));
+        lineEdit_Reject->setText(QString());
+        lineEdit_G2ST->setText(QString());
+        lineEdit_D1->setText(QString());
+        label_calset->setText(QCoreApplication::translate("TestScreen", "CalSet", nullptr));
+        lineEdit_D2->setText(QString());
+        label_Velocity->setText(QCoreApplication::translate("TestScreen", "Velocity", nullptr));
+        label_Mode->setText(QCoreApplication::translate("TestScreen", "Mode", nullptr));
+        label_Delay->setText(QCoreApplication::translate("TestScreen", "Delay", nullptr));
+        label_Machine->setText(QCoreApplication::translate("TestScreen", "MC. No", nullptr));
+        lineEdit_G1ED->setText(QString());
+        lineEdit_Delay->setText(QString());
+        lineEdit_ch->setText(QString());
+        label_battery->setText(QString());
+        label_audioIndicator->setText(QString());
+        lineEdit_CP->setText(QString());
+        label_DAC->setText(QCoreApplication::translate("TestScreen", "<html><head/><body><p><span style=\" font-weight:700; color:#ed333b;\">DAC</span></p></body></html>", nullptr));
+        pushButton->setText(QCoreApplication::translate("TestScreen", "Open", nullptr));
+        label_freeze->setText(QCoreApplication::translate("TestScreen", "F", nullptr));
+    } // retranslateUi
+
+};
+
+namespace Ui {
+    class TestScreen: public Ui_TestScreen {};
+} // namespace Ui
+
+QT_END_NAMESPACE
+
+#endif // UI_TESTSCREEN_H
