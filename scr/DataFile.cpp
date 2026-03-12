@@ -54,7 +54,8 @@ int getconfig(int userCalset, int userChannel, ConfigEntry* matchedConfig)
 bool filterMatch(uint16_t addr, uint8_t value, const ConfigEntry& cfg)
 {
     unsigned int startAddr = cfg.delay * DELAY_FACTOR;
-    unsigned int endAddr   = startAddr + (cfg.range * RANGE_FACTOR) - 1;
+    // unsigned int endAddr   = startAddr + (cfg.range * RANGE_FACTOR) - 1;
+    unsigned int endAddr   = startAddr + (cfg.range * (cfg.Angle<30?RANGE_FACTOR_LT30:RANGE_FACTOR_GT30)) - 1;
 
     if (addr < startAddr || addr > endAddr)
         return false;
@@ -77,14 +78,19 @@ static inline bool calculateSlice(const ConfigEntry& cfg,
     uint32_t base = 0;
 
     if (cfg.channel == 1)
+    {
         base = 0;
+    }
     else if (cfg.channel == 2)
+    {
         base = 32778;
+    }
     else
         return false;
 
     startAddr = base + uint32_t(cfg.delay * DELAY_FACTOR);
-    uint32_t len = uint32_t(cfg.range * RANGE_FACTOR);
+    // uint32_t len = uint32_t(cfg.range * RANGE_FACTOR);
+    uint32_t len = uint32_t(cfg.range * (cfg.Angle<30?RANGE_FACTOR_LT30:RANGE_FACTOR_GT30));
 
     if (len == 0)
         return false;
@@ -156,6 +162,7 @@ int getFilteredPoints(const ConfigEntry& cfg, QVector<QPointF>& output)
         return 0;
 
     uint32_t startAddr = 0, endAddr = 0;
+
     if (!calculateSlice(cfg, startAddr, endAddr))
         return 0;
 
@@ -197,7 +204,7 @@ int getFilteredPoints(const ConfigEntry& cfg, QVector<QPointF>& output)
         uint8_t val = localBuffer[i].data;
         if (val < (cfg.reject * 2.55))
             val = 0;
-
+        //qDebug()<<i <<" "<< val << "\n";
         output.append(QPointF(i, val));
     }
 

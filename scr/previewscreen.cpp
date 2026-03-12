@@ -13,12 +13,15 @@
 #include "shared_data.h"
 #include "matrix_keypad.h"
 #include "testscreen.h"
+#include "qcustomplot.h"
 
 #include <QDir>
 #include <QDebug>
 
 extern SharedData* shared;
-
+QCPGraph *gate1;
+QCPGraph *gate2;
+QCPGraph *waveplot;
 
 PreviewScreen::PreviewScreen(QWidget *parent)
     : QDialog(parent)
@@ -71,6 +74,11 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     ui->label_G2->setStyleSheet("QLabel { color : #0818ff; }");
     qDebug() <<"fetched data from previous screen";
 
+    // ui->Plot->setOpenGl(true,1);
+
+    gate1 = ui->Plot->addGraph();
+    gate2 = ui->Plot->addGraph();
+    waveplot = ui->Plot->addGraph();
     plotGraphFromFilePS();
 }
 
@@ -275,33 +283,36 @@ void PreviewScreen::plotGraphFromFilePS()
     //     abs(ui->lineEdit_DG1->text().toInt() - ui->lineEdit_DG2->text().toInt()), 'd', 0));
 
     // ------------------ Plot Drawing ------------------
-    ui->Plot->clearGraphs();
+    //ui->Plot->clearGraphs();
 
     // Threshold lines (no delay offset needed anymore)
-    ui->Plot->addGraph();
-    ui->Plot->graph(0)->setData(QVector<double>{normG1Start,normG1End},
+    // ui->Plot->addGraph();
+    gate1->setData(QVector<double>{normG1Start,normG1End},
                                 QVector<double>{th1, th1});
     //qDebug() <<"Gs"<<normG1Start <<"GE"<<normG1End;
-    ui->Plot->graph(0)->setPen(QPen(QColor("#219601"), 2)); // Green
+    gate1->setPen(QPen(QColor("#219601"), 2)); // Green
 
-    ui->Plot->addGraph();
-    ui->Plot->graph(1)->setData(QVector<double>{normG2Start , normG2End},
+
+    gate2->setData(QVector<double>{normG2Start , normG2End},
                                 QVector<double>{th2, th2});
-    ui->Plot->graph(1)->setPen(QPen(QColor("#0818ff"), 2)); // Blue
+    gate2->setPen(QPen(QColor("#0818ff"), 2)); // Blue
 
     ui->Plot->xAxis->setRange(0, config.range);
 
-
-    ui->Plot->addGraph();
-    if(freeze){
-        ui->Plot->graph(2)->setData(xDataNormalized, yDataFreeze);
-        ui->Plot->graph(2)->setLineStyle(QCPGraph::lsImpulse);
-        ui->Plot->graph(2)->setPen(QPen(Qt::yellow, 2));
+    if (config.channel == 1){
+        waveplot->setPen(QPen(Qt::magenta, 2));
     }
     else{
-        ui->Plot->graph(2)->setData(xDataNormalized, yData);
-        ui->Plot->graph(2)->setLineStyle(QCPGraph::lsLine);
-        ui->Plot->graph(2)->setPen(QPen(Qt::yellow, 2));
+        waveplot->setPen(QPen(Qt::yellow, 2));
+    }
+
+    if(freeze){
+        waveplot->setData(xDataNormalized, yDataFreeze);
+        waveplot->setLineStyle(QCPGraph::lsImpulse);
+    }
+    else{
+        waveplot->setData(xDataNormalized, yData);
+        waveplot->setLineStyle(QCPGraph::lsLine);
     }
 
     ui->Plot->replot();

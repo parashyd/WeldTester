@@ -44,6 +44,9 @@ QString MachNo,DC_SC_mode,calsetStr;
 
 double ph1Value = 0, ph2Value = 0,phValue = 0,xPeakIndex1=-1,maxX, maxY,th1, g1_start, g1_end,th2, g2_start, g2_end;
 float RANGE_FACTOR, DELAY_FACTOR = 3.4, m_audioPercent = 0;
+//float RANGE_FACTOR_LT30 = 3.4;
+float RANGE_FACTOR_LT30 = 3.3;
+float RANGE_FACTOR_GT30 = 6.212;
 int peakIndex =-1,peakIndex1 = -1, peakIndex2 = -1,UserVelocity,userGainVal,SEC,CP=1;
 static int ModeCnt = 0,AudioLevel = 0,DACCnt = 0,CalGateCnt = 0;
 
@@ -139,7 +142,8 @@ TestScreen::TestScreen(QWidget *parent)
             updateGraphWithData();
         }
     });
-    plotUpdateTimer->start(100);            //100msec, 10msec
+    // plotUpdateTimer->start(100);
+    plotUpdateTimer->start(20);      //100msec, 10msec
 
     connect(qApp, &QApplication::focusChanged, this, [this](QWidget* old, QWidget* now){
         if (now) {
@@ -213,7 +217,7 @@ void TestScreen::setLogicalFocus(QWidget* widget)
 {
     if (!widget) return;
 
-    // 1️⃣ Remove previous highlight
+    // 1️ Remove previous highlight
     if (m_currentLogicalFocus && m_currentLogicalFocus != widget) {
         // Reset style to default
         m_currentLogicalFocus->setStyleSheet("");
@@ -655,9 +659,14 @@ void TestScreen::handleFreezeLogic(void)//Varun added to handle freeze logic
     // Normalize X values
     QVector<double> xNorm;
     xNorm.reserve(xDataFreeze.size());
-    for (double a : xDataFreeze)
-        xNorm.append(a / RANGE_FACTOR);
+    // for (double a : xDataFreeze)
+    //     xNorm.append(a / RANGE_FACTOR);
 
+    for (double a : xDataFreeze)
+    {
+        config.Angle<=30 ? xNorm.append(a / RANGE_FACTOR_LT30) : xNorm.append(a / RANGE_FACTOR_GT30);
+
+    }
     // -----------------------------
     // Compute G1/G2 range windows
     // -----------------------------
@@ -1075,8 +1084,13 @@ void TestScreen::updateGraphWithData()
     // Normalize X values
     QVector<double> xNorm;
     xNorm.reserve(xData.size());
-    for (double a : xData)
-        xNorm.append(a / RANGE_FACTOR);
+
+    // for (double a : xData)
+    //     xNorm.append(a / RANGE_FACTOR);
+
+    for (double a : xData){
+        config.Angle<=30 ? xNorm.append(a / RANGE_FACTOR_LT30) : xNorm.append(a / RANGE_FACTOR_GT30);
+    }
 
     // -----------------------------
     // Compute G1/G2 range windows
@@ -1305,7 +1319,8 @@ void TestScreen::saveTo_entry()
     // ---------- Reject (0–80) ----------
     double reject = ui->lineEdit_Reject->text().toDouble();
     reject = clampDouble(reject, 0.0, 80.0);
-    entry.reject = reject * REJECT_FACTOR;
+    // entry.reject = reject * REJECT_FACTOR;
+    entry.reject = reject;
 
     // ---------- Thresholds (5–99) ----------
     int th1 = clampInt(ui->lineEdit_TH1->text().toInt(), 5, 99);
