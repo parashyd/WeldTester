@@ -35,7 +35,6 @@ public:
     QLineEdit *lineEdit_SDG2;
     QLabel *label_G1;
     QLabel *label_G2;
-    QCustomPlot *Plot;
     QLabel *label_TestTypeVal;
     QLabel *label_Div;
     QLabel *label_Divvalue;
@@ -112,6 +111,7 @@ public:
     QLabel *label_Date;
     QLabel *label_Time;
     QLabel *label_Unit;
+    QCustomPlot *Plot;
 
     void setupUi(QDialog *PreviewScreen)
     {
@@ -166,9 +166,6 @@ public:
         label_G2 = new QLabel(PreviewScreen);
         label_G2->setObjectName(QString::fromUtf8("label_G2"));
         label_G2->setGeometry(QRect(560, 280, 31, 20));
-        Plot = new QCustomPlot(PreviewScreen);
-        Plot->setObjectName(QString::fromUtf8("Plot"));
-        Plot->setGeometry(QRect(10, 120, 420, 271));
         label_TestTypeVal = new QLabel(PreviewScreen);
         label_TestTypeVal->setObjectName(QString::fromUtf8("label_TestTypeVal"));
         label_TestTypeVal->setGeometry(QRect(328, 90, 91, 18));
@@ -455,6 +452,12 @@ public:
         label_Unit = new QLabel(PreviewScreen);
         label_Unit->setObjectName(QString::fromUtf8("label_Unit"));
         label_Unit->setGeometry(QRect(560, 50, 71, 18));
+        Plot = new QCustomPlot(PreviewScreen);
+        Plot->setObjectName(QString::fromUtf8("Plot"));
+        Plot->setGeometry(QRect(10, 120, 401, 271));
+        QFont font5;
+        font5.setUnderline(false);
+        Plot->setFont(font5);
 
         retranslateUi(PreviewScreen);
 

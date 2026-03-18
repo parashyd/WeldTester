@@ -93,7 +93,7 @@ TestScreen::TestScreen(QWidget *parent)
     plotUpdateTimer = new QTimer(this);
     BatteryUpdateTimer = new QTimer(this);
 
-    ui->Plot->setOpenGl(true,1);
+    ui->Plot->setOpenGl(true);
 
     setupPlotAppearance();
 
