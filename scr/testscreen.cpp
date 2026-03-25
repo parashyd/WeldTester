@@ -68,6 +68,79 @@ TestScreen::TestScreen(QWidget *parent)
 {
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);         // to disable the menu bar
 
+this->setStyleSheet(R"(
+
+/* MAIN WINDOW */
+QMainWindow{
+    background-color:#f4f6f8;
+}
+
+/* LABELS */
+QLabel{
+    color:#2b2f33;
+    font-size:13px;
+    font-weight:500;
+}
+
+/* DAC Highlight */
+#label_DAC{
+    color:#d32f2f;
+    font-weight:bold;
+}
+
+/* INPUT BOXES */
+QLineEdit{
+    background-color:#ffffff;
+    border:1px solid #c7ccd1;
+    border-radius:4px;
+    color:#1f2328;
+    padding:3px;
+}
+
+QLineEdit:focus{
+    border:1px solid #1976d2;
+    background-color:#ffffff;
+}
+
+/* PLOT AREA */
+#Plot{
+    background-color:#ffffff;
+    border:2px solid #d0d7de;
+    border-radius:6px;
+}
+
+/* BUTTON */
+QPushButton{
+    background-color:#1976d2;
+    border-radius:5px;
+    color:white;
+    font-weight:bold;
+    padding:5px;
+}
+
+QPushButton:hover{
+    background-color:#1e88e5;
+}
+
+QPushButton:pressed{
+    background-color:#1565c0;
+}
+
+/* FREEZE INDICATOR */
+#label_freeze{
+    background-color:#e0e0e0;
+    color:#2b2f33;
+    border:1px solid #b0b0b0;
+    border-radius:3px;
+}
+
+/* GENERAL FONT */
+QWidget{
+    font-family: "Segoe UI";
+}
+
+)");
+
     ui->setupUi(this);
     DACx.resize(10);
     DACy.resize(10);
@@ -158,7 +231,7 @@ TestScreen::TestScreen(QWidget *parent)
 
     // In constructor or initialization
     connect(ui->lineEdit_G1ST, &QLineEdit::textChanged, this, [this](const QString &){
-    g1_start = ui->lineEdit_G1ST->text().toDouble();  // update value
+    g1_start = ui->lineEdit_G1ST->text().toDouble();        // update value
         updateGraphWithData();                              // redraw graph
     });
 
@@ -914,19 +987,15 @@ void TestScreen::handleSaveFlow()
                 });
             }
             previewscreen->show();
-            previewscreen->raise();
-            previewscreen->activateWindow();
+            // previewscreen->raise();
+            // previewscreen->activateWindow(); //Commented bcoz of warning by wayland
             previewscreen->setDetails(MachNo, "XYZ");      // sample update
         });
     }
 
-
-
-
-
     testdetails->show();
-    testdetails->raise();
-    testdetails->activateWindow();
+    // testdetails->raise();
+    // testdetails->activateWindow();
 }
 
 int TestScreen::normalizeKeyForNumeric(uint8_t key)
@@ -998,7 +1067,7 @@ void TestScreen::autoRunConfig()
     }
 
 
-    config.reject = config.reject / REJECT_FACTOR;
+    //config.reject = config.reject / REJECT_FACTOR;
     config.Gain   = config.Gain / GAIN_FACTOR;
 
     ui->lineEdit_Range->setText(QString::number(config.range, 'd', 0));
