@@ -68,78 +68,78 @@ TestScreen::TestScreen(QWidget *parent)
 {
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);         // to disable the menu bar
 
-this->setStyleSheet(R"(
+    this->setStyleSheet(R"(
 
-/* MAIN WINDOW */
-QMainWindow{
-    background-color:#f4f6f8;
-}
+    /* MAIN WINDOW */
+    QMainWindow{
+        background-color:#f4f6f8;
+    }
 
-/* LABELS */
-QLabel{
-    color:#2b2f33;
-    font-size:13px;
-    font-weight:500;
-}
+    /* LABELS */
+    QLabel{
+        color:#2b2f33;
+        font-size:13px;
+        font-weight:500;
+    }
 
-/* DAC Highlight */
-#label_DAC{
-    color:#d32f2f;
-    font-weight:bold;
-}
+    /* DAC Highlight */
+    #label_DAC{
+        color:#d32f2f;
+        font-weight:bold;
+    }
 
-/* INPUT BOXES */
-QLineEdit{
-    background-color:#ffffff;
-    border:1px solid #c7ccd1;
-    border-radius:4px;
-    color:#1f2328;
-    padding:3px;
-}
+    /* INPUT BOXES */
+    QLineEdit{
+        background-color:#ffffff;
+        border:1px solid #c7ccd1;
+        border-radius:4px;
+        color:#1f2328;
+        padding:3px;
+    }
 
-QLineEdit:focus{
-    border:1px solid #1976d2;
-    background-color:#ffffff;
-}
+    QLineEdit:focus{
+        border:1px solid #1976d2;
+        background-color:#ffffff;
+    }
 
-/* PLOT AREA */
-#Plot{
-    background-color:#ffffff;
-    border:2px solid #d0d7de;
-    border-radius:6px;
-}
+    /* PLOT AREA */
+    #Plot{
+        background-color:#ffffff;
+        border:2px solid #d0d7de;
+        border-radius:6px;
+    }
 
-/* BUTTON */
-QPushButton{
-    background-color:#1976d2;
-    border-radius:5px;
-    color:white;
-    font-weight:bold;
-    padding:5px;
-}
+    /* BUTTON */
+    QPushButton{
+        background-color:#1976d2;
+        border-radius:5px;
+        color:white;
+        font-weight:bold;
+        padding:5px;
+    }
 
-QPushButton:hover{
-    background-color:#1e88e5;
-}
+    QPushButton:hover{
+        background-color:#1e88e5;
+    }
 
-QPushButton:pressed{
-    background-color:#1565c0;
-}
+    QPushButton:pressed{
+        background-color:#1565c0;
+    }
 
-/* FREEZE INDICATOR */
-#label_freeze{
-    background-color:#e0e0e0;
-    color:#2b2f33;
-    border:1px solid #b0b0b0;
-    border-radius:3px;
-}
+    /* FREEZE INDICATOR */
+    #label_freeze{
+        background-color:#e0e0e0;
+        color:#2b2f33;
+        border:1px solid #b0b0b0;
+        border-radius:3px;
+    }
 
-/* GENERAL FONT */
-QWidget{
-    font-family: "Segoe UI";
-}
+    /* GENERAL FONT */
+    QWidget{
+        font-family: "Segoe UI";
+    }
 
-)");
+    )");
 
     ui->setupUi(this);
     DACx.resize(10);
@@ -1608,7 +1608,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
     {       adjustValue(entry.Gain,   0, 80) ;
         onApplyGainClicked();
     }
-    else if (focused == ui->lineEdit_Range)  adjustValue(entry.range,  50, 1000); // assume range is double
+    else if (focused == ui->lineEdit_Range)  {adjustValue(entry.range,  50, 1000);} // assume range is double
     else if (focused == ui->lineEdit_Delay)  adjustValue(entry.delay,  0, 100); // float or int
     else if (focused == ui->lineEdit_Reject) adjustValue(entry.reject, 0, 80);  // float or int
     else if (focused == ui->lineEdit_Angle)  adjustValue(entry.Angle,  0, 90);  // float

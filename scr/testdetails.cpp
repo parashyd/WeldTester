@@ -502,6 +502,13 @@ void TestDetails::navigateFocus(int direction)
         QPalette p = prev->palette();
         p.setColor(QPalette::Base, Qt::white);
         prev->setPalette(p);
+        prev->clearFocus();
+        if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(prev)) {
+            lineEdit->setSelection(0, 0);
+        }
+        // else if (QTextEdit *textEdit = qobject_cast<QTextEdit*>(prev)) {
+        //     textEdit->setSelection(0, 0);
+        // }
     }
 
     // 🔹 Prepare next widget to use custom style
