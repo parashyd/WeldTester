@@ -557,23 +557,33 @@ void TestDetails::navigateFocus(int direction)
 void TestDetails::handleBackspaceInput()
 {
     QWidget* focusedWidget = this->focusWidget();
+
     if (QLineEdit* lineEdit = qobject_cast<QLineEdit*>(focusedWidget)) {
         KeyPressState &state = inputStates[lineEdit];
 
-        // Remove last character from buffer
-        if (!state.inputBuffer.isEmpty()) {
-            state.inputBuffer.chop(1);
-            state.lastChar.clear();    // ❌ important: clear lastChar
-            state.pressCount = 0;      // reset multi-press
-            lineEdit->setText(state.inputBuffer);
-            lineEdit->setCursorPosition(state.inputBuffer.length());
-
-            qDebug() << "[UI] Backspace applied, buffer:" << state.inputBuffer;
+        if (!state.lastChar.isEmpty()) {
+            // 🔹 Remove only current multi-tap character
+            state.lastChar.clear();
         }
+        else if (!state.inputBuffer.isEmpty()) {
+            // 🔹 Remove last committed character
+            state.inputBuffer.chop(1);
+        }
+
+        //reset multi-tap state
+        state.lastKey = 0;
+        state.pressCount = 0;
+        state.timer.invalidate();
+
+        QString updated = state.inputBuffer + state.lastChar;
+        lineEdit->setText(updated);
+        lineEdit->setCursorPosition(updated.length());
+
+        qDebug() << "[UI] Backspace fixed, buffer:" << updated;
         return;
     }
 
-    // QTextEdit handling remains the same
+    // QTextEdit case
     if (QTextEdit* textEdit = qobject_cast<QTextEdit*>(focusedWidget)) {
         QString text = textEdit->toPlainText();
         if (!text.isEmpty()) {
