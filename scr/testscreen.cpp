@@ -135,6 +135,13 @@ TestScreen::TestScreen(QWidget *parent)
         border-radius:3px;
     }
 
+    #label_pause{
+        background-color:#e0e0e0;
+        color:#2b2f33;
+        border:1px solid #b0b0b0;
+        border-radius:3px;
+    }
+
     /* GENERAL FONT */
     QWidget{
         font-family: "Segoe UI";
@@ -263,6 +270,7 @@ TestScreen::TestScreen(QWidget *parent)
 
 
     ui->label_freeze->setVisible(false);//Make Freeze disable initially
+    ui->label_pause->setVisible(false);//Make pause disable initially
 
     ui->label_G1ST->setStyleSheet("QLabel { color : #219601; }");
     ui->label_G1ED->setStyleSheet("QLabel { color : #219601; }");
@@ -506,13 +514,14 @@ void TestScreen::onSocketReadyRead()
         break;
 
     case RUN:
-        if (plotUpdateTimer->isActive())
+        if (plotUpdateTimer->isActive() )
         {
             plotUpdateTimer->stop();
+            ui->label_pause->setVisible(true);
         }
         else{
             plotUpdateTimer->start(20);
-
+            ui->label_pause->setVisible(false);
         }
         break;
 
@@ -958,6 +967,10 @@ void TestScreen::handleSaveFlow()
         if (!plotUpdateTimer->isActive())
         {
             plotUpdateTimer->start(20);
+            if(ui->label_pause->isVisible()) // if pause is enabled and he have saved from preview screen the label should not be visible
+            {
+                ui->label_pause->setVisible(false);
+            }
         }
 
         setInputFieldsEnabled(true);
