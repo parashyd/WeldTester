@@ -506,6 +506,14 @@ void TestScreen::onSocketReadyRead()
         break;
 
     case RUN:
+        if (plotUpdateTimer->isActive())
+        {
+            plotUpdateTimer->stop();
+        }
+        else{
+            plotUpdateTimer->start(20);
+
+        }
         break;
 
     case SAVE:
