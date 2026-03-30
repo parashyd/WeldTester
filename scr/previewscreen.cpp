@@ -132,7 +132,7 @@ void PreviewScreen::plotGraphFromFilePS()
     // No need to subtract delay * DELAY_FACTOR here, already done
     QVector<double> xDataNormalized;
     for (double addr : xData)
-        xDataNormalized.append(addr / RANGE_FACTOR );
+        config.Angle>30?xDataNormalized.append(addr / RANGE_FACTOR_GT30 ):xDataNormalized.append(addr / RANGE_FACTOR_LT30 );
 
     double normG1Start = (g1_start * config.range)/100;
     double normG1End   = (g1_end * config.range)/100;

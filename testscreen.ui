@@ -36,6 +36,9 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -135,6 +138,9 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
+    </property>
     <property name="readOnly">
      <bool>true</bool>
     </property>
@@ -147,6 +153,9 @@
       <width>40</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
     </property>
     <property name="text">
      <string/>
@@ -176,6 +185,9 @@
       <width>40</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -342,6 +354,9 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
+    </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_Mode">
     <property name="geometry">
@@ -419,6 +434,9 @@
       <width>40</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -524,6 +542,9 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -553,6 +574,9 @@
       <height>25</height>
      </rect>
     </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -581,6 +605,9 @@
       <width>40</width>
       <height>25</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::FocusPolicy::NoFocus</enum>
     </property>
     <property name="readOnly">
      <bool>true</bool>

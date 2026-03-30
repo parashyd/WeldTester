@@ -80,6 +80,9 @@
      <height>26</height>
     </rect>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
+   </property>
    <property name="readOnly">
     <bool>true</bool>
    </property>
@@ -93,6 +96,9 @@
      <height>26</height>
     </rect>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
+   </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_BPG1">
    <property name="geometry">
@@ -102,6 +108,9 @@
      <width>41</width>
      <height>26</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
    </property>
    <property name="readOnly">
     <bool>true</bool>
@@ -116,6 +125,9 @@
      <height>26</height>
     </rect>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
+   </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_DG1">
    <property name="geometry">
@@ -125,6 +137,9 @@
      <width>41</width>
      <height>26</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
    </property>
    <property name="readOnly">
     <bool>true</bool>
@@ -139,6 +154,9 @@
      <height>26</height>
     </rect>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
+   </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_SDG1">
    <property name="geometry">
@@ -148,6 +166,9 @@
      <width>41</width>
      <height>26</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
    </property>
    <property name="readOnly">
     <bool>true</bool>
@@ -161,6 +182,9 @@
      <width>41</width>
      <height>26</height>
     </rect>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
    </property>
   </widget>
   <widget class="QLabel" name="label_G1">
