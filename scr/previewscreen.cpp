@@ -105,27 +105,27 @@ void PreviewScreen::plotGraphFromFilePS()
 {
     if (!shared) return;
 
-    QVector<QPointF> filteredPoints;
-    if (getFilteredPoints(config, filteredPoints) == 0) return;
+    // QVector<QPointF> filteredPoints;
+    // if (getFilteredPoints(config, filteredPoints) == 0) return;
 
 
-    QVector<double> xData, yData;
+   // QVector<double> xData, yData;
     maxX = 0;
     maxY = 0;
 
-    for (const QPointF& point : filteredPoints)
-    {
-        double address = point.x();  // Already normalized address
-        double scaledY = (point.y() / 255.0) * 100.0;
+    // for (const QPointF& point : filteredPoints)
+    // {
+    //     double address = point.x();  // Already normalized address
+    //     double scaledY = (point.y() / 255.0) * 100.0;
 
-        xData.append(address);
-        yData.append(scaledY);
+    //     xData.append(address);
+    //     yData.append(scaledY);
 
-        maxX = qMax<int>(maxX, static_cast<int>(address));
-        maxY = qMax<double>(maxY, scaledY);
+    //     maxX = qMax<int>(maxX, static_cast<int>(address));
+    //     maxY = qMax<double>(maxY, scaledY);
 
-        //qDebug() << "x-axis" << address << "y-axis" << scaledY;
-    }
+    //     //qDebug() << "x-axis" << address << "y-axis" << scaledY;
+    // }
 
     if (xData.isEmpty()) return;
 

@@ -58,6 +58,7 @@ QMap<int, KeyPressState> keyStates;
 
 KeyPressState calsetState;
 QVector<double> xDataFreeze , yDataFreeze,DACx, DACy;
+QVector<double> xData, yData;
 
 Openlog *openlogScreen = nullptr;
 
@@ -402,6 +403,10 @@ void TestScreen::onSocketReadyRead()
         if (testdetails && testdetails->isVisible()) {
             testdetails->close();
             testdetails = nullptr;
+            if(!plotUpdateTimer->isActive())
+            {
+                plotUpdateTimer->start(20);
+            }
             setInputFieldsEnabled(true);
             return;
         }
@@ -942,6 +947,10 @@ void TestScreen::handleSaveFlow()
             testdetails->close();
             testdetails = nullptr;
         }
+        if (!plotUpdateTimer->isActive())
+        {
+            plotUpdateTimer->start(20);
+        }
 
         setInputFieldsEnabled(true);
         return;
@@ -961,6 +970,11 @@ void TestScreen::handleSaveFlow()
     if (!testdetails) {
         testdetails = new TestDetails(this);
         testdetails->setAttribute(Qt::WA_DeleteOnClose);
+
+        if(plotUpdateTimer->isActive())
+        {
+            plotUpdateTimer->stop();
+        }
 
         setInputFieldsEnabled(false);
 
@@ -1122,8 +1136,9 @@ void TestScreen::updateGraphWithData()
     //            DBG_I2, (DBG_I2 < filtered.size()) ? int(filtered[DBG_I2].y()) : 0,
     //            DBG_I3, (DBG_I3 < filtered.size()) ? int(filtered[DBG_I3].y()) : 0);
     // }
+    xData={0};
+    yData={0};
 
-    QVector<double> xData, yData;
     xData.resize(filtered.size());
     yData.resize(filtered.size());
 

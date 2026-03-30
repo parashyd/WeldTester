@@ -43,6 +43,8 @@ extern double th2, g2_start, g2_end;
 
 extern SharedData* shared;
 extern QVector<double> xDataFreeze , yDataFreeze;
+extern QVector<double> xData, yData;
+
 extern bool freeze;
 void close_openlog();
 
