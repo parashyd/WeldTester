@@ -131,6 +131,8 @@ private:
     QCPGraph *g2Line;
     QCPGraph *waveformGraph;
     QCPGraph *DACline;
+    QCPGraph *g1border;
+    QCPGraph *g2border;
 
 
     //QMap<QLineEdit*, KeyPressState> inputStates;

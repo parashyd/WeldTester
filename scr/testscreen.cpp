@@ -179,17 +179,24 @@ TestScreen::TestScreen(QWidget *parent)
     setupPlotAppearance();
 
     // Create graphs ONCE (no indexing mistakes later)
+    g1border = ui->Plot->addGraph();
+    g2border = ui->Plot->addGraph();
     g1Line      = ui->Plot->addGraph();
     g2Line      = ui->Plot->addGraph();
     waveformGraph = ui->Plot->addGraph();
     DACline = ui->Plot->addGraph();
 
 
+
+
     // Appearance
     g1Line->setPen(QPen(QColor("#219601"), 2));  // Green
     g2Line->setPen(QPen(QColor("#0818ff"), 2));  // Blue
     //waveformGraph->setPen(QPen(Qt::yellow, 2));
-
+    g1border->setPen(QPen(Qt::white, 6));;
+    g2border->setPen(QPen(Qt::white, 6));;
+    g1border->setVisible(false);
+    g2border->setVisible(false);
 
     loadSavedConfig();
     UserVelocity = Postlog.velocity;
@@ -496,18 +503,23 @@ void TestScreen::onSocketReadyRead()
         CalGateCnt ++;
         if(CalGateCnt == 1)
         {
+            g1border->setVisible(false);
+            g2border->setVisible(false);
             qDebug() <<"calset Active";
             prepareCalsetInput();
         }
         else if(CalGateCnt == 2)
         {
             Gate1Input();
+            g1border->setVisible(true);
+            g2border->setVisible(false);
         }
         else if(CalGateCnt == 3)
         {
             Gate2Input();
+            g1border->setVisible(false);
+            g2border->setVisible(true);
             CalGateCnt = 0;
-
         }
         break;
 
@@ -916,9 +928,9 @@ void TestScreen::Gate2Input(void)
     ui->lineEdit_G2ED->setEnabled(true);
     ui->lineEdit_TH2->setEnabled(true);
 
-    ui->lineEdit_G2ST->setText(QString::number(g1_start));
-    ui->lineEdit_G2ED->setText(QString::number(g1_end));
-    ui->lineEdit_TH2->setText(QString::number(th1));
+    ui->lineEdit_G2ST->setText(QString::number(g2_start));
+    ui->lineEdit_G2ED->setText(QString::number(g2_end));
+    ui->lineEdit_TH2->setText(QString::number(th2));
 
     ui->lineEdit_G2ST->setFocus();
 
@@ -1296,10 +1308,15 @@ void TestScreen::updateGraphWithData()
         updateGridInterval();
     }
 
+
     g1Line->setData(QVector<double>{g1Start, g1End},
                     QVector<double>{th1, th1});
 
     g2Line->setData(QVector<double>{g2Start, g2End},
+                    QVector<double>{th2, th2});
+    g1border->setData(QVector<double>{g1Start, g1End},
+                      QVector<double>{th1, th1});
+    g2border->setData(QVector<double>{g2Start, g2End},
                     QVector<double>{th2, th2});
 
     if (config.channel == 1){
