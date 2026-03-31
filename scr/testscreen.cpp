@@ -456,6 +456,7 @@ void TestScreen::onSocketReadyRead()
         ui->lineEdit_ch->setText(receivedChannel);
         entry.channel = 1;
         config.channel =1;
+        autoRunConfig();
         break;
 
     case CH_B:
@@ -463,6 +464,7 @@ void TestScreen::onSocketReadyRead()
         ui->lineEdit_ch->setText(receivedChannel);
         entry.channel = 2;
         config.channel =2;
+        autoRunConfig();
         break;
 
     case FREEZE: // Freeze

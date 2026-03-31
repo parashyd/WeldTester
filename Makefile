@@ -842,9 +842,9 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
 		ui_previewscreen.h \
-		include/qcustomplot.h \
 		include/matrix_keypad.h \
-		include/testscreen.h
+		include/testscreen.h \
+		include/qcustomplot.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o previewscreen.o scr/previewscreen.cpp
 
 qcustomplot.o: scr/qcustomplot.cpp include/qcustomplot.h
