@@ -56,12 +56,12 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     // ui->lineEdit_time->setText(Time);
 
     ui->label_Gainval->setText(QString::number(entry.Gain/GAIN_FACTOR));
-    ui->label_RJVal->setText(QString::number(entry.reject/REJECT_FACTOR));
+    ui->label_RJVal->setText(QString::number(entry.reject));
     ui->label_G1stVal->setText(QString::number(entry.g1_start));
     ui->label_G1EDVal->setText(QString::number(entry.g1_end));
     ui->label_TH1Val->setText(QString::number(entry.th1));
     ui->label_G2stval->setText(QString::number(entry.g2_start));
-    ui->label_G2EDVal->setText(QString::number(entry.g2_start));
+    ui->label_G2EDVal->setText(QString::number(entry.g2_end));
     ui->label_TH2val->setText(QString::number(entry.th2));
     ui->label_angleval->setText(QString::number(entry.Angle));
     ui->label_Delyval->setText(QString::number(entry.delay));
