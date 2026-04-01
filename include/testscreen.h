@@ -108,10 +108,10 @@ private slots:
     void handleSaveFlow();
     void handleFreezeLogic(void);
 
-    void Gate1Input(void);
-    void Gate2Input(void);
     void FunctionLeftRight(bool increment);
     void setLogicalFocus(QWidget* widget);
+    void HandleGateUpDownLift(int lift);
+    void HandleGateShift(int shift);
 
 
 

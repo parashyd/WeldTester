@@ -52,6 +52,8 @@ static int ModeCnt = 0,AudioLevel = 0,DACCnt = 0,CalGateCnt = 0;
 
 bool freeze;
 bool zoom = false;
+bool gate1_focus=false;
+bool gate2_focus=false;
 
 QString receivedChannel,receivedCalset;
 QMap<int, KeyPressState> keyStates;
@@ -503,6 +505,8 @@ void TestScreen::onSocketReadyRead()
         CalGateCnt ++;
         if(CalGateCnt == 1)
         {
+            gate1_focus = false;
+            gate2_focus = false;
             g1border->setVisible(false);
             g2border->setVisible(false);
             qDebug() <<"calset Active";
@@ -510,13 +514,19 @@ void TestScreen::onSocketReadyRead()
         }
         else if(CalGateCnt == 2)
         {
-            Gate1Input();
+            //Gate1Input();
+            ui->lineEdit_calset->setStyleSheet("");
+            gate1_focus = true;
+            gate2_focus = false;
             g1border->setVisible(true);
             g2border->setVisible(false);
         }
         else if(CalGateCnt == 3)
         {
-            Gate2Input();
+            //Gate2Input();
+            ui->lineEdit_calset->setStyleSheet("");
+            gate1_focus = false;
+            gate2_focus = true;
             g1border->setVisible(false);
             g2border->setVisible(true);
             CalGateCnt = 0;
@@ -544,11 +554,23 @@ void TestScreen::onSocketReadyRead()
         break;
 
     case UP: // UP
-        navigateFocusVertical(-1);
+        if(gate1_focus || gate2_focus)
+        {
+            HandleGateUpDownLift(1);
+        }
+        else{
+            navigateFocusVertical(-1);
+        }
         break;
 
     case DOWN: // DOWN
-        navigateFocusVertical(1);
+        if(gate1_focus || gate2_focus)
+        {
+            HandleGateUpDownLift(-1);
+        }
+        else{
+            navigateFocusVertical(1);
+        }
         break;
 
     case DAC:
@@ -650,10 +672,24 @@ void TestScreen::onSocketReadyRead()
         adjustCurrentLineEdit(1);
         break;
 
-    case LEFT: FunctionLeftRight(true);                 // increment
+    case LEFT:
+        if(gate1_focus || gate2_focus)
+        {
+            HandleGateShift(-1);
+        }
+        else{
+            FunctionLeftRight(false);
+        }
         break;
 
-    case RIGHT:FunctionLeftRight(false);
+    case RIGHT:
+        if(gate1_focus || gate2_focus)
+        {
+            HandleGateShift(1);
+        }
+        else{
+            FunctionLeftRight(true);    //increment
+        }
         break;
 
 
@@ -900,41 +936,6 @@ void TestScreen::prepareCalsetInput()
 
     inputStates[ui->lineEdit_calset].inputBuffer.clear();
     inputStates[ui->lineEdit_calset].timer.start();
-}
-
-
-void TestScreen::Gate1Input(void)
-{
-    setLogicalFocus(ui->lineEdit_G1ST);
-
-    ui->lineEdit_G1ST->setEnabled(true);
-    // ui->lineEdit_G1ED->setEnabled(true);
-    // ui->lineEdit_TH1->setEnabled(true);
-
-    ui->lineEdit_G1ST->setText(QString::number(g1_start));
-    ui->lineEdit_G1ED->setText(QString::number(g1_end));
-    ui->lineEdit_TH1->setText(QString::number(th1));
-
-    ui->lineEdit_G1ST->setFocus();
-
-    //updateGraphWithData(); // draw with current values
-}
-
-void TestScreen::Gate2Input(void)
-{
-    setLogicalFocus(ui->lineEdit_G2ST);
-
-    ui->lineEdit_G2ST->setEnabled(true);
-    ui->lineEdit_G2ED->setEnabled(true);
-    ui->lineEdit_TH2->setEnabled(true);
-
-    ui->lineEdit_G2ST->setText(QString::number(g2_start));
-    ui->lineEdit_G2ED->setText(QString::number(g2_end));
-    ui->lineEdit_TH2->setText(QString::number(th2));
-
-    ui->lineEdit_G2ST->setFocus();
-
-    //updateGraphWithData(); // draw with current values
 }
 
 void TestScreen::adjustAudioLevel(void)
@@ -1314,10 +1315,17 @@ void TestScreen::updateGraphWithData()
 
     g2Line->setData(QVector<double>{g2Start, g2End},
                     QVector<double>{th2, th2});
-    g1border->setData(QVector<double>{g1Start, g1End},
+
+    if(gate1_focus){
+        g1border->setData(QVector<double>{g1Start, g1End},
                       QVector<double>{th1, th1});
-    g2border->setData(QVector<double>{g2Start, g2End},
+    }
+
+    if(gate2_focus)
+    {
+        g2border->setData(QVector<double>{g2Start, g2End},
                     QVector<double>{th2, th2});
+    }
 
     if (config.channel == 1){
         waveformGraph->setPen(QPen(Qt::magenta, 2));
@@ -1504,6 +1512,65 @@ void TestScreen::updateGridInterval()
     ui->Plot->replot();
 }
 
+void TestScreen::HandleGateUpDownLift(int lift){
+
+    QLineEdit* Th;
+    auto adjustlift = [&](auto& field, int minVal, int maxVal) {
+        using T = std::decay_t<decltype(field)>;
+        T current = static_cast<T>(Th->text().toDouble());
+        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(lift * 5), static_cast<T>(maxVal));
+        field = newValue;
+        Th->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
+    };
+
+    if(gate1_focus)
+    {
+        Th = ui->lineEdit_TH1;
+        adjustlift(entry.th1,5,99);
+    }
+    else
+    {
+        Th = ui->lineEdit_TH2;
+        adjustlift(entry.th2,5,99);
+    }
+}
+void TestScreen::HandleGateShift(int shift){
+
+    auto adjustshift = [&](auto& field, int minVal, int maxVal,QLineEdit* L) {
+        using T = std::decay_t<decltype(field)>;
+        T current = static_cast<T>(L->text().toDouble());
+        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(shift * 5), static_cast<T>(maxVal));
+        field = newValue;
+        L->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
+    };
+    // int width1 = g1_end-g1_start;
+    // int width2 = g2_end-g2_start;
+    if(gate1_focus)
+    {
+        if(shift == -1 && g1_start == 5) //if gate reaches starting point return
+            return;
+
+        if(shift == 1 && g1_end == 99)  //if gate reaches ending point return
+            return;
+
+        adjustshift(entry.g1_start,5,99,ui->lineEdit_G1ST);
+        adjustshift(entry.g1_end,5,99,ui->lineEdit_G1ED);
+
+    }
+    else
+    {
+        if(shift == -1 && g2_start == 5) //if gate reaches starting point return
+            return;
+
+        if(shift == 1 && g2_end == 99)  //if gate reaches ending point return
+            return;
+
+        adjustshift(entry.g2_start,5,99,ui->lineEdit_G2ST);
+        adjustshift(entry.g2_end,5,99,ui->lineEdit_G2ED);
+    }
+
+}
+
 void TestScreen::navigateFocusVertical(int direction)
 {
     QList<QWidget*> navWidgets = {
@@ -1659,9 +1726,28 @@ void TestScreen::adjustCurrentLineEdit(int delta)
         focused->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
     };
 
+    if(gate1_focus){
+        focused = ui->lineEdit_G1ED;
+        if(g1_start==g1_end && delta ==-1){
+            return;
+        }
+        if(g1_start<=g1_end)
+            adjustValue(entry.g1_end, 5, 99);
+        return;
+    }
+    else if(gate2_focus){
+        focused=ui->lineEdit_G2ED;
+        if(g2_start==g2_end && delta ==-1){
+            return;
+        }
+        if(g2_start<=g2_end)
+            adjustValue(entry.g2_end, 5, 99);
+        return;
+    }
+
     if (focused == ui->lineEdit_Gain)
     {       adjustValue(entry.Gain,   0, 80) ;
-        onApplyGainClicked();
+            onApplyGainClicked();
     }
     else if (focused == ui->lineEdit_Range)  {adjustValue(entry.range,  50, 1000);} // assume range is double
     else if (focused == ui->lineEdit_Delay)  adjustValue(entry.delay,  0, 100); // float or int
