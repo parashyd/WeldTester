@@ -1592,8 +1592,11 @@ void TestScreen::navigateFocusVertical(int direction)
     QWidget *current = focusWidget();
 
     // Fallback only if nothing focused
-    if (!current || !navWidgets.contains(current))
+   if (!current || !navWidgets.contains(current)){
         current = ui->lineEdit_Gain;
+        setLogicalFocus(current);
+        return;
+    }
 
     setLogicalFocus(current);
     int index = navWidgets.indexOf(current);
