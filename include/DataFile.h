@@ -34,7 +34,7 @@ typedef struct {
 extern float DELAY_FACTOR,RANGE_FACTOR;
 extern float RANGE_FACTOR_GT30,RANGE_FACTOR_LT30;
 
-extern ConfigEntry entry;
+//extern ConfigEntry entry;
 
 void gain_init();
 void OperateGainDual(int gain_ch1, int gain_ch2);

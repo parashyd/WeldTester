@@ -48,24 +48,24 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     ui->label_Fpval->setText(FPNFP);
     ui->label_remarksval->setText(OthersObservation);
 
-    ui->label_Chval->setText(QString::number(entry.channel));
-    ui->label_CalsetVal->setText(QString::number(entry.calset));
+    ui->label_Chval->setText(QString::number(config.channel));
+    ui->label_CalsetVal->setText(QString::number(config.calset));
 
 
     // ui->lineEdit_Date->setTexttring(Date);
     // ui->lineEdit_time->setText(Time);
 
-    ui->label_Gainval->setText(QString::number(entry.Gain/GAIN_FACTOR));
-    ui->label_RJVal->setText(QString::number(entry.reject));
-    ui->label_G1stVal->setText(QString::number(entry.g1_start));
-    ui->label_G1EDVal->setText(QString::number(entry.g1_end));
-    ui->label_TH1Val->setText(QString::number(entry.th1));
-    ui->label_G2stval->setText(QString::number(entry.g2_start));
-    ui->label_G2EDVal->setText(QString::number(entry.g2_end));
-    ui->label_TH2val->setText(QString::number(entry.th2));
-    ui->label_angleval->setText(QString::number(entry.Angle));
-    ui->label_Delyval->setText(QString::number(entry.delay));
-    ui->label_RangeVal->setText(QString::number(entry.range));
+    ui->label_Gainval->setText(QString::number(config.Gain));
+    ui->label_RJVal->setText(QString::number(config.reject));
+    ui->label_G1stVal->setText(QString::number(config.g1_start));
+    ui->label_G1EDVal->setText(QString::number(config.g1_end));
+    ui->label_TH1Val->setText(QString::number(config.th1));
+    ui->label_G2stval->setText(QString::number(config.g2_start));
+    ui->label_G2EDVal->setText(QString::number(config.g2_end));
+    ui->label_TH2val->setText(QString::number(config.th2));
+    ui->label_angleval->setText(QString::number(config.Angle));
+    ui->label_Delyval->setText(QString::number(config.delay));
+    ui->label_RangeVal->setText(QString::number(config.range));
 
     ui->label_G1->setStyleSheet("QLabel { color : #219601; }");
     ui->label_G2->setStyleSheet("QLabel { color : #0818ff; }");
@@ -325,7 +325,7 @@ void PreviewScreen::setupPlotAppearance()
     // Configure a fixed ticker for the X-axis
     QSharedPointer<QCPAxisTickerFixed> xTicker(new QCPAxisTickerFixed);
 
-    xTicker->setTickStep(entry.range/(10));
+    xTicker->setTickStep(config.range/(10));
     xTicker->setScaleStrategy(QCPAxisTickerFixed::ssNone);
     ui->Plot->xAxis->setTicker(xTicker);
     ui->Plot->xAxis->setBasePen(QPen(Qt::black));
@@ -403,7 +403,7 @@ void PreviewScreen::on_pushButton_save_clicked()
     //                           .arg(wheelNo)
     //                           .arg(frameNo);
 
-    QString jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5.jpg").arg(dateFolder).arg(entry.channel).arg(TP).arg(km).arg(M);
+    QString jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5.jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M);
 
     if (!scaledJpg.save(jpgFileName, "JPG", 90))
         qWarning() << "Failed to save JPG:" << jpgFileName;

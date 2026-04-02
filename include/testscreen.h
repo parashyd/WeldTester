@@ -71,7 +71,6 @@ private slots:
     void setupPlotAppearance();
     void updateGridInterval();
     void autoRunConfig();
-    void saveTo_entry();
     void handleDigitInput(int digit);
    // void navigateFocusVertical(int direction, bool forceStartFromGain);
      void navigateFocusVertical(int direction);

@@ -203,7 +203,6 @@ TestScreen::TestScreen(QWidget *parent)
     loadSavedConfig();
     UserVelocity = Postlog.velocity;
 
-    RANGE_FACTOR = 3.4;
     ui->lineEdit_Mode->setText("SC");
     ui->label_DAC->setVisible(false);
     ui->lineEdit_CP->setVisible(false);
@@ -463,7 +462,7 @@ void TestScreen::onSocketReadyRead()
     case CH_A:
         receivedChannel = "1";
         ui->lineEdit_ch->setText(receivedChannel);
-        entry.channel = 1;
+        //entry.channel = 1;
         config.channel =1;
         autoRunConfig();
         break;
@@ -471,7 +470,7 @@ void TestScreen::onSocketReadyRead()
     case CH_B:
         receivedChannel = "2";
         ui->lineEdit_ch->setText(receivedChannel);
-        entry.channel = 2;
+       // entry.channel = 2;
         config.channel =2;
         autoRunConfig();
         break;
@@ -650,6 +649,9 @@ void TestScreen::onSocketReadyRead()
             stackedWidget->setCurrentWidget(openlogScreen);
             return;
         }
+        else{
+            updateConfigFile("Config.txt",config);
+        }
 
         // 2️⃣ For line edits and other widgets, just save / apply
         qDebug() << "OK Pressed";
@@ -725,7 +727,7 @@ void TestScreen::onSocketReadyRead()
                 {
 
                     handleDigitInput(mapped - '0');  // '1' -> 1
-                    saveTo_entry();
+                   // saveTo_entry();
                     autoRunConfig();
                     onApplyGainClicked();
                 }
@@ -962,8 +964,8 @@ void TestScreen::adjustAudioLevel(void)
 
 void TestScreen::handleSaveFlow()
 {
-    saveTo_entry();  // Always save key press
-    updateConfigFile("Config.txt",config);
+  // saveTo_entry();  // Always save key press
+    //updateConfigFile("Config.txt",config);
     qDebug() << "Save button triggered";
 
     // -------- CASE 1: PreviewScreen is open --------
@@ -1118,7 +1120,7 @@ void TestScreen::autoRunConfig()
 
 
     //config.reject = config.reject / REJECT_FACTOR;
-    config.Gain   = config.Gain / GAIN_FACTOR;
+    //config.Gain   = config.Gain / GAIN_FACTOR;
 
     ui->lineEdit_Range->setText(QString::number(config.range, 'd', 0));
     ui->lineEdit_Delay->setText(QString::number(config.delay, 'd', 0));
@@ -1390,7 +1392,7 @@ bool TestScreen::updateConfigFile(const QString &filePath, const ConfigEntry &up
                            .arg(updatedConfig.g2_start)
                            .arg(updatedConfig.g2_end)
                            .arg(updatedConfig.th2)
-                           .arg(static_cast<int>(gain))
+                           .arg(static_cast<double>(gain))
                            .arg(static_cast<int>(updatedConfig.Angle));
                 lineUpdated = true;
             }
@@ -1420,76 +1422,6 @@ bool TestScreen::updateConfigFile(const QString &filePath, const ConfigEntry &up
     return true;
 }
 
-void TestScreen::saveTo_entry()
-{
-    auto clampDouble = [](double v, double min, double max)
-    {
-        return std::clamp(v, min, max);
-    };
-
-    auto clampInt = [](int v, int min, int max)
-    {
-        return std::clamp(v, min, max);
-    };
-
-    // ---------- Gain (0–80, step 0.5) ----------
-    double gain = ui->lineEdit_Gain->text().toDouble();
-    gain = qRound(gain * 2.0) / 2.0;     // round to nearest 0.5
-    gain = clampDouble(gain, 0.0, 80.0);
-    entry.Gain = gain * GAIN_FACTOR;
-
-    // ---------- Range (50–1000) ----------
-    double range = ui->lineEdit_Range->text().toDouble();
-    range = clampDouble(range, 50.0, 1000.0);
-    entry.range = range;
-
-    // ---------- Delay (0–100) ----------
-    double delay = ui->lineEdit_Delay->text().toDouble();
-    delay = clampDouble(delay, 0.0, 100.0);
-    entry.delay = delay;
-
-    // ---------- Reject (0–80) ----------
-    double reject = ui->lineEdit_Reject->text().toDouble();
-    reject = clampDouble(reject, 0.0, 80.0);
-    // entry.reject = reject * REJECT_FACTOR;
-    entry.reject = reject;
-
-    // ---------- Thresholds (5–99) ----------
-    int th1 = clampInt(ui->lineEdit_TH1->text().toInt(), 5, 99);
-    int th2 = clampInt(ui->lineEdit_TH2->text().toInt(), 5, 99);
-    entry.th1 = th1;
-    entry.th2 = th2;
-
-    // ---------- Gate 1 (5–99) ----------
-    int g1Start = clampInt(ui->lineEdit_G1ST->text().toInt(), 5, 99);
-    int g1End   = clampInt(ui->lineEdit_G1ED->text().toInt(), 5, 99);
-
-    if (g1Start <= g1End)
-    {
-        entry.g1_start = g1Start;
-        entry.g1_end   = g1End;
-    }
-
-    // ---------- Gate 2 (5–99) ----------
-    int g2Start = clampInt(ui->lineEdit_G2ST->text().toInt(), 5, 99);
-    int g2End   = clampInt(ui->lineEdit_G2ED->text().toInt(), 5, 99);
-
-    if (g2Start <= g2End)
-    {
-        entry.g2_start = g2Start;
-        entry.g2_end   = g2End;
-    }
-
-    // ---------- Other fields ----------
-    entry.Angle   = ui->lineEdit_Angle->text().toFloat();
-    entry.calset  = ui->lineEdit_calset->text().toInt();
-    entry.channel = ui->lineEdit_ch->text().toInt();
-
-    MachNo       = ui->lineEdit_Machine->text();
-    DC_SC_mode   = ui->lineEdit_Mode->text();
-
-    config = entry;
-}
 
 void TestScreen::updateGridInterval()
 {
@@ -1526,12 +1458,12 @@ void TestScreen::HandleGateUpDownLift(int lift){
     if(gate1_focus)
     {
         Th = ui->lineEdit_TH1;
-        adjustlift(entry.th1,5,99);
+        adjustlift(config.th1,5,99);
     }
     else
     {
         Th = ui->lineEdit_TH2;
-        adjustlift(entry.th2,5,99);
+        adjustlift(config.th2,5,99);
     }
 }
 void TestScreen::HandleGateShift(int shift){
@@ -1553,8 +1485,8 @@ void TestScreen::HandleGateShift(int shift){
         if(shift == 1 && g1_end == 99)  //if gate reaches ending point return
             return;
 
-        adjustshift(entry.g1_start,5,99,ui->lineEdit_G1ST);
-        adjustshift(entry.g1_end,5,99,ui->lineEdit_G1ED);
+        adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST);
+        adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED);
 
     }
     else
@@ -1565,8 +1497,8 @@ void TestScreen::HandleGateShift(int shift){
         if(shift == 1 && g2_end == 99)  //if gate reaches ending point return
             return;
 
-        adjustshift(entry.g2_start,5,99,ui->lineEdit_G2ST);
-        adjustshift(entry.g2_end,5,99,ui->lineEdit_G2ED);
+        adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST);
+        adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED);
     }
 
 }
@@ -1692,26 +1624,26 @@ void TestScreen::handleDigitInput(int digit)
     if (value < min)
         value = min;
 
-    if      (focused == ui->lineEdit_calset)   entry.calset   = value;
+    if      (focused == ui->lineEdit_calset)   config.calset   = value;
     else if (focused == ui->lineEdit_Velocity)
     {
-        entry.velocity = value;
+        config.velocity = value;
         UserVelocity = value;
 
         // if (value != 0)
         //     RANGE_FACTOR = 20000.0 / value;
     }
-    else if (focused == ui->lineEdit_Gain)     entry.Gain     = value;
-    else if (focused == ui->lineEdit_Range)    entry.range    = value;
-    else if (focused == ui->lineEdit_Delay)    entry.delay    = value;
-    else if (focused == ui->lineEdit_Reject)   entry.reject   = value;
-    else if (focused == ui->lineEdit_Angle)    entry.Angle    = value;
-    else if (focused == ui->lineEdit_G1ST)     entry.g1_start = value;
-    else if (focused == ui->lineEdit_G1ED)     entry.g1_end   = value;
-    else if (focused == ui->lineEdit_TH1)      entry.th1      = value;
-    else if (focused == ui->lineEdit_G2ST)     entry.g2_start = value;
-    else if (focused == ui->lineEdit_G2ED)     entry.g2_end   = value;
-    else if (focused == ui->lineEdit_TH2)      entry.th2      = value;
+    else if (focused == ui->lineEdit_Gain)     config.Gain     = value;
+    else if (focused == ui->lineEdit_Range)    config.range    = value;
+    else if (focused == ui->lineEdit_Delay)    config.delay    = value;
+    else if (focused == ui->lineEdit_Reject)   config.reject   = value;
+    else if (focused == ui->lineEdit_Angle)    config.Angle    = value;
+    else if (focused == ui->lineEdit_G1ST)     config.g1_start = value;
+    else if (focused == ui->lineEdit_G1ED)     config.g1_end   = value;
+    else if (focused == ui->lineEdit_TH1)      config.th1      = value;
+    else if (focused == ui->lineEdit_G2ST)     config.g2_start = value;
+    else if (focused == ui->lineEdit_G2ED)     config.g2_end   = value;
+    else if (focused == ui->lineEdit_TH2)      config.th2      = value;
 }
 
 void TestScreen::adjustCurrentLineEdit(int delta)
@@ -1735,7 +1667,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
             return;
         }
         if(g1_start<=g1_end)
-            adjustValue(entry.g1_end, 5, 99);
+            adjustValue(config.g1_end, 5, 99);
         return;
     }
     else if(gate2_focus){
@@ -1744,24 +1676,24 @@ void TestScreen::adjustCurrentLineEdit(int delta)
             return;
         }
         if(g2_start<=g2_end)
-            adjustValue(entry.g2_end, 5, 99);
+            adjustValue(config.g2_end, 5, 99);
         return;
     }
 
     if (focused == ui->lineEdit_Gain)
-    {       adjustValue(entry.Gain,   0, 80) ;
+    {       adjustValue(config.Gain,   0, 80) ;
             onApplyGainClicked();
     }
-    else if (focused == ui->lineEdit_Range)  {adjustValue(entry.range,  50, 1000);} // assume range is double
-    else if (focused == ui->lineEdit_Delay)  adjustValue(entry.delay,  0, 100); // float or int
-    else if (focused == ui->lineEdit_Reject) adjustValue(entry.reject, 0, 80);  // float or int
-    else if (focused == ui->lineEdit_Angle)  adjustValue(entry.Angle,  0, 90);  // float
-    else if (focused == ui->lineEdit_G1ST)   adjustValue(entry.g1_start, 5, 99); // int
-    else if (focused == ui->lineEdit_G1ED)   adjustValue(entry.g1_end,   5, 99); // int
-    else if (focused == ui->lineEdit_TH1)    adjustValue(entry.th1,      5, 99); // int
-    else if (focused == ui->lineEdit_G2ST)   adjustValue(entry.g2_start, 5, 99); // int
-    else if (focused == ui->lineEdit_G2ED)   adjustValue(entry.g2_end,   5, 99); // int
-    else if (focused == ui->lineEdit_TH2)    adjustValue(entry.th2,      5, 99); // int
+    else if (focused == ui->lineEdit_Range)  {adjustValue(config.range,  50, 1000);} // assume range is double
+    else if (focused == ui->lineEdit_Delay)  adjustValue(config.delay,  0, 100); // float or int
+    else if (focused == ui->lineEdit_Reject) adjustValue(config.reject, 0, 80);  // float or int
+    else if (focused == ui->lineEdit_Angle)  adjustValue(config.Angle,  0, 90);  // float
+    else if (focused == ui->lineEdit_G1ST)   adjustValue(config.g1_start, 5, 99); // int
+    else if (focused == ui->lineEdit_G1ED)   adjustValue(config.g1_end,   5, 99); // int
+    else if (focused == ui->lineEdit_TH1)    adjustValue(config.th1,      5, 99); // int
+    else if (focused == ui->lineEdit_G2ST)   adjustValue(config.g2_start, 5, 99); // int
+    else if (focused == ui->lineEdit_G2ED)   adjustValue(config.g2_end,   5, 99); // int
+    else if (focused == ui->lineEdit_TH2)    adjustValue(config.th2,      5, 99); // int
 
     else if (focused == ui->lineEdit_CP)
     {
@@ -1851,19 +1783,19 @@ void TestScreen::handleBackspaceInput()
         value = min;
     }
 
-    if      (focused == ui->lineEdit_calset)   entry.calset   = value;
-    else if (focused == ui->lineEdit_Velocity) entry.velocity = value;
-    else if (focused == ui->lineEdit_Gain)     entry.Gain     = value;
-    else if (focused == ui->lineEdit_Range)    entry.range    = value;
-    else if (focused == ui->lineEdit_Delay)    entry.delay    = value;
-    else if (focused == ui->lineEdit_Reject)   entry.reject   = value;
-    else if (focused == ui->lineEdit_Angle)    entry.Angle    = value;
-    else if (focused == ui->lineEdit_G1ST)     entry.g1_start = value;
-    else if (focused == ui->lineEdit_G1ED)     entry.g1_end   = value;
-    else if (focused == ui->lineEdit_TH1)      entry.th1      = value;
-    else if (focused == ui->lineEdit_G2ST)     entry.g2_start = value;
-    else if (focused == ui->lineEdit_G2ED)     entry.g2_end   = value;
-    else if (focused == ui->lineEdit_TH2)      entry.th2      = value;
+    if      (focused == ui->lineEdit_calset)   config.calset   = value;
+    else if (focused == ui->lineEdit_Velocity) config.velocity = value;
+    else if (focused == ui->lineEdit_Gain)     config.Gain     = value;
+    else if (focused == ui->lineEdit_Range)    config.range    = value;
+    else if (focused == ui->lineEdit_Delay)    config.delay    = value;
+    else if (focused == ui->lineEdit_Reject)   config.reject   = value;
+    else if (focused == ui->lineEdit_Angle)    config.Angle    = value;
+    else if (focused == ui->lineEdit_G1ST)     config.g1_start = value;
+    else if (focused == ui->lineEdit_G1ED)     config.g1_end   = value;
+    else if (focused == ui->lineEdit_TH1)      config.th1      = value;
+    else if (focused == ui->lineEdit_G2ST)     config.g2_start = value;
+    else if (focused == ui->lineEdit_G2ED)     config.g2_end   = value;
+    else if (focused == ui->lineEdit_TH2)      config.th2      = value;
 
 }
 
@@ -1883,9 +1815,9 @@ void TestScreen::FunctionLeftRight(bool increment)
     // Clamp
     gain = qBound(0.0, gain, 80.0);
 
-    entry.Gain = gain;
+    config.Gain = gain;
 
-    qDebug() <<  "decimalGain" << entry.Gain;
+    qDebug() <<  "decimalGain" << config.Gain;
 
     focused->setText(QString::number(gain, 'f', 1));
 }
@@ -1922,7 +1854,7 @@ void TestScreen::onApplyGainClicked()
         return;
     }
 
-    int userGainVal = static_cast<int>(userGain * GAIN_FACTOR); // 🔹 SCALE AFTER DOUBLE
+    int userGainVal = static_cast<int>(userGain); //  SCALE AFTER DOUBLE
 
     int gain_ch1 = 0;
     int gain_ch2 = 0;
@@ -1943,11 +1875,11 @@ void TestScreen::onApplyGainClicked()
      * 2. Decide gains
      * ------------------------------------------------- */
     if (selectedCh == 1) {
-        gain_ch1 = userGainVal;
-        gain_ch2 = static_cast<int>(otherCfg.Gain);
+        gain_ch1 = userGainVal * GAIN_FACTOR;
+        gain_ch2 = static_cast<int>(otherCfg.Gain * GAIN_FACTOR);
     } else {
-        gain_ch2 = userGainVal;
-        gain_ch1 = static_cast<int>(selectedCfg.Gain);
+        gain_ch2 = userGainVal* GAIN_FACTOR;
+        gain_ch1 = static_cast<int>(selectedCfg.Gain * GAIN_FACTOR);
     }
 
     qDebug() << "Applying gains -> CH1:" << gain_ch1
@@ -2009,16 +1941,16 @@ void TestScreen::loadSavedConfig()
 
 void TestScreen::saveConfigToFile()
 {
-    QJsonObject config;
-    config["channel"] = entry.channel;
-    config["calset"]  = entry.calset;
-    config["velocity"] = UserVelocity;
+    QJsonObject qconfig;
+    qconfig["channel"] = config.channel;
+    qconfig["calset"]  = config.calset;
+    qconfig["velocity"] = UserVelocity;
 
-    QFile file(QCoreApplication::applicationDirPath() + "/config_saved.json");
+    QFile file(QCoreApplication::applicationDirPath() + "/config_d.json");
     qDebug() << "Saving to:" << QCoreApplication::applicationDirPath() + "/config_saved.json";
 
     if (file.open(QIODevice::WriteOnly)) {
-        file.write(QJsonDocument(config).toJson());
+        file.write(QJsonDocument(qconfig).toJson());
         file.close();
     }
 }

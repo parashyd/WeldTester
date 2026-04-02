@@ -83,10 +83,10 @@ TestDetails::TestDetails(QWidget *parent)
 
     testdetails->lineEdit_UnitNo->setText(QString::number(0113));                    //unitno: taken from bin file
 
-    testdetails->lineEdit_CH->setText(QString::number(entry.channel));
-    testdetails->lineEdit_Calset->setText(QString::number(entry.calset));
+    testdetails->lineEdit_CH->setText(QString::number(config.channel));
+    testdetails->lineEdit_Calset->setText(QString::number(config.calset));
 
-    testdetails->comboBox_Probe->setCurrentIndex(entry.Angle);                  // Angle (correction)
+    testdetails->comboBox_Probe->setCurrentIndex(config.Angle);                  // Angle (correction)
     testdetails->comboBox_Mode->setCurrentText(DC_SC_mode);
 
     testdetails->comboBox_LocOfDefect->setEditable(false);
