@@ -203,7 +203,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>AT-211D</string>
+     <string>WT-0001</string>
     </property>
     <property name="readOnly">
      <bool>true</bool>
@@ -829,6 +829,19 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignmentFlag::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_offset">
+    <property name="geometry">
+     <rect>
+      <x>530</x>
+      <y>53</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>offset :</string>
     </property>
    </widget>
   </widget>

@@ -61,7 +61,10 @@ QMap<int, KeyPressState> keyStates;
 KeyPressState calsetState;
 QVector<double> xDataFreeze , yDataFreeze,DACx, DACy;
 QVector<double> xData, yData;
+QVector<float> gain_offsetArr;
+QVector<int> range_offsetArr,delay_offsetArr,reject_offsetArr;
 
+int gain_Offset_i,range_Offset_i,delay_Offset_i,reject_Offset_i;
 Openlog *openlogScreen = nullptr;
 
 
@@ -85,9 +88,14 @@ TestScreen::TestScreen(QWidget *parent)
         font-weight:500;
     }
 
+    #label_offset{
+        color: #f57c00;               /*orange*/
+        font-weight:bold;
+    }
+
     /* DAC Highlight */
     #label_DAC{
-        color:#d32f2f;
+        color:#d32f2f;             /*red*/
         font-weight:bold;
     }
 
@@ -151,6 +159,17 @@ TestScreen::TestScreen(QWidget *parent)
 
     )");
 
+
+    gain_offsetArr={0.5,1,2,3,6,10};
+    range_offsetArr={1,2,5,10,50,100};
+    delay_offsetArr={1,2,5,10,50,100};
+    reject_offsetArr={1,2,5,10,20,30};
+
+    gain_Offset_i=0;
+    range_Offset_i=0;
+    delay_Offset_i=0;
+    reject_Offset_i=0;
+
     ui->setupUi(this);
     DACx.resize(10);
     DACy.resize(10);
@@ -206,6 +225,7 @@ TestScreen::TestScreen(QWidget *parent)
     ui->lineEdit_Mode->setText("SC");
     ui->label_DAC->setVisible(false);
     ui->lineEdit_CP->setVisible(false);
+    ui->label_offset->setVisible(false);
 
     autoRunConfig();
     onApplyGainClicked();
@@ -508,6 +528,7 @@ void TestScreen::onSocketReadyRead()
             gate2_focus = false;
             g1border->setVisible(false);
             g2border->setVisible(false);
+            ui->label_offset->setVisible(false);
             qDebug() <<"calset Active";
             prepareCalsetInput();
         }
@@ -1527,6 +1548,8 @@ void TestScreen::navigateFocusVertical(int direction)
    if (!current || !navWidgets.contains(current)){
         current = ui->lineEdit_Gain;
         setLogicalFocus(current);
+        ui->label_offset->setVisible(true);
+        ui->label_offset->setText("offset : " + QString::number(gain_offsetArr[gain_Offset_i],'f',1 ));
         return;
     }
 
@@ -1540,8 +1563,30 @@ void TestScreen::navigateFocusVertical(int direction)
         newIndex = 0;
 
     QWidget *newWidget = navWidgets[newIndex];
+    if(newWidget == ui->pushButton ||
+        newWidget == ui->lineEdit_Angle ||
+        newWidget == ui->lineEdit_G1ST ||
+        newWidget == ui->lineEdit_G1ED ||
+        newWidget == ui->lineEdit_TH1 ||
+        newWidget == ui->lineEdit_G2ST ||
+        newWidget == ui->lineEdit_G2ED ||
+        newWidget == ui->lineEdit_TH2
+        )
+    {
+        ui->label_offset->setVisible(false);
+    }
+    else{
+        ui->label_offset->setVisible(true);
+    }
+
+    if(newWidget == ui->lineEdit_Gain) ui->label_offset->setText("offset : "+QString::number(gain_offsetArr[gain_Offset_i],'f',0));
+    else if(newWidget == ui->lineEdit_Range) ui->label_offset->setText("offset : "+QString::number(range_offsetArr[range_Offset_i]));
+    else if(newWidget == ui->lineEdit_Delay) ui->label_offset->setText("offset : "+QString::number(delay_offsetArr[delay_Offset_i]));
+    else if(newWidget == ui->lineEdit_Reject) ui->label_offset->setText("offset : "+QString::number(reject_offsetArr[reject_Offset_i]));
 
     setLogicalFocus(newWidget);
+
+
     // newWidget->setFocus(Qt::OtherFocusReason);
 
     // 🔹 Move cursor for LineEdit
@@ -1653,12 +1698,15 @@ void TestScreen::adjustCurrentLineEdit(int delta)
         return;
 
 
-    auto adjustValue = [&](auto& field, int minVal, int maxVal) {
+    auto adjustValue = [&](auto& field, int minVal, int maxVal,float off) {
         using T = std::decay_t<decltype(field)>;
         T current = static_cast<T>(focused->text().toDouble());
-        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(delta), static_cast<T>(maxVal));
+        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(delta * off), static_cast<T>(maxVal));
         field = newValue;
-        focused->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
+        if(focused==ui->lineEdit_Gain)
+            focused->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
+        else
+            focused->setText(QString::number(newValue, 'd',0));
     };
 
     if(gate1_focus){
@@ -1667,7 +1715,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
             return;
         }
         if(g1_start<=g1_end)
-            adjustValue(config.g1_end, 5, 99);
+            adjustValue(config.g1_end, 5, 99,1);
         return;
     }
     else if(gate2_focus){
@@ -1676,24 +1724,24 @@ void TestScreen::adjustCurrentLineEdit(int delta)
             return;
         }
         if(g2_start<=g2_end)
-            adjustValue(config.g2_end, 5, 99);
+            adjustValue(config.g2_end, 5, 99,1);
         return;
     }
 
     if (focused == ui->lineEdit_Gain)
-    {       adjustValue(config.Gain,   0, 80) ;
+    {       adjustValue(config.Gain,   0, 80, gain_offsetArr[gain_Offset_i]) ;
             onApplyGainClicked();
     }
-    else if (focused == ui->lineEdit_Range)  {adjustValue(config.range,  50, 1000);} // assume range is double
-    else if (focused == ui->lineEdit_Delay)  adjustValue(config.delay,  0, 100); // float or int
-    else if (focused == ui->lineEdit_Reject) adjustValue(config.reject, 0, 80);  // float or int
-    else if (focused == ui->lineEdit_Angle)  adjustValue(config.Angle,  0, 90);  // float
-    else if (focused == ui->lineEdit_G1ST)   adjustValue(config.g1_start, 5, 99); // int
-    else if (focused == ui->lineEdit_G1ED)   adjustValue(config.g1_end,   5, 99); // int
-    else if (focused == ui->lineEdit_TH1)    adjustValue(config.th1,      5, 99); // int
-    else if (focused == ui->lineEdit_G2ST)   adjustValue(config.g2_start, 5, 99); // int
-    else if (focused == ui->lineEdit_G2ED)   adjustValue(config.g2_end,   5, 99); // int
-    else if (focused == ui->lineEdit_TH2)    adjustValue(config.th2,      5, 99); // int
+    else if (focused == ui->lineEdit_Range)  {adjustValue(config.range,  50, 1000, range_offsetArr[range_Offset_i]);} // assume range is double
+    else if (focused == ui->lineEdit_Delay)  adjustValue(config.delay,  0, 100, delay_offsetArr[delay_Offset_i]); // float or int
+    else if (focused == ui->lineEdit_Reject) adjustValue(config.reject, 0, 80, reject_offsetArr[reject_Offset_i]);  // float or int
+    else if (focused == ui->lineEdit_Angle)  adjustValue(config.Angle,  0, 90,1);  // float
+    else if (focused == ui->lineEdit_G1ST)   adjustValue(config.g1_start, 5, 99,1); // int
+    else if (focused == ui->lineEdit_G1ED)   adjustValue(config.g1_end,   5, 99,1); // int
+    else if (focused == ui->lineEdit_TH1)    adjustValue(config.th1,      5, 99,1); // int
+    else if (focused == ui->lineEdit_G2ST)   adjustValue(config.g2_start, 5, 99,1); // int
+    else if (focused == ui->lineEdit_G2ED)   adjustValue(config.g2_end,   5, 99,1); // int
+    else if (focused == ui->lineEdit_TH2)    adjustValue(config.th2,      5, 99,1); // int
 
     else if (focused == ui->lineEdit_CP)
     {
@@ -1802,24 +1850,74 @@ void TestScreen::handleBackspaceInput()
 void TestScreen::FunctionLeftRight(bool increment)
 {
     QLineEdit* focused = qobject_cast<QLineEdit*>(focusWidget());
-    if (focused != ui->lineEdit_Gain)
-        return;
-
-    double gain = focused->text().toDouble();
-
-    if (increment)
-        gain += 0.5;
-    else
-        gain -= 0.5;
-
-    // Clamp
-    gain = qBound(0.0, gain, 80.0);
-
-    config.Gain = gain;
-
-    qDebug() <<  "decimalGain" << config.Gain;
-
-    focused->setText(QString::number(gain, 'f', 1));
+    if(focused == ui->lineEdit_Gain)
+    {
+        if(increment){
+            if((gain_Offset_i+1)<gain_offsetArr.size()){
+                gain_Offset_i++;
+                ui->label_offset->setText("offset : " + QString::number(gain_offsetArr[gain_Offset_i],'f',1));
+                return;
+            }
+        }
+        else{
+            if((gain_Offset_i-1)>=0){
+                gain_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(gain_offsetArr[gain_Offset_i],'f',1));
+                return;
+            }
+        }
+    }
+    else if(focused == ui->lineEdit_Range)
+    {
+        if(increment){
+            if((range_Offset_i+1)<range_offsetArr.size()){
+                range_Offset_i++;
+                ui->label_offset->setText("offset : " + QString::number(range_offsetArr[range_Offset_i],'d',0));
+                return;
+            }
+        }
+        else{
+            if((range_Offset_i-1)>=0){
+                range_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(range_offsetArr[range_Offset_i],'d',0));
+                return;
+            }
+        }
+    }
+    else if(focused == ui->lineEdit_Delay)
+    {
+        if(increment){
+            if((delay_Offset_i+1)<delay_offsetArr.size()){
+                delay_Offset_i++;
+                ui->label_offset->setText("offset : " + QString::number(delay_offsetArr[delay_Offset_i],'d',0));
+                return;
+            }
+        }
+        else{
+            if((delay_Offset_i-1)>=0){
+                delay_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(delay_offsetArr[delay_Offset_i],'d',0));
+                return;
+            }
+        }
+    }
+    else if(focused == ui->lineEdit_Reject)
+    {
+        if(increment){
+            if((reject_Offset_i+1)<reject_offsetArr.size()){
+                reject_Offset_i++;
+                ui->label_offset->setText("offset : " + QString::number(reject_offsetArr[reject_Offset_i],'d',0));
+                return;
+            }
+        }
+        else{
+            if((reject_Offset_i-1)>=0){
+                reject_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(reject_offsetArr[reject_Offset_i],'d',0));
+                return;
+            }
+        }
+    }
 }
 
 
