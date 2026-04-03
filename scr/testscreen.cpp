@@ -1489,10 +1489,10 @@ void TestScreen::HandleGateUpDownLift(int lift){
 }
 void TestScreen::HandleGateShift(int shift){
 
-    auto adjustshift = [&](auto& field, int minVal, int maxVal,QLineEdit* L) {
+    auto adjustshift = [&](auto& field, int minVal, int maxVal,QLineEdit* L,int k) {
         using T = std::decay_t<decltype(field)>;
         T current = static_cast<T>(L->text().toDouble());
-        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(shift * 5), static_cast<T>(maxVal));
+        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(shift * k), static_cast<T>(maxVal));
         field = newValue;
         L->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
     };
@@ -1506,8 +1506,22 @@ void TestScreen::HandleGateShift(int shift){
         if(shift == 1 && g1_end == 99)  //if gate reaches ending point return
             return;
 
-        adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST);
-        adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED);
+        if (shift==-1 && g1_start<10){
+            int k=((int)g1_start-5)%5;
+            adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
+            adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
+            return;
+        }
+
+        if(shift == 1 && g1_end>94){
+            int k = (99-(int)g1_end)%5 ;
+            adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
+            adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
+            return;
+        }
+
+        adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,5);
+        adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,5);
 
     }
     else
@@ -1518,8 +1532,22 @@ void TestScreen::HandleGateShift(int shift){
         if(shift == 1 && g2_end == 99)  //if gate reaches ending point return
             return;
 
-        adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST);
-        adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED);
+        if (shift==-1 && g2_start<10){
+            int k =((int)g2_start-5)%5;
+            adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
+            adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
+            return;
+        }
+
+        if(shift == 1 && g2_end>94){
+            int k =(99-(int)g2_end)%5;
+            adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
+            adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
+            return;
+        }
+
+        adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,5);
+        adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,5);
     }
 
 }
