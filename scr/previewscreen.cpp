@@ -138,11 +138,11 @@ void PreviewScreen::plotGraphFromFilePS()
         for (double addr : xData)
             config.Angle>30?xDataNormalized.append(addr / RANGE_FACTOR_GT30 ):xDataNormalized.append(addr / RANGE_FACTOR_LT30 );
     }
-    double normG1Start = (g1_start * config.range)/100;
-    double normG1End   = (g1_end * config.range)/100;
+    double normG1Start = (config.g1_start * config.range)/100;
+    double normG1End   = (config.g1_end * config.range)/100;
 
-    double normG2Start = (g2_start * config.range) / 100.0;
-    double normG2End   = (g2_end * config.range) / 100.0;
+    double normG2Start = (config.g2_start * config.range) / 100.0;
+    double normG2End   = (config.g2_end * config.range) / 100.0;
 
     double ph1Value = 0, ph2Value = 0, phValue=0;
     int peakIndex1 = -1, peakIndex2 = -1,peakIndex=-1;
@@ -285,13 +285,13 @@ void PreviewScreen::plotGraphFromFilePS()
     // Threshold lines (no delay offset needed anymore)
     ui->Plot->addGraph();
     ui->Plot->graph(0)->setData(QVector<double>{normG1Start,normG1End},
-                                QVector<double>{th1, th1});
+                                QVector<double>{(double)config.th1,(double) config.th1});
     //qDebug() <<"Gs"<<normG1Start <<"GE"<<normG1End;
     ui->Plot->graph(0)->setPen(QPen(QColor("#219601"), 2)); // Green
 
     ui->Plot->addGraph();
     ui->Plot->graph(1)->setData(QVector<double>{normG2Start , normG2End},
-                                QVector<double>{th2, th2});
+                                QVector<double>{(double)config.th2,( double)config.th2});
     ui->Plot->graph(1)->setPen(QPen(QColor("#0818ff"), 2)); // Blue
 
     ui->Plot->xAxis->setRange(0, config.range);

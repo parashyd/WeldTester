@@ -42,7 +42,7 @@ InputMode currentInputMode = InputMode_None;
 QString MachNo,DC_SC_mode,calsetStr;
 
 
-double ph1Value = 0, ph2Value = 0,phValue = 0,xPeakIndex1=-1,maxX, maxY,th1, g1_start, g1_end,th2, g2_start, g2_end;
+double ph1Value = 0, ph2Value = 0,phValue = 0,xPeakIndex1=-1,maxX, maxY;
 float RANGE_FACTOR, DELAY_FACTOR = 3.4, m_audioPercent = 0;
 //float RANGE_FACTOR_LT30 = 3.4;
 float RANGE_FACTOR_LT30 = 3.3;
@@ -266,35 +266,35 @@ TestScreen::TestScreen(QWidget *parent)
     BatteryUpdateTimer->start(3000);          // 3sec
 
     // In constructor or initialization
-    connect(ui->lineEdit_G1ST, &QLineEdit::textChanged, this, [this](const QString &){
-    g1_start = ui->lineEdit_G1ST->text().toDouble();        // update value
-        updateGraphWithData();                              // redraw graph
-    });
+    // connect(ui->lineEdit_G1ST, &QLineEdit::textChanged, this, [this](const QString &){
+    // g1_start = ui->lineEdit_G1ST->text().toDouble();        // update value
+    //     updateGraphWithData();                              // redraw graph
+    // });
 
-    connect(ui->lineEdit_G1ED, &QLineEdit::textChanged, this, [this](const QString &){
-        g1_end = ui->lineEdit_G1ED->text().toDouble();
-        updateGraphWithData();
-    });
+    // connect(ui->lineEdit_G1ED, &QLineEdit::textChanged, this, [this](const QString &){
+    //     g1_end = ui->lineEdit_G1ED->text().toDouble();
+    //     updateGraphWithData();
+    // });
 
-    connect(ui->lineEdit_TH1, &QLineEdit::textChanged, this, [this](const QString &){
-        th1 = ui->lineEdit_TH1->text().toDouble();
-        updateGraphWithData();
-    });
+    // connect(ui->lineEdit_TH1, &QLineEdit::textChanged, this, [this](const QString &){
+    //     th1 = ui->lineEdit_TH1->text().toDouble();
+    //     updateGraphWithData();
+    // });
 
-    connect(ui->lineEdit_G2ST, &QLineEdit::textChanged, this, [this](const QString &){
-        g2_start = ui->lineEdit_G2ST->text().toDouble();
-        updateGraphWithData();                              // redraw graph
-    });
+    // connect(ui->lineEdit_G2ST, &QLineEdit::textChanged, this, [this](const QString &){
+    //     g2_start = ui->lineEdit_G2ST->text().toDouble();
+    //     updateGraphWithData();                              // redraw graph
+    // });
 
-    connect(ui->lineEdit_G2ED, &QLineEdit::textChanged, this, [this](const QString &){
-        g2_end = ui->lineEdit_G2ED->text().toDouble();
-        updateGraphWithData();
-    });
+    // connect(ui->lineEdit_G2ED, &QLineEdit::textChanged, this, [this](const QString &){
+    //     g2_end = ui->lineEdit_G2ED->text().toDouble();
+    //     updateGraphWithData();
+    // });
 
-    connect(ui->lineEdit_TH2, &QLineEdit::textChanged, this, [this](const QString &){
-        th2 = ui->lineEdit_TH2->text().toDouble();
-        updateGraphWithData();
-    });
+    // connect(ui->lineEdit_TH2, &QLineEdit::textChanged, this, [this](const QString &){
+    //     th2 = ui->lineEdit_TH2->text().toDouble();
+    //     updateGraphWithData();
+    // });
 
 
     ui->label_freeze->setVisible(false);//Make Freeze disable initially
@@ -838,11 +838,11 @@ void TestScreen::handleFreezeLogic(void)//Varun added to handle freeze logic
     // -----------------------------
     // Compute G1/G2 range windows
     // -----------------------------
-    double g1Start = (g1_start * config.range) / 100.0;
-    double g1End   = (g1_end   * config.range) / 100.0;
+    double g1Start = (config.g1_start * config.range) / 100.0;
+    double g1End   = (config.g1_end   * config.range) / 100.0;
 
-    double g2Start = (g2_start * config.range) / 100.0;
-    double g2End   = (g2_end   * config.range) / 100.0;
+    double g2Start = (config.g2_start * config.range) / 100.0;
+    double g2End   = (config.g2_end   * config.range) / 100.0;
 
     // -----------------------------
     // Peak detection
@@ -921,10 +921,10 @@ void TestScreen::handleFreezeLogic(void)//Varun added to handle freeze logic
     // Plot Update (no crashes)
     // -----------------------------
     g1Line->setData(QVector<double>{g1Start, g1End},
-                    QVector<double>{th1, th1});
+                    QVector<double>{(double)config.th1, (double)config.th1});
 
     g2Line->setData(QVector<double>{g2Start, g2End},
-                    QVector<double>{th2, th2});
+                    QVector<double>{(double)config.th2, (double)config.th2});
     waveformGraph->setData(xNorm, yDataFreeze);
 
     ui->Plot->replot();
@@ -1158,14 +1158,6 @@ void TestScreen::autoRunConfig()
     ui->lineEdit_TH2->setText(QString::number(config.th2));
     ui->lineEdit_Velocity->setText(QString::number(UserVelocity, 'd', 0));
 
-    th1      = ui->lineEdit_TH1->text().toDouble();
-    g1_start = ui->lineEdit_G1ST->text().toDouble();
-    g1_end   = ui->lineEdit_G1ED->text().toDouble();
-
-    th2     = ui->lineEdit_TH2->text().toDouble();
-    g2_start = ui->lineEdit_G2ST->text().toDouble();
-    g2_end   = ui->lineEdit_G2ED->text().toDouble();
-
     //qDebug() << "autoconf" << config.range;
 
     ui->Plot->xAxis->setRange(0, config.range);  // optional
@@ -1238,11 +1230,11 @@ void TestScreen::updateGraphWithData()
     // -----------------------------
     // Compute G1/G2 range windows
     // -----------------------------
-    double g1Start = (g1_start * config.range) / 100.0;
-    double g1End   = (g1_end   * config.range) / 100.0;
+    double g1Start = (config.g1_start * config.range) / 100.0;
+    double g1End   = (config.g1_end   * config.range) / 100.0;
 
-    double g2Start = (g2_start * config.range) / 100.0;
-    double g2End   = (g2_end   * config.range) / 100.0;
+    double g2Start = (config.g2_start * config.range) / 100.0;
+    double g2End   = (config.g2_end   * config.range) / 100.0;
 
     // -----------------------------
     // Peak detection
@@ -1334,20 +1326,23 @@ void TestScreen::updateGraphWithData()
 
 
     g1Line->setData(QVector<double>{g1Start, g1End},
-                    QVector<double>{th1, th1});
+                    QVector<double>{(double)config.th1, (double)config.th1});
 
     g2Line->setData(QVector<double>{g2Start, g2End},
-                    QVector<double>{th2, th2});
+                    QVector<double>{(double)config.th2,(double)config.th2});
 
     if(gate1_focus){
+        g1border->data()->clear();
         g1border->setData(QVector<double>{g1Start, g1End},
-                      QVector<double>{th1, th1});
+                      QVector<double>{(double)config.th1, (double)config.th1});
+
     }
 
     if(gate2_focus)
     {
+        g2border->data()->clear();
         g2border->setData(QVector<double>{g2Start, g2End},
-                    QVector<double>{th2, th2});
+                    QVector<double>{(double)config.th2,(double)config.th2});
     }
 
     if (config.channel == 1){
@@ -1500,21 +1495,21 @@ void TestScreen::HandleGateShift(int shift){
     // int width2 = g2_end-g2_start;
     if(gate1_focus)
     {
-        if(shift == -1 && g1_start == 5) //if gate reaches starting point return
+        if(shift == -1 && config.g1_start == 5) //if gate reaches starting point return
             return;
 
-        if(shift == 1 && g1_end == 99)  //if gate reaches ending point return
+        if(shift == 1 && config.g1_end == 99)  //if gate reaches ending point return
             return;
 
-        if (shift==-1 && g1_start<10){
-            int k=((int)g1_start-5)%5;
+        if (shift==-1 && config.g1_start<10){
+            int k=(config.g1_start-5)%5;
             adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
             adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
             return;
         }
 
-        if(shift == 1 && g1_end>94){
-            int k = (99-(int)g1_end)%5 ;
+        if(shift == 1 && config.g1_end>94){
+            int k = (99-config.g1_end)%5 ;
             adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
             adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
             return;
@@ -1526,21 +1521,21 @@ void TestScreen::HandleGateShift(int shift){
     }
     else
     {
-        if(shift == -1 && g2_start == 5) //if gate reaches starting point return
+        if(shift == -1 && config.g2_start == 5) //if gate reaches starting point return
             return;
 
-        if(shift == 1 && g2_end == 99)  //if gate reaches ending point return
+        if(shift == 1 && config.g2_end == 99)  //if gate reaches ending point return
             return;
 
-        if (shift==-1 && g2_start<10){
-            int k =((int)g2_start-5)%5;
+        if (shift==-1 && config.g2_start<10){
+            int k =(config.g2_start-5)%5;
             adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
             adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
             return;
         }
 
-        if(shift == 1 && g2_end>94){
-            int k =(99-(int)g2_end)%5;
+        if(shift == 1 && config.g2_end>94){
+            int k =(99-config.g2_end)%5;
             adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
             adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
             return;
@@ -1739,19 +1734,19 @@ void TestScreen::adjustCurrentLineEdit(int delta)
 
     if(gate1_focus){
         focused = ui->lineEdit_G1ED;
-        if(g1_start==g1_end && delta ==-1){
+        if(config.g1_start==config.g1_end && delta ==-1){
             return;
         }
-        if(g1_start<=g1_end)
+        if(config.g1_start<=config.g1_end)
             adjustValue(config.g1_end, 5, 99,1);
         return;
     }
     else if(gate2_focus){
         focused=ui->lineEdit_G2ED;
-        if(g2_start==g2_end && delta ==-1){
+        if(config.g2_start==config.g2_end && delta ==-1){
             return;
         }
-        if(g2_start<=g2_end)
+        if(config.g2_start<=config.g2_end)
             adjustValue(config.g2_end, 5, 99,1);
         return;
     }

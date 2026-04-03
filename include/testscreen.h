@@ -38,8 +38,6 @@ extern int userCalset;
 extern QString DC_SC_mode;
 extern QString MachNo;
 extern double maxX, maxY;
-extern double th1, g1_start, g1_end;
-extern double th2, g2_start, g2_end;
 
 extern SharedData* shared;
 extern QVector<double> xDataFreeze , yDataFreeze;
