@@ -65,13 +65,13 @@ public:
     ~TestScreen();
 
 private slots:
+    void display_mc_no(void);
     bool updateConfigFile(const QString &filePath, const ConfigEntry &updatedConfig);
     void setupPlotAppearance();
     void updateGridInterval();
     void autoRunConfig();
     void handleDigitInput(int digit);
-   // void navigateFocusVertical(int direction, bool forceStartFromGain);
-     void navigateFocusVertical(int direction);
+    void navigateFocusVertical(int direction);
 
     void setInputFieldsEnabled(bool enabled);
     void adjustCurrentLineEdit(int delta);

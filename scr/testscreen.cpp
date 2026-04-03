@@ -158,8 +158,9 @@ TestScreen::TestScreen(QWidget *parent)
     }
 
     )");
+    ui->setupUi(this);
 
-
+    display_mc_no();
     gain_offsetArr={0.5,1,2,3,6,10};
     range_offsetArr={1,2,5,10,50,100};
     delay_offsetArr={1,2,5,10,50,100};
@@ -170,7 +171,7 @@ TestScreen::TestScreen(QWidget *parent)
     delay_Offset_i=0;
     reject_Offset_i=0;
 
-    ui->setupUi(this);
+
     DACx.resize(10);
     DACy.resize(10);
 
@@ -1062,7 +1063,6 @@ void TestScreen::handleSaveFlow()
             previewscreen->show();
             // previewscreen->raise();
             // previewscreen->activateWindow(); //Commented bcoz of warning by wayland
-            previewscreen->setDetails(MachNo, "XYZ");      // sample update
         });
     }
 
@@ -2324,7 +2324,35 @@ void TestScreen::DrawDACCurve()
 
         ui->Plot->replot();
 }
+void TestScreen::display_mc_no(void){
+    QFile file("BIN.BIN");
 
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Failed to open BIN.BIN";
+        return;
+    }
+
+    // BIN.BIN contains 2 bytes: 0x90 0x00
+    QByteArray data = file.readAll();
+    file.close();
+
+    if (data.size() < 2)
+    {
+        qDebug() << "Invalid file";
+        return;
+    }
+
+    // Little-endian 16-bit integer
+    quint16 value = static_cast<quint8>(data[0]) |
+                    (static_cast<quint8>(data[1]) << 8);
+
+    // Print as 4-digit number: 0144
+    MachNo= QString("%1").arg(value, 4, 10, QChar('0'));
+
+    ui->label_Machine_Val->setText(MachNo);
+    qDebug() << "Mach No : "<<MachNo;
+}
 
 
 void TestScreen::showBlankScreen()

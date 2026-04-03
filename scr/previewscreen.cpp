@@ -29,6 +29,8 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     ui->setupUi(this);
 
     setupPlotAppearance();
+    ui->label_Model->setText("WT-2311D");
+    ui->label_Unit->setText(MachNo);
     ui->label_OPvalue->setText(OperatorName);
     ui->label_Divvalue->setText(Division);
     ui->label_Secvalue->setText(Section);
@@ -484,11 +486,6 @@ void PreviewScreen::on_pushButton_save_clicked()
 
 }
 
-void PreviewScreen::setDetails(const QString &ModelNo, const QString &FilePath)
-{
-    // ui->lineEdit_ModelMcNo->setText(ModelNo);
-    // ui->lineEdit_FilePath->setText(FilePath);
-}
 
 
 

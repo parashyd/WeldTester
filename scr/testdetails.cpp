@@ -81,7 +81,7 @@ TestDetails::TestDetails(QWidget *parent)
     });
 
 
-    testdetails->lineEdit_UnitNo->setText(QString::number(0113));                    //unitno: taken from bin file
+    testdetails->lineEdit_UnitNo->setText(MachNo);                    //unitno: taken from bin file
 
     testdetails->lineEdit_CH->setText(QString::number(config.channel));
     testdetails->lineEdit_Calset->setText(QString::number(config.calset));

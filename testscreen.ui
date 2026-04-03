@@ -193,22 +193,6 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_Machine">
-    <property name="geometry">
-     <rect>
-      <x>60</x>
-      <y>0</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>WT-0001</string>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_Reject">
     <property name="geometry">
      <rect>
@@ -842,6 +826,19 @@
     </property>
     <property name="text">
      <string>offset :</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_Machine_Val">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>0</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>0000</string>
     </property>
    </widget>
   </widget>
