@@ -230,8 +230,6 @@ TestScreen::TestScreen(QWidget *parent)
 
     autoRunConfig();
     onApplyGainClicked();
-
-
     startSocketServer();
 
     //connect(plotUpdateTimer, &QTimer::timeout, this, &TestScreen::updateGraphWithData);
@@ -1357,12 +1355,6 @@ void TestScreen::updateGraphWithData()
     ui->Plot->replot();
 }
 
-
-
-
-
-
-
 bool TestScreen::updateConfigFile(const QString &filePath, const ConfigEntry &updatedConfig)
 {
     QFile file(filePath);
@@ -1881,10 +1873,21 @@ void TestScreen::FunctionLeftRight(bool increment)
                 ui->label_offset->setText("offset : " + QString::number(gain_offsetArr[gain_Offset_i],'f',1));
                 return;
             }
+            else if((gain_Offset_i+1)==gain_offsetArr.size() ){
+                gain_Offset_i = 0;
+                ui->label_offset->setText("offset : " + QString::number(gain_offsetArr[gain_Offset_i],'f',1));
+                return;
+            }
         }
         else{
             if((gain_Offset_i-1)>=0){
                 gain_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(gain_offsetArr[gain_Offset_i],'f',1));
+                return;
+            }
+            else if((gain_Offset_i-1)<0)
+            {
+                gain_Offset_i = gain_offsetArr.size()-1;
                 ui->label_offset->setText("offset : " + QString::number(gain_offsetArr[gain_Offset_i],'f',1));
                 return;
             }
@@ -1898,10 +1901,21 @@ void TestScreen::FunctionLeftRight(bool increment)
                 ui->label_offset->setText("offset : " + QString::number(range_offsetArr[range_Offset_i],'d',0));
                 return;
             }
+            else if((range_Offset_i+1)==range_offsetArr.size() ){
+                range_Offset_i = 0;
+                ui->label_offset->setText("offset : " + QString::number(range_offsetArr[range_Offset_i],'d',0));
+                return;
+            }
         }
         else{
             if((range_Offset_i-1)>=0){
                 range_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(range_offsetArr[range_Offset_i],'d',0));
+                return;
+            }
+            else if((range_Offset_i-1)<0)
+            {
+                range_Offset_i = range_offsetArr.size()-1;
                 ui->label_offset->setText("offset : " + QString::number(range_offsetArr[range_Offset_i],'d',0));
                 return;
             }
@@ -1915,10 +1929,21 @@ void TestScreen::FunctionLeftRight(bool increment)
                 ui->label_offset->setText("offset : " + QString::number(delay_offsetArr[delay_Offset_i],'d',0));
                 return;
             }
+            else if((delay_Offset_i+1)==delay_offsetArr.size() ){
+                delay_Offset_i = 0;
+                ui->label_offset->setText("offset : " + QString::number(delay_offsetArr[delay_Offset_i],'d',0));
+                return;
+            }
         }
         else{
             if((delay_Offset_i-1)>=0){
                 delay_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(delay_offsetArr[delay_Offset_i],'d',0));
+                return;
+            }
+            else if((delay_Offset_i-1)<0)
+            {
+                delay_Offset_i = delay_offsetArr.size()-1;
                 ui->label_offset->setText("offset : " + QString::number(delay_offsetArr[delay_Offset_i],'d',0));
                 return;
             }
@@ -1932,10 +1957,21 @@ void TestScreen::FunctionLeftRight(bool increment)
                 ui->label_offset->setText("offset : " + QString::number(reject_offsetArr[reject_Offset_i],'d',0));
                 return;
             }
+            else if((reject_Offset_i+1)==reject_offsetArr.size() ){
+                reject_Offset_i = 0;
+                ui->label_offset->setText("offset : " + QString::number(reject_offsetArr[reject_Offset_i],'d',0));
+                return;
+            }
         }
         else{
             if((reject_Offset_i-1)>=0){
                 reject_Offset_i--;
+                ui->label_offset->setText("offset : " + QString::number(reject_offsetArr[reject_Offset_i],'d',0));
+                return;
+            }
+            else if((range_Offset_i-1)<0)
+            {
+                reject_Offset_i = reject_offsetArr.size()-1;
                 ui->label_offset->setText("offset : " + QString::number(reject_offsetArr[reject_Offset_i],'d',0));
                 return;
             }
