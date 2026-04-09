@@ -717,7 +717,8 @@ compiler_rcc_clean:
 qrc_resources.cpp: resources.qrc \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/rcc \
 		images/audio.jpeg \
-		images/battery_outline.svg
+		images/battery_outline.svg \
+		images/After(1).jpg
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/rcc -name resources resources.qrc -o qrc_resources.cpp
 
 compiler_moc_predefs_make_all: moc_predefs.h

@@ -543,11 +543,13 @@ void TestScreen::setLogicalFocus(QWidget* widget)
         m_currentLogicalFocus->setStyleSheet("");
     }
 
-    // 2️⃣ Apply highlight to the new widget
+    // 2️⃣ Apply highlight to the new widget\
+    // "background-color: rgb(255,255,150);"
     widget->setStyleSheet(
-        "background-color: rgb(255,255,150);"
+        "background-color: rgb(120,180,255);"
         "border: 2px solid black;"
         );
+
 
     m_currentLogicalFocus = widget;
 
@@ -2425,7 +2427,8 @@ void TestScreen::paintAudioIndicator(QPainter &p)
     p.setRenderHint(QPainter::Antialiasing);
 
     // --- Step 1: Draw the audio icon ---
-    QPixmap icon(":/images/audio.jpeg");
+   // QPixmap icon(":/images/audio.jpeg");
+     QPixmap icon(":/images/After(1).jpg");
     QSize iconSize = icon.size();
 
     QRect iconRect(0, (hgt - iconSize.height()) / 2,
@@ -2441,7 +2444,8 @@ void TestScreen::paintAudioIndicator(QPainter &p)
     if (m_audioPercent >= 100) arcCount = 5;
 
     QPoint center(iconRect.right() + 3, hgt / 2);  // center for arcs
-    QPen pen(Qt::darkBlue, 2);
+    // QPen pen(Qt::darkBlue, 2);
+    QPen pen(Qt::black, 2);
     p.setPen(pen);
 
     int baseRadius = iconRect.height()/4;

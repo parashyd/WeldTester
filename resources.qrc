@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>images/battery_outline.svg</file>
         <file>images/audio.jpeg</file>
+        <file>images/After(1).jpg</file>
     </qresource>
 </RCC>
