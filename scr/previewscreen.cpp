@@ -27,6 +27,14 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
 
     ui->setupUi(this);
+    this->setStyleSheet(R"(
+    QWidget {
+        background-color: #FFFFFF;
+        color: #15181D;
+        font-family: "Segoe UI";
+        font-size: 11px;
+    }
+    )");
 
     setupPlotAppearance();
     ui->label_Model->setText("WT-2311D");

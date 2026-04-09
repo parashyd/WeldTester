@@ -74,90 +74,301 @@ TestScreen::TestScreen(QWidget *parent)
 {
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);         // to disable the menu bar
 
+    // this->setStyleSheet(R"(
+
+    // /* MAIN WINDOW */
+    // QMainWindow{
+    //     background-color:#f4f6f8;
+    // }
+
+    // /* LABELS */
+    // QLabel{
+    //     color:#2b2f33;
+    //     font-size:13px;
+    //     font-weight:500;
+    // }
+
+    // #label_offset{
+    //     color: #f57c00;               /*orange*/
+    //     font-weight:bold;
+    // }
+
+    // /* DAC Highlight */
+    // #label_DAC{
+    //     color:#d32f2f;             /*red*/
+    //     font-weight:bold;
+    // }
+
+    // /* INPUT BOXES */
+    // QLineEdit{
+    //     background-color:#ffffff;
+    //     border:1px solid #c7ccd1;
+    //     border-radius:4px;
+    //     color:#1f2328;
+    //     padding:3px;
+    // }
+
+    // QLineEdit:focus{
+    //     border:1px solid #1976d2;
+    //     background-color:#ffffff;
+    // }
+
+    // /* PLOT AREA */
+    // #Plot{
+    //     background-color:#ffffff;
+    //     border:2px solid #d0d7de;
+    //     border-radius:6px;
+    // }
+
+    // /* BUTTON */
+    // QPushButton{
+    //     background-color:#1976d2;
+    //     border-radius:5px;
+    //     color:white;
+    //     font-weight:bold;
+    //     padding:5px;
+    // }
+
+    // QPushButton:hover{
+    //     background-color:#1e88e5;
+    // }
+
+    // QPushButton:pressed{
+    //     background-color:#1565c0;
+    // }
+
+    // /* FREEZE INDICATOR */
+    // #label_freeze{
+    //     background-color:#e0e0e0;
+    //     color:#2b2f33;
+    //     border:1px solid #b0b0b0;
+    //     border-radius:3px;
+    // }
+
+    // #label_pause{
+    //     background-color:#e0e0e0;
+    //     color:#2b2f33;
+    //     border:1px solid #b0b0b0;
+    //     border-rnd-color: #15181D;
+    //     color: #F2F5F8;
+    //     font-family: "Segoe UI";
+    //     font-size: 11px;
+    // }
+    // QFrame#Header_2,
+    // QFrame#formFrame,
+    // QFrame#verticalFrame,
+    // QFrame#horizontalFrame {
+    //     background-color: #232A32;
+    //     border: 1px solid #323B45;
+    //     border-radius: 12px;
+    // }
+    // QLabel {
+    //     color: #AEB8C3;
+    //     background: transparent;
+    // }
+    // QLineEdit {
+    //     background-color: #1B2027;
+    //     border: 1px solid #3A4652;
+    //     border-radius: 8px;
+    //     color: #F2F5F8;
+    //     min-height: 28px;
+    //     padding-left: 8px;
+    // }
+    // QLineEdit:focus {
+    //     border: 1px solid #2EA8FF;
+    // }
+    // QPushButton {
+    //     background-color: #2B3440;
+    //     border: 1px solid #3D4957;
+    //     border-radius: 8px;
+    //     color: white;
+    //     min-height: 20px;
+    //     padding: 4px 10px;
+    // }
+    // QPushButton:hover {
+    //     border: 1px solid #2EA8FF;
+    //     background-color: #36414E;
+    // }
+    // QPushButton#pushButton {
+    //     background-color: #2EA8FF;
+    //     font-weight: bold;
+    // }
+    // QCustomPlot#Plot {
+    //     background-color: #1A1F25;
+    //     border: 1px solid #2EA8FF;
+    //     border-radius: 10px;
+    // }
+
+
+    // )");adius:3px;
+    // }
+
+    // /* GENERAL FONT */
+    // QWidget{
+    //     font-family: "Segoe UI";
+    // }
+
+    //)");
+
+/*************************DARKER THEME*************/
+
     this->setStyleSheet(R"(
-
-    /* MAIN WINDOW */
-    QMainWindow{
-        background-color:#f4f6f8;
-    }
-
-    /* LABELS */
-    QLabel{
-        color:#2b2f33;
-        font-size:13px;
-        font-weight:500;
-    }
-
-    #label_offset{
-        color: #f57c00;               /*orange*/
-        font-weight:bold;
-    }
-
-    /* DAC Highlight */
-    #label_DAC{
-        color:#d32f2f;             /*red*/
-        font-weight:bold;
-    }
-
-    /* INPUT BOXES */
-    QLineEdit{
-        background-color:#ffffff;
-        border:1px solid #c7ccd1;
-        border-radius:4px;
-        color:#1f2328;
-        padding:3px;
-    }
-
-    QLineEdit:focus{
-        border:1px solid #1976d2;
-        background-color:#ffffff;
-    }
-
-    /* PLOT AREA */
-    #Plot{
-        background-color:#ffffff;
-        border:2px solid #d0d7de;
-        border-radius:6px;
-    }
-
-    /* BUTTON */
-    QPushButton{
-        background-color:#1976d2;
-        border-radius:5px;
-        color:white;
-        font-weight:bold;
-        padding:5px;
-    }
-
-    QPushButton:hover{
-        background-color:#1e88e5;
-    }
-
-    QPushButton:pressed{
-        background-color:#1565c0;
-    }
-
-    /* FREEZE INDICATOR */
-    #label_freeze{
-        background-color:#e0e0e0;
-        color:#2b2f33;
-        border:1px solid #b0b0b0;
-        border-radius:3px;
-    }
-
-    #label_pause{
-        background-color:#e0e0e0;
-        color:#2b2f33;
-        border:1px solid #b0b0b0;
-        border-radius:3px;
-    }
-
-    /* GENERAL FONT */
-    QWidget{
+    QWidget {
+        background-color: #2B3138;
+        color: #F2F5F8;
         font-family: "Segoe UI";
+        font-size: 11px;
     }
 
-    )");
+    QFrame#Header_2,
+    QFrame#formFrame,
+    QFrame#verticalFrame,
+    QFrame#horizontalFrame {
+        background-color: #39424C;
+        border: 1px solid #55606D;
+        border-radius: 12px;
+    }
+
+    QLabel {
+        color: #D5DDE5;
+        background: transparent;
+    }
+
+    QLineEdit {
+        background-color: #46515D;
+        border: 1px solid #667381;
+        border-radius: 8px;
+        color: #F2F5F8;
+        min-height: 28px;
+        padding-left: 8px;
+    }
+
+    #label_offset {
+        color: #FF9800;
+        font-weight: bold;
+    }
+
+    #label_DAC {
+        color: #EF5350;
+        font-weight: bold;
+    }
+
+    QLineEdit:focus {
+        border: 1px solid #4DB3FF;
+        background-color: #4E5A67;
+    }
+
+    QPushButton {
+        background-color: #55606D;
+        border: 1px solid #748191;
+        border-radius: 8px;
+        color: white;
+        min-height: 20px;
+        padding: 4px 10px;
+    }
+
+    QPushButton:hover {
+        border: 1px solid #4DB3FF;
+        background-color: #627081;
+    }
+
+    QPushButton#pushButton {
+        background-color: #3FA2FF;
+        font-weight: bold;
+        color: white;
+        border: 1px solid #2E8BE0;
+    }
+
+    QPushButton#pushButton:hover {
+        background-color: #5AB1FF;
+    }
+
+    QCustomPlot#Plot {
+        background-color: #313941;
+        border: 1px solid #4DB3FF;
+        border-radius: 10px;
+    }
+)");
+
+/*********************************Lighter THEME********************************/
+//     this->setStyleSheet(R"(
+//     QWidget {
+//         background-color: #C9D2DB;
+//         color: #1B2430;
+//         font-family: "Segoe UI";
+//         font-size: 11px;
+//     }
+
+//     QFrame#Header_2,
+//     QFrame#formFrame,
+//     QFrame#verticalFrame,
+//     QFrame#horizontalFrame {
+//         background-color: #AEBBC8;
+//         border: 1px solid #8796A5;
+//         border-radius: 12px;
+//     }
+
+//     QLabel {
+//         color: #2C3948;
+//         background: transparent;
+//     }
+
+//     QLineEdit {
+//         background-color: #D8E0E8;
+//         border: 1px solid #8C9AAA;
+//         border-radius: 8px;
+//         color: #1B2430;
+//         min-height: 28px;
+//         padding-left: 8px;
+//     }
+
+//     #label_offset{
+//         color: #f57c00;               /*orange*/
+//         font-weight:bold;
+//     }
+
+//     /* DAC Highlight */
+//     #label_DAC{
+//         color:#d32f2f;             /*red*/
+//         font-weight:bold;
+//     }
+//     QLineEdit:focus {
+//         border: 1px solid #2E7DFF;
+//         background-color: #E4EBF2;
+//     }
+
+//     QPushButton {
+//         background-color: #8E9DAE;
+//         border: 1px solid #6E7F91;
+//         border-radius: 8px;
+//         color: #FFFFFF;
+//         min-height: 20px;
+//         padding: 4px 10px;
+//     }
+
+//     QPushButton:hover {
+//         background-color: #7F90A3;
+//         border: 1px solid #2E7DFF;
+//     }
+
+//     QPushButton#pushButton {
+//         background-color: #2E7DFF;
+//         color: white;
+//         font-weight: bold;
+//         border: 1px solid #2567D6;
+//     }
+
+//     QPushButton#pushButton:hover {
+//         background-color: #4B92FF;
+//     }
+
+//     QCustomPlot#Plot {
+//         background-color: #BFCAD5;
+//         border: 1px solid #6F859A;
+//         border-radius: 10px;
+//     }
+// )");
+
     ui->setupUi(this);
 
     display_mc_no();
@@ -215,8 +426,8 @@ TestScreen::TestScreen(QWidget *parent)
     g1Line->setPen(QPen(QColor("#219601"), 2));  // Green
     g2Line->setPen(QPen(QColor("#0818ff"), 2));  // Blue
     //waveformGraph->setPen(QPen(Qt::yellow, 2));
-    g1border->setPen(QPen(Qt::white, 6));;
-    g2border->setPen(QPen(Qt::white, 6));;
+    g1border->setPen(QPen(Qt::white, 6));
+    g2border->setPen(QPen(Qt::white, 6));
     g1border->setVisible(false);
     g2border->setVisible(false);
 
@@ -363,7 +574,7 @@ void TestScreen::setLogicalFocus(QWidget* widget)
 
 void TestScreen::setupPlotAppearance()
 {
-    ui->Plot->setFixedSize(521, 400);
+    ui->Plot->setFixedSize(485, 335);
     ui->Plot->setBackground(Qt::black);
     QSharedPointer<QCPAxisTickerFixed> xTicker(new QCPAxisTickerFixed);
     xTicker->setScaleStrategy(QCPAxisTickerFixed::ssNone);
@@ -905,7 +1116,7 @@ void TestScreen::handleFreezeLogic(void)//Varun added to handle freeze logic
     ui->lineEdit_D2->hide();
     ui->lineEdit_BP2->hide();
     ui->label_P2P->setText("Hm");
-    ui->lineEdit_P2P->setText(QString::number(Lm)+"-"+QString::number(Rm));
+    ui->lineEdit->setText(QString::number(Lm)+"-"+QString::number(Rm));
 
     ui->lineEdit_PH1->setText(QString::number(ph1Value, 'f', 0));
     ui->lineEdit_BP1->setText(QString::number(xNorm[peakIndex], 'f', 0));
@@ -1303,7 +1514,7 @@ void TestScreen::updateGraphWithData()
     ui->lineEdit_SD1->setText(QString::number(sd1, 'f', 0));
     ui->lineEdit_D2->setText(QString::number(d2, 'f', 0));
     ui->lineEdit_SD2->setText(QString::number(sd2, 'f', 0));
-    ui->lineEdit_P2P->setText(QString::number(fabs(d1 - d2), 'f', 0));
+    ui->lineEdit->setText(QString::number(fabs(d1 - d2), 'f', 0));
 
     g1Line->data()->clear();
     g2Line->data()->clear();
@@ -2167,8 +2378,10 @@ void TestScreen::updateBatteryLevel(int percent)
     p.setRenderHint(QPainter::Antialiasing);
 
     // Margin to keep fill inside the SVG outline (adjust if needed)
-    int margin = 3;
-    int nobeWidth = 6;  // adjust to match your SVG’s nobe
+   /* int margin = 3;
+    int nobeWidth = 6; */
+    int margin = 5;
+    int nobeWidth = 9; // adjust to match your SVG’s nobe
     int maxFill = (pix.width() - nobeWidth) - 2 * margin;
 
     // Calculate maximum fill width safely inside margins
