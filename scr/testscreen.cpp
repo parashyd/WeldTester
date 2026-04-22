@@ -439,6 +439,8 @@ TestScreen::TestScreen(QWidget *parent)
     ui->lineEdit_CP->setVisible(false);
     ui->label_offset->setVisible(false);
 
+    ui->label_record->setFixedSize(30, 30);
+
     autoRunConfig();
     onApplyGainClicked();
     startSocketServer();
