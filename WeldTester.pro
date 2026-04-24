@@ -14,6 +14,7 @@ VPATH += scr/
 
 SOURCES += \
     main.cpp \
+    scr/mainwindow.cpp \
     scr/Audio.cpp \
     scr/Battery.cpp \
     scr/DataFile.cpp \
@@ -25,7 +26,8 @@ SOURCES += \
     scr/qcustomplot.cpp \
     scr/sh_dpram.cpp \
     scr/testdetails.cpp \
-    scr/testscreen.cpp
+    scr/testscreen.cpp \
+    scr/testdetail0.cpp
 
 HEADERS += \
     include/Audio.h \
@@ -38,11 +40,15 @@ HEADERS += \
     include/qcustomplot.h \
     include/shared_data.h \
     include/testdetails.h \
-    include/testscreen.h
+    include/testscreen.h \
+    include/mainwindow.h \
+    include/testdetail0.h
 
 FORMS += \
     Openlog.ui \
+    mainwindow.ui \
     previewscreen.ui \
+    testdetail0.ui \
     testdetails.ui \
     testscreen.ui
 

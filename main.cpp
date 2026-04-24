@@ -1,5 +1,5 @@
 #include "testscreen.h"
-
+#include "mainwindow.h"
 #include <QApplication>
 #include <pthread.h>
 #include <sched.h>
@@ -36,12 +36,15 @@ int main(int argc, char *argv[])
 
     // Start Qt
     QApplication a(argc, argv);
-    TestScreen w;
+
+    MainWindow x;
+    //TestScreen w;
 
     // Pass pointer so GUI can read from shared
-    w.setSharedPointer(&shared);
+    //w.setSharedPointer(&shared);
 
-    w.show();
+    //w.show();
+    x.show();
     return a.exec();
 }
 
