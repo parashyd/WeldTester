@@ -13,6 +13,7 @@ INCLUDEPATH += include/
 VPATH += scr/
 
 SOURCES += \
+    scr/configscreen.cpp \
     main.cpp \
     scr/mainwindow.cpp \
     scr/Audio.cpp \
@@ -30,6 +31,7 @@ SOURCES += \
     scr/testdetail0.cpp
 
 HEADERS += \
+    include/configscreen.h \
     include/Audio.h \
     include/Battery.h \
     include/DataFile.h \
@@ -46,6 +48,7 @@ HEADERS += \
 
 FORMS += \
     Openlog.ui \
+    configscreen.ui \
     mainwindow.ui \
     previewscreen.ui \
     testdetail0.ui \

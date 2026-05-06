@@ -20,6 +20,7 @@
 #include "Audio.h"
 #include "openlog.h"
 #include "previewscreen.h"
+#include "testdetail0.h"
 
 #define MAX_LINE 200
 #define LINE_LENGTH 70
@@ -39,13 +40,13 @@ enum InputMode
 };
 
 InputMode currentInputMode = InputMode_None;
-QString MachNo,DC_SC_mode,calsetStr;
+QString DC_SC_mode,calsetStr;
 
 
 double ph1Value = 0, ph2Value = 0,phValue = 0,xPeakIndex1=-1,maxX, maxY;
-float RANGE_FACTOR, DELAY_FACTOR = 3.4, m_audioPercent = 0;
+float RANGE_FACTOR, DELAY_FACTOR = 3.378, m_audioPercent = 0;
 //float RANGE_FACTOR_LT30 = 3.4;
-float RANGE_FACTOR_LT30 = 3.3;
+float RANGE_FACTOR_LT30 = 3.378;
 float RANGE_FACTOR_GT30 = 6.212;
 int peakIndex =-1,peakIndex1 = -1, peakIndex2 = -1,UserVelocity,userGainVal,SEC,CP=1;
 static int ModeCnt = 0,AudioLevel = 0,DACCnt = 0,CalGateCnt = 0;
@@ -308,7 +309,6 @@ TestScreen::TestScreen(QWidget *parent)
 
     autoRunConfig();
     onApplyGainClicked();
-    startSocketServer();
 
     //connect(plotUpdateTimer, &QTimer::timeout, this, &TestScreen::updateGraphWithData);
     connect(plotUpdateTimer, &QTimer::timeout, this,     [this]() {
@@ -329,7 +329,8 @@ TestScreen::TestScreen(QWidget *parent)
         }
     });
     // plotUpdateTimer->start(100);
-    plotUpdateTimer->start(20);      //100msec, 10msec
+    plotUpdateTimer->start(20);    //100msec, 10msec
+    qDebug()<<"plottimerstarted";
 
     connect(qApp, &QApplication::focusChanged, this, [this](QWidget* old, QWidget* now){
         if (now) {
@@ -475,32 +476,12 @@ void TestScreen::setupPlotAppearance()
     ui->Plot->replot();
 }
 
-void TestScreen::startSocketServer()
+void TestScreen::onSocketReadyRead(quint8 key)
 {
-    server = new QTcpServer(this);
-    connect(server, &QTcpServer::newConnection, this, &TestScreen::onNewConnection);
+    // QByteArray data = client->readAll();
+    // if (data.isEmpty()) return;
 
-    quint16 port = 8888;  // Use any free port
-    if (!server->listen(QHostAddress::Any, port)) {
-        QMessageBox::critical(this, "Server Error", "Failed to start server: " + server->errorString());
-    } else {
-        qDebug() << "Server listening on port" << port;
-    }
-}
-
-void TestScreen::onNewConnection()
-{
-    client = server->nextPendingConnection();
-    connect(client, &QTcpSocket::readyRead, this, &TestScreen::onSocketReadyRead);
-    qDebug() << "Client connected from" << client->peerAddress().toString();
-}
-
-void TestScreen::onSocketReadyRead()
-{
-    QByteArray data = client->readAll();
-    if (data.isEmpty()) return;
-
-    quint8 key = static_cast<quint8>(data.at(0));
+    // quint8 key = static_cast<quint8>(data.at(0));
     qDebug() << "Received key (hex):" << QString("0x%1").arg(key, 2, 16, QLatin1Char('0')).toUpper();
 
     /* -----------------------------------------
@@ -531,6 +512,8 @@ void TestScreen::onSocketReadyRead()
         }
 
         qDebug() << "ESC pressed on TestScreen (no popup)";
+        emit closeTestScreen();
+
         return;
     }
 
@@ -562,7 +545,7 @@ void TestScreen::onSocketReadyRead()
         receivedChannel = "1";
         ui->lineEdit_ch->setText(receivedChannel);
         //entry.channel = 1;
-        config.channel =1;
+        config.channel = 1;
         autoRunConfig();
         break;
 
@@ -570,7 +553,7 @@ void TestScreen::onSocketReadyRead()
         receivedChannel = "2";
         ui->lineEdit_ch->setText(receivedChannel);
        // entry.channel = 2;
-        config.channel =2;
+        config.channel = 2;
         autoRunConfig();
         break;
 
@@ -2183,7 +2166,7 @@ void TestScreen::saveConfigToFile()
     qconfig["calset"]  = config.calset;
     qconfig["velocity"] = UserVelocity;
 
-    QFile file(QCoreApplication::applicationDirPath() + "/config_d.json");
+    QFile file(QCoreApplication::applicationDirPath() + "/config_saved.json");
     qDebug() << "Saving to:" << QCoreApplication::applicationDirPath() + "/config_saved.json";
 
     if (file.open(QIODevice::WriteOnly)) {
@@ -2445,32 +2428,31 @@ void TestScreen::DrawDACCurve()
         ui->Plot->replot();
 }
 void TestScreen::display_mc_no(void){
-    QFile file("BIN.BIN");
+    // QFile file("BIN.BIN");
 
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        qDebug() << "Failed to open BIN.BIN";
-        return;
-    }
+    // if (!file.open(QIODevice::ReadOnly))
+    // {
+    //     qDebug() << "Failed to open BIN.BIN";
+    //     return;
+    // }
 
-    // BIN.BIN contains 2 bytes: 0x90 0x00
-    QByteArray data = file.readAll();
-    file.close();
+    // // BIN.BIN contains 2 bytes: 0x90 0x00
+    // QByteArray data = file.readAll();
+    // file.close();
 
-    if (data.size() < 2)
-    {
-        qDebug() << "Invalid file";
-        return;
-    }
+    // if (data.size() < 2)
+    // {
+    //     qDebug() << "Invalid file";
+    //     return;
+    // }
 
-    // Little-endian 16-bit integer
-    quint16 value = static_cast<quint8>(data[0]) |
-                    (static_cast<quint8>(data[1]) << 8);
+    // // Little-endian 16-bit integer
+    // quint16 value = static_cast<quint8>(data[0]) |
+    //                 (static_cast<quint8>(data[1]) << 8);
 
-    // Print as 4-digit number: 0144
-    MachNo= QString("%1").arg(value, 4, 10, QChar('0'));
-
-    ui->label_Machine_Val->setText(MachNo);
+    // // Print as 4-digit number: 0144
+    // MachNo= QString("%1").arg(value, 4, 10, QChar('0'));
+    ui->label_Machine_Val->setText( MachNo);
     qDebug() << "Mach No : "<<MachNo;
 }
 

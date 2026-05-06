@@ -14,7 +14,7 @@
 #include "matrix_keypad.h"
 #include "testscreen.h"
 #include "qcustomplot.h"
-
+#include "testdetail0.h"
 #include <QDir>
 #include <QDebug>
 

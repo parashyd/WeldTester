@@ -7,13 +7,7 @@
 #include <QElapsedTimer>
 #include <QTextEdit>
 
-
-extern QString OperatorName;
-extern QString Division ;
-extern QString Section ;
-extern QString Line ;
 extern QString Rail ;
-extern QString Testtype;
 extern QString Mode;
 extern QString km;
 extern QString M;
@@ -74,7 +68,16 @@ private:
 
 
 
-  QMap<QLineEdit*, KeyPressState> inputStates;
+    QMap<QLineEdit*, KeyPressState> inputStates;
+
+    enum class InputMode {
+        Numeric,
+        Alphabetic,
+        Alphanumeric,
+        None   // no input allowed
+    };
+
+    QMap<QLineEdit*, InputMode> inputModes;
 
     Ui::TestDetails *testdetails;
     PreviewScreen *previewscreen;

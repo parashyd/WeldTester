@@ -52,7 +52,8 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = main.cpp \
+SOURCES       = scr/configscreen.cpp \
+		main.cpp \
 		scr/mainwindow.cpp \
 		scr/Audio.cpp \
 		scr/Battery.cpp \
@@ -67,6 +68,7 @@ SOURCES       = main.cpp \
 		scr/testdetails.cpp \
 		scr/testscreen.cpp \
 		scr/testdetail0.cpp qrc_resources.cpp \
+		moc_configscreen.cpp \
 		moc_openlog.cpp \
 		moc_previewscreen.cpp \
 		moc_qcustomplot.cpp \
@@ -74,7 +76,8 @@ SOURCES       = main.cpp \
 		moc_testscreen.cpp \
 		moc_mainwindow.cpp \
 		moc_testdetail0.cpp
-OBJECTS       = main.o \
+OBJECTS       = configscreen.o \
+		main.o \
 		mainwindow.o \
 		Audio.o \
 		Battery.o \
@@ -90,6 +93,7 @@ OBJECTS       = main.o \
 		testscreen.o \
 		testdetail0.o \
 		qrc_resources.o \
+		moc_configscreen.o \
 		moc_openlog.o \
 		moc_previewscreen.o \
 		moc_qcustomplot.o \
@@ -278,7 +282,8 @@ DIST          = Config.txt \
 		/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/exceptions.prf \
 		/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/yacc.prf \
 		/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/lex.prf \
-		WeldTester.pro include/Audio.h \
+		WeldTester.pro include/configscreen.h \
+		include/Audio.h \
 		include/Battery.h \
 		include/DataFile.h \
 		include/Ugpio.h \
@@ -290,7 +295,8 @@ DIST          = Config.txt \
 		include/testdetails.h \
 		include/testscreen.h \
 		include/mainwindow.h \
-		include/testdetail0.h main.cpp \
+		include/testdetail0.h scr/configscreen.cpp \
+		main.cpp \
 		scr/mainwindow.cpp \
 		scr/Audio.cpp \
 		scr/Battery.cpp \
@@ -313,7 +319,7 @@ TARGET        = WeldTester
 first: all
 ####### Build rules
 
-WeldTester: ui_Openlog.h ui_mainwindow.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h $(OBJECTS)  
+WeldTester: ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: WeldTester.pro /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++/qmake.conf /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/spec_pre.prf \
@@ -697,9 +703,9 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/Audio.h include/Battery.h include/DataFile.h include/Ugpio.h include/matrix_keypad.h include/openlog.h include/previewscreen.h include/qcustomplot.h include/shared_data.h include/testdetails.h include/testscreen.h include/mainwindow.h include/testdetail0.h $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp scr/mainwindow.cpp scr/Audio.cpp scr/Battery.cpp scr/DataFile.cpp scr/Gain.cpp scr/gpio_init.c scr/mk_dm2.cpp scr/openlog.cpp scr/previewscreen.cpp scr/qcustomplot.cpp scr/sh_dpram.cpp scr/testdetails.cpp scr/testscreen.cpp scr/testdetail0.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Openlog.ui mainwindow.ui previewscreen.ui testdetail0.ui testdetails.ui testscreen.ui $(DISTDIR)/
+	$(COPY_FILE) --parents include/configscreen.h include/Audio.h include/Battery.h include/DataFile.h include/Ugpio.h include/matrix_keypad.h include/openlog.h include/previewscreen.h include/qcustomplot.h include/shared_data.h include/testdetails.h include/testscreen.h include/mainwindow.h include/testdetail0.h $(DISTDIR)/
+	$(COPY_FILE) --parents scr/configscreen.cpp main.cpp scr/mainwindow.cpp scr/Audio.cpp scr/Battery.cpp scr/DataFile.cpp scr/Gain.cpp scr/gpio_init.c scr/mk_dm2.cpp scr/openlog.cpp scr/previewscreen.cpp scr/qcustomplot.cpp scr/sh_dpram.cpp scr/testdetails.cpp scr/testscreen.cpp scr/testdetail0.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents Openlog.ui configscreen.ui mainwindow.ui previewscreen.ui testdetail0.ui testdetails.ui testscreen.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -748,9 +754,14 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp
 	aarch64-tdx-linux-g++  -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong  -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -pipe  -O2 -pipe -g -feliminate-unused-debug-types  --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -std=gnu++1z -Wall -Wextra -dM -E -o moc_predefs.h /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp
+compiler_moc_header_make_all: moc_configscreen.cpp moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp
+	-$(DEL_FILE) moc_configscreen.cpp moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp
+moc_configscreen.cpp: include/configscreen.h \
+		moc_predefs.h \
+		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
+	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc $(DEFINES) --include '/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester/moc_predefs.h' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++ -I'/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester' -I'/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester/include' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtSvg -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtPrintSupport -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtOpenGL -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtWidgets -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtGui -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtNetwork -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtCore -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0 -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/aarch64-tdx-linux -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/backward -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include-fixed -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include include/configscreen.h -o moc_configscreen.cpp
+
 moc_openlog.cpp: include/openlog.h \
 		moc_predefs.h \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
@@ -784,6 +795,13 @@ moc_testscreen.cpp: include/testscreen.h \
 
 moc_mainwindow.cpp: include/mainwindow.h \
 		include/testdetail0.h \
+		include/testdetails.h \
+		include/previewscreen.h \
+		include/testscreen.h \
+		include/DataFile.h \
+		include/shared_data.h \
+		include/qcustomplot.h \
+		include/configscreen.h \
 		moc_predefs.h \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc $(DEFINES) --include '/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester/moc_predefs.h' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++ -I'/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester' -I'/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester/include' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtSvg -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtPrintSupport -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtOpenGL -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtWidgets -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtGui -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtNetwork -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtCore -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0 -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/aarch64-tdx-linux -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/backward -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include-fixed -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include include/mainwindow.h -o moc_mainwindow.cpp
@@ -797,12 +815,16 @@ compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_Openlog.h ui_mainwindow.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h
+compiler_uic_make_all: ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_Openlog.h ui_mainwindow.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h
+	-$(DEL_FILE) ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h
 ui_Openlog.h: Openlog.ui \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic Openlog.ui -o ui_Openlog.h
+
+ui_configscreen.h: configscreen.ui \
+		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic
+	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic configscreen.ui -o ui_configscreen.h
 
 ui_mainwindow.h: mainwindow.ui \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic
@@ -836,6 +858,10 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 
 ####### Compile
 
+configscreen.o: scr/configscreen.cpp include/configscreen.h \
+		ui_configscreen.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o configscreen.o scr/configscreen.cpp
+
 main.o: main.cpp include/testscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
@@ -844,11 +870,19 @@ main.o: main.cpp include/testscreen.h \
 		include/qcustomplot.h \
 		include/mainwindow.h \
 		include/testdetail0.h \
+		include/configscreen.h \
 		include/matrix_keypad.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 mainwindow.o: scr/mainwindow.cpp include/mainwindow.h \
 		include/testdetail0.h \
+		include/testdetails.h \
+		include/previewscreen.h \
+		include/testscreen.h \
+		include/DataFile.h \
+		include/shared_data.h \
+		include/qcustomplot.h \
+		include/configscreen.h \
 		ui_mainwindow.h \
 		include/matrix_keypad.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o scr/mainwindow.cpp
@@ -893,7 +927,8 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		ui_previewscreen.h \
 		include/qcustomplot.h \
 		include/matrix_keypad.h \
-		include/testscreen.h
+		include/testscreen.h \
+		include/testdetail0.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o previewscreen.o scr/previewscreen.cpp
 
 qcustomplot.o: scr/qcustomplot.cpp include/qcustomplot.h
@@ -909,7 +944,8 @@ testdetails.o: scr/testdetails.cpp include/testdetails.h \
 		include/testscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
-		include/qcustomplot.h
+		include/qcustomplot.h \
+		include/testdetail0.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testdetails.o scr/testdetails.cpp
 
 testscreen.o: scr/testscreen.cpp include/testscreen.h \
@@ -922,7 +958,8 @@ testscreen.o: scr/testscreen.cpp include/testscreen.h \
 		include/matrix_keypad.h \
 		include/Battery.h \
 		include/Audio.h \
-		include/openlog.h
+		include/openlog.h \
+		include/testdetail0.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testscreen.o scr/testscreen.cpp
 
 testdetail0.o: scr/testdetail0.cpp include/testdetail0.h \
@@ -932,6 +969,9 @@ testdetail0.o: scr/testdetail0.cpp include/testdetail0.h \
 
 qrc_resources.o: qrc_resources.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_resources.o qrc_resources.cpp
+
+moc_configscreen.o: moc_configscreen.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_configscreen.o moc_configscreen.cpp
 
 moc_openlog.o: moc_openlog.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_openlog.o moc_openlog.cpp

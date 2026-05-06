@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 
     // Pass pointer so GUI can read from shared
     //w.setSharedPointer(&shared);
-
+    x.setSharedPointer(&shared);
     //w.show();
     x.show();
     return a.exec();

@@ -10,13 +10,9 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFile>
+#include "testdetail0.h"
 
- QString OperatorName;
- QString Division ;
- QString Section ;
- QString Line ;
  QString Rail ;
- QString Testtype;
  QString Mode;
  QString km;
  QString M;
@@ -59,9 +55,9 @@ TestDetails::TestDetails(QWidget *parent)
     loadDataFromFile();
 
     QTimer::singleShot(0, this, [this]() {
-        testdetails->lineEdit_OperatorName->setFocus();
-        testdetails->lineEdit_OperatorName->setCursorPosition(0);
-        testdetails->lineEdit_OperatorName->selectAll();
+        testdetails->lineEdit_Km->setFocus();
+        testdetails->lineEdit_Km->setCursorPosition(0);
+        testdetails->lineEdit_Km->selectAll();
     });
 
     QTimer *timer = new QTimer(this);
@@ -92,10 +88,6 @@ TestDetails::TestDetails(QWidget *parent)
     testdetails->comboBox_LocOfDefect->setEditable(false);
     testdetails->comboBox_Probe->setEditable(false);
 
-
-    inputModes[testdetails->lineEdit_OperatorName] = InputMode::Alphabetic;
-    inputModes[testdetails->lineEdit_Div] = InputMode::Alphabetic;
-    inputModes[testdetails->lineEdit_Sec] = InputMode::Alphabetic;
     inputModes[testdetails->lineEdit_Stations] = InputMode::Alphabetic;
     inputModes[testdetails->lineEdit_Km] = InputMode::Alphanumeric;
     inputModes[testdetails->lineEdit_Mtr] = InputMode::Numeric;
@@ -153,13 +145,7 @@ TestDetails::~TestDetails()
 void TestDetails::PreviewClick()
 {
     saveDataToFile();
-
-    OperatorName = testdetails->lineEdit_OperatorName->text();              // alpha
-    Division = testdetails->lineEdit_Div->text();
-    Section = testdetails->lineEdit_Sec->text();
-    Line = testdetails->comboBox_Line->currentText();
     Rail = testdetails->comboBox_Rail->currentText();
-    Testtype = testdetails->comboBox_TestType->currentText();
     Mode = testdetails->comboBox_Mode->currentText();
     km = testdetails->lineEdit_Km->text();
     M = testdetails->lineEdit_Mtr->text();
@@ -171,7 +157,6 @@ void TestDetails::PreviewClick()
     Probe = testdetails->comboBox_Probe->currentText();
     classVal = testdetails->comboBox_Class->currentText();
     FPNFP = testdetails->comboBox_FP->currentText();
-
     OthersObservation = testdetails->lineEdit_OtherObservation->text();   //combo
     Date = testdetails->lineEdit_Date->text();
     Time = testdetails->lineEdit_Time->text();
@@ -454,30 +439,24 @@ void TestDetails::navigateFocus(int direction)
     QList<QWidget*> navWidgets = {
         testdetails->lineEdit_Date,
         testdetails->lineEdit_Time,
-        testdetails->lineEdit_OperatorName,
-        testdetails->lineEdit_Div,
-        testdetails->lineEdit_Sec,
-        testdetails->comboBox_Line,
-        testdetails->lineEdit_Stations,
-        testdetails->comboBox_TestType,
         testdetails->lineEdit_Km,
         testdetails->lineEdit_Mtr,
         testdetails->lineEdit_TP,
         testdetails->comboBox_WeldType,
+        testdetails->lineEdit_Stations,
         testdetails->comboBox_Rail,
         testdetails->lineEdit_Weldno,
+        testdetails->comboBox_Probe,
         testdetails->comboBox_Rollmark1,
         testdetails->comboBox_kg,
         testdetails->comboBox_Month,
         testdetails->lineEdit_Rollmarkyear,
-        testdetails->comboBox_Probe,
         testdetails->comboBox_Mode,
         testdetails->comboBox_LocOfDefect,
         testdetails->comboBox_Type,
         testdetails->comboBox_Class,
         testdetails->comboBox_FP,
         testdetails->lineEdit_OtherObservation,
-
     };
 
     QWidget *current = focusWidget();
@@ -492,13 +471,14 @@ void TestDetails::navigateFocus(int direction)
     if (index >= 0 && index < navWidgets.size())
     {
         QWidget *prev = navWidgets[index];
-        prev->setStyleSheet(
-            "QLineEdit, QTextEdit, QComboBox {"
-            "   background-color: white;"
-            "   border: 1px solid gray;"
-            "   outline: none;"
-            "}"
-            );
+        // prev->setStyleSheet(
+        //     "QLineEdit, QTextEdit, QComboBox {"
+        //     "   background-color: white;"
+        //     "   border: 1px solid gray;"
+        //     "   outline: none;"
+        //     "}"
+        //     );
+        prev->setStyleSheet("");
         QPalette p = prev->palette();
         p.setColor(QPalette::Base, Qt::white);
         prev->setPalette(p);
@@ -653,13 +633,20 @@ void TestDetails::closePreview()
 
 void TestDetails::saveDataToFile()
 {
+    QFile file("testdetails.json");
+
     QJsonObject obj;
-    obj["OperatorName"] = testdetails->lineEdit_OperatorName->text();
-    obj["Div"]=testdetails->lineEdit_Div->text();
-    obj["Sec"]=testdetails->lineEdit_Sec->text();
-    obj["Line"] = testdetails->comboBox_Line->currentText();
+    if(file.open(QIODevice::ReadOnly))
+    {
+        QByteArray data = file.readAll();
+        file.close();
+
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+
+        if(doc.isObject())
+            obj = doc.object();
+    }
     obj["Stations"] = testdetails->lineEdit_Stations->text();
-    obj["TestType"] = testdetails->comboBox_TestType->currentText();
     obj["Km"]=testdetails->lineEdit_Km->text();
     obj["Mtr"]=testdetails->lineEdit_Mtr->text();
     obj["TP"]=testdetails->lineEdit_TP->text();
@@ -677,13 +664,9 @@ void TestDetails::saveDataToFile()
     obj["Class"] = testdetails->comboBox_Class->currentText();
     obj["FP"] = testdetails->comboBox_FP->currentText();
     obj["OthersObservation"] = testdetails->lineEdit_OtherObservation->text();
-
-
-
     obj["Date"] = testdetails->lineEdit_Date->text();
     obj["Time"] = testdetails->lineEdit_Time->text();
 
-    QFile file("testdetails.json");
     if (file.open(QIODevice::WriteOnly)) {
         file.write(QJsonDocument(obj).toJson());
         file.close();
@@ -708,12 +691,7 @@ void TestDetails::loadDataFromFile()
 
 
         // Restore other fields from last session
-        testdetails->lineEdit_OperatorName->setText(obj["OperatorName"].toString());
-        testdetails->lineEdit_Div->setText(obj["Div"].toString());
-        testdetails->lineEdit_Sec->setText(obj["Sec"].toString());
-        testdetails->comboBox_Line->setCurrentText(obj["Line"].toString());
         testdetails->lineEdit_Stations->setText(obj["Stations"].toString());
-        testdetails->comboBox_TestType->setCurrentText(obj["TestType"].toString());
         testdetails->lineEdit_Km->setText(obj["Km"].toString());
         testdetails->lineEdit_Mtr->setText(obj["Mtr"].toString());
         testdetails->lineEdit_TP->setText(obj["TP"].toString());

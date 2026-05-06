@@ -36,7 +36,6 @@ extern ConfigEntry config;
 extern int userChannel;
 extern int userCalset;
 extern QString DC_SC_mode;
-extern QString MachNo;
 extern double maxX, maxY;
 
 extern SharedData* shared;
@@ -56,7 +55,7 @@ class TestScreen : public QMainWindow
 
 public:
     TestScreen(QWidget *parent = nullptr);
-    void setSharedPointer(SharedData* ptr) { shared = ptr; };
+    void onSocketReadyRead(quint8 key);
 
 
     QMap<QLineEdit*, KeyPressState> inputStates;
@@ -84,8 +83,6 @@ private slots:
 
 
     // Socket slots
-    void onNewConnection();
-    void onSocketReadyRead();
 
     void loadSavedConfig();
     void saveConfigToFile();
@@ -119,8 +116,6 @@ private:
     int lastBatteryPercent = -1;  // -1 so first update always happens
 
 
-
-
     TestDetails *testdetails;
     PreviewScreen *previewscreen;
 
@@ -146,9 +141,11 @@ private:
     QTimer *BatteryUpdateTimer;
     QWidget *m_currentFocusedWidget = nullptr;
     QWidget* m_currentLogicalFocus = nullptr;  // currently highlighted widget
-    void startSocketServer();
 
     QStackedWidget *stackedWidget;
+
+signals :
+    void closeTestScreen();
 
 };
 #endif // TESTSCREEN_H
