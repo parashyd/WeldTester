@@ -1,0 +1,259 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <sys/ipc.h>
+#include <QMessageBox>
+#include <QThread>
+#include <QDebug>
+#include <QRegularExpression>
+#include <QMap>
+#include <cmath>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <pthread.h>
+#include <sched.h>
+#include <QTimer>
+#include <QtGlobal>
+#include <QSvgRenderer>
+#include "matrix_keypad.h"
+#include <qobject.h>
+
+
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+{
+    this->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
+    ui->setupUi(this);
+    this->setStyleSheet(R"(
+
+    /* ===== MAIN WINDOW ===== */
+    QMainWindow {
+        background-color: #070b10;
+    }
+
+    /* ===== CENTRAL WIDGET ===== */
+    QWidget#centralwidget {
+        padding: 8px;
+    }
+    /* ===== BASE TILE STYLE (ALL LABELS) ===== */
+
+    /* ===== LOGO ===== */
+    QLabel#label_logo {
+        background: transparent;
+        border: 0px;
+    }
+
+    /* ===== PRESSED EFFECT (we simulate using dynamic property later) ===== */
+    QLabel[pressed="true"] {
+        background-color: #0f1720;
+        border: 2px solid #1f6feb;
+    }
+
+    )");
+    // QLabel {
+    //     background-color: #121821;
+    // color: #dfe7ef;
+    // border: 2px solid #2a3542;
+    //     border-radius: 10px;
+    //     font-size: 16px;
+    //     font-weight: 600;
+    //     qproperty-alignment: AlignCenter;
+    // }
+    startSocketServer();
+
+
+}
+void MainWindow::startSocketServer()
+{
+    server = new QTcpServer(this);
+    connect(server, &QTcpServer::newConnection, this, &MainWindow::onNewConnection);
+
+    quint16 port = 8888;  // Use any free port
+    if (!server->listen(QHostAddress::Any, port)) {
+        QMessageBox::critical(this, "Server Error", "Failed to start server: " + server->errorString());
+    } else {
+        qDebug() << "Server listening on port" << port;
+    }
+}
+
+void MainWindow::onNewConnection()
+{
+    client = server->nextPendingConnection();
+    connect(client, &QTcpSocket::readyRead, this, &MainWindow::onSocketReadyRead);
+    qDebug() << "Client connected from" << client->peerAddress().toString();
+}
+
+void MainWindow::onSocketReadyRead()
+{
+    QByteArray data = client->readAll();
+    if (data.isEmpty()) return;
+
+    quint8 key = static_cast<quint8>(data.at(0));
+    qDebug() << "Received key (hex):" << QString("0x%1").arg(key, 2, 16, QLatin1Char('0')).toUpper();
+
+    if(key == ESC)
+    {
+        qDebug() << "ESC key pressed";
+        if(testscreen && testscreen->isVisible())
+        {
+            testscreen->onSocketReadyRead(static_cast<int>(key));
+            return;
+        }
+
+        if(testdetails0 && testdetails0->isVisible())
+        {
+            testdetails0->close();
+            testdetails0=nullptr;
+            return;
+        }
+        if(configscreen && configscreen->isVisible())
+        {
+            configscreen->close();
+            configscreen=nullptr;
+            return;
+        }
+
+    }
+    if(testscreen && testscreen->isVisible())
+    {
+        testscreen->onSocketReadyRead(static_cast<int>(key));
+        return;
+    }
+
+    if(testdetails0 && testdetails0->isVisible())
+    {
+        testdetails0->handleSocketKey(static_cast<int>(key));
+        return;
+    }
+
+    switch (key)
+    {
+    case UP: case LEFT:
+        navWidgets(-1);
+        break;
+
+    case DOWN: case RIGHT:
+        navWidgets(1);
+        break;
+
+    case OK:
+        navScreen();
+        break;
+
+    }
+}
+void MainWindow::setLogicalFocus(QWidget* widget)
+{
+    if (!widget) return;
+
+    // 1️ Remove previous highlight
+    if (m_currentLogicalFocus && m_currentLogicalFocus != widget) {
+        // Reset style to default
+        m_currentLogicalFocus->setStyleSheet("");
+    }
+
+    // 2️⃣ Apply highlight to the new widget\
+    // "background-color: rgb(255,255,150);"
+    widget->setStyleSheet(
+        "background-color: rgb(120,180,255);"
+        "border: 2px solid white;"
+        );
+
+
+    m_currentLogicalFocus = widget;
+
+    // 3️⃣ Optional: attempt to give real Qt focus
+    if (widget->isVisible() && widget->isEnabled()) {
+        // For Wayland, this may not guarantee OS focus, but it's harmless
+        widget->setFocus(Qt::OtherFocusReason);
+
+    }
+
+    // 4️⃣ Debug output
+    qDebug() << "[LogicalFocus] Widget:" << widget->objectName()
+             << "Visible:" << widget->isVisible()
+             << "Enabled:" << widget->isEnabled()
+             << "hasFocus:" << widget->hasFocus();
+}
+void MainWindow::navScreen(void)
+{
+    if (!m_currentLogicalFocus)
+        return;
+
+    if (m_currentLogicalFocus == ui->label_test)
+    {
+        testdetails0 = new testdetail0(this);
+        testdetails0->setAttribute(Qt::WA_DeleteOnClose);
+        testdetails0->show();
+        connect(testdetails0, &testdetail0::requestTestscreen,this,[this]()
+            {
+                if(!testscreen){
+                    testscreen = new TestScreen(this);
+                    testscreen->show();
+                    testscreen->setAttribute(Qt::WA_DeleteOnClose);
+
+                    connect(testscreen,&TestScreen::closeTestScreen,this,[this]()
+                            {
+                        qDebug()<<"Closing TestScreen";
+                        testscreen->close();
+                        testscreen=nullptr;
+                    });
+                }
+            });
+    }
+
+    if (m_currentLogicalFocus == ui->label_config)
+    {
+        configscreen = new ConfigScreen(this);
+        configscreen->setAttribute(Qt::WA_DeleteOnClose);
+        configscreen->show();
+    }
+}
+void MainWindow::navWidgets(int direction)
+{
+    QList<QWidget*> navWidgets = {
+        ui->label_test,
+        ui->label_config,
+        ui->label_open,
+        ui->label_openlog,
+        ui->label_settings
+    };
+
+    // 🔹 Trust Qt's real focus
+    QWidget *current = focusWidget();
+
+    // Fallback only if nothing focused
+    if (!current || !navWidgets.contains(current)){
+        current = ui->label_test;
+        setLogicalFocus(current);
+        return;
+    }
+
+    setLogicalFocus(current);
+    int index = navWidgets.indexOf(current);
+
+    int newIndex = index + direction;
+    if (newIndex < 0)
+        newIndex = navWidgets.size() - 1;
+    else if (newIndex >= navWidgets.size())
+        newIndex = 0;
+
+    QWidget *newWidget = navWidgets[newIndex];
+
+    setLogicalFocus(newWidget);
+
+
+    // newWidget->setFocus(Qt::OtherFocusReason);
+
+    // 🔹 Move cursor for LineEdit
+    qDebug() << "Moved focus from"
+             << current->objectName()
+             << "to"
+             << newWidget->objectName();
+}
+
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
