@@ -41,9 +41,7 @@ extern double maxX, maxY;
 extern SharedData* shared;
 extern QVector<double> xDataFreeze , yDataFreeze;
 extern QVector<double> xData, yData;
-
 extern bool freeze;
-void close_openlog();
 
 QT_BEGIN_NAMESPACE
 namespace Ui {class TestScreen;}
@@ -80,6 +78,7 @@ private slots:
     void SaveDACPar();
     void UserDACPoints();
     void DrawDACCurve();
+    void handleRecording();
 
 
     // Socket slots

@@ -16,7 +16,8 @@
 #include <QSvgRenderer>
 #include "matrix_keypad.h"
 #include <qobject.h>
-
+#include "openlog.h"
+#include "viewlogdata.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -112,6 +113,18 @@ void MainWindow::onSocketReadyRead()
             configscreen=nullptr;
             return;
         }
+        if(openlogScreen && openlogScreen->isVisible())
+        {
+            openlogScreen->close();
+            openlogScreen=nullptr;
+            return;
+        }
+        if(openlog1 && openlog1->isVisible())
+        {
+            openlog1->close();
+            openlog1=nullptr;
+            return;
+        }
 
     }
     if(testscreen && testscreen->isVisible())
@@ -123,6 +136,23 @@ void MainWindow::onSocketReadyRead()
     if(testdetails0 && testdetails0->isVisible())
     {
         testdetails0->handleSocketKey(static_cast<int>(key));
+        return;
+    }
+
+    if(configscreen && configscreen->isVisible())
+    {
+        configscreen->handleSocketKey(static_cast<int>(key));
+        return;
+    }
+
+    if(openlogScreen && openlogScreen->isVisible())
+    {
+        openlogScreen->handleRemoteKey(static_cast<int>(key));
+        return;
+    }
+    if(openlog1 && openlog1->isVisible())
+    {
+        openlog1->handleSocketKey(static_cast<int>(key));
         return;
     }
 
@@ -208,6 +238,34 @@ void MainWindow::navScreen(void)
         configscreen->setAttribute(Qt::WA_DeleteOnClose);
         configscreen->show();
     }
+
+    if (m_currentLogicalFocus == ui->label_open)
+    {
+        openlogScreen = new Openlog(this);
+        openlogScreen->setAttribute(Qt::WA_DeleteOnClose);
+        openlogScreen->show();
+    }
+    if (m_currentLogicalFocus == ui->label_openlog)
+    {
+        openlog1 = new OpenLog1(this);
+        openlog1->setAttribute(Qt::WA_DeleteOnClose);
+        openlog1->show();
+        connect(openlog1, &OpenLog1::requestViewLogData,this,[this]
+                {
+            if(!viewlogdata)
+                {
+                viewlogdata = new viewLogData(this);
+                viewlogdata->show();
+                viewlogdata->setAttribute(Qt::WA_DeleteOnClose);
+                connect(viewlogdata, &viewLogData::closeviewlogdata,this,[this](){
+                    qDebug()<<"Closing viewlogdata";
+                    viewlogdata->show();
+                    viewlogdata = nullptr;
+                });
+            }
+        });
+    }
+
 }
 void MainWindow::navWidgets(int direction)
 {

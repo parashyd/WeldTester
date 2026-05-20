@@ -13,6 +13,7 @@ extern QString Division ;
 extern QString Section ;
 extern QString Line ;
 extern QString Testtype;
+extern QString WeldNo;
 
 
 namespace Ui {

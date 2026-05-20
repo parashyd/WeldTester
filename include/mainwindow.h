@@ -8,6 +8,9 @@
 #include "testdetails.h"
 #include "testscreen.h"
 #include "configscreen.h"
+#include "openlog.h"
+#include "openlog1.h"
+#include "viewlogdata.h"
 
 namespace Ui {
 class MainWindow;
@@ -39,10 +42,13 @@ private:
     QTcpSocket *client;
 
 
-    testdetail0 *testdetails0;
-    TestScreen *testscreen;
-    TestDetails *testdetails;
-    ConfigScreen *configscreen;
+    testdetail0 *testdetails0 =nullptr;
+    TestScreen *testscreen=nullptr;
+    TestDetails *testdetails=nullptr;
+    ConfigScreen *configscreen=nullptr;
+    Openlog *openlogScreen=nullptr;
+    OpenLog1 *openlog1=nullptr;
+    viewLogData *viewlogdata=nullptr;
 
     QWidget *m_currentFocusedWidget = nullptr;
     QWidget* m_currentLogicalFocus = nullptr;

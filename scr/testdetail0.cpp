@@ -25,6 +25,7 @@ QString Division ;
 QString Section ;
 QString Line ;
 QString Testtype;
+QString WeldNo;
 
 testdetail0::testdetail0(QWidget *parent)
     : QDialog(parent)
@@ -335,7 +336,7 @@ void testdetail0::saveDataToFile()
     Section = ui->secEdit->text();
     Line = ui->lineCombo->currentText();
     Testtype = ui->testTypeCombo->currentText();
-
+    WeldNo = ui->weldNoEdit->text();
 }
 void testdetail0::LoadSavedData()
 {

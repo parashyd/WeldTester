@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>OpenLog1</class>
+ <widget class="QWidget" name="OpenLog1">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Open Log Widget</string>
+  </property>
+  <widget class="QFrame" name="frameButtons">
+   <property name="geometry">
+    <rect>
+     <x>9</x>
+     <y>411</y>
+     <width>611</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>60</height>
+    </size>
+   </property>
+   <layout class="QHBoxLayout" name="buttonLayout">
+    <item>
+     <widget class="QPushButton" name="copyButton">
+      <property name="text">
+       <string>Copy</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="copyAllButton">
+      <property name="text">
+       <string>Copy All</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="deleteButton">
+      <property name="text">
+       <string>Del</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="deleteAllButton">
+      <property name="text">
+       <string>Del All</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="previewButton">
+      <property name="text">
+       <string>Preview</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QFrame" name="frameFiles">
+   <property name="geometry">
+    <rect>
+     <x>309</x>
+     <y>23</y>
+     <width>321</width>
+     <height>381</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="filesLayout">
+    <item>
+     <widget class="QLabel" name="labelFiles">
+      <property name="text">
+       <string>Log Files</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="fileList"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QFrame" name="frameWeldFolders">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>23</y>
+     <width>171</width>
+     <height>381</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="weldLayout">
+    <item>
+     <widget class="QLabel" name="labelWeldFolders">
+      <property name="text">
+       <string>Weld Folders</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="weldFolderList"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QFrame" name="frameDateFolders">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>23</y>
+     <width>131</width>
+     <height>381</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="dateLayout">
+    <item>
+     <widget class="QLabel" name="labelDateFolders">
+      <property name="text">
+       <string>Date Folders</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="dateFolderList"/>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

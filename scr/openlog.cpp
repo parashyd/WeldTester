@@ -249,7 +249,7 @@ void Openlog::handleRemoteKey(int keyCode)
         } else {
             //emit requestClose();
             // close
-            close_openlog();
+            //close_openlog();
         }
         break;
 

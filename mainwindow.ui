@@ -19,8 +19,8 @@
      <rect>
       <x>10</x>
       <y>320</y>
-      <width>622</width>
-      <height>121</height>
+      <width>621</width>
+      <height>141</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">

@@ -62,11 +62,17 @@ QMap<int, KeyPressState> keyStates;
 KeyPressState calsetState;
 QVector<double> xDataFreeze , yDataFreeze,DACx, DACy;
 QVector<double> xData, yData;
+
+QByteArray yDataa;
+
+QFile logfile;
+
 QVector<float> gain_offsetArr;
 QVector<int> range_offsetArr,delay_offsetArr,reject_offsetArr;
 
+
 int gain_Offset_i,range_Offset_i,delay_Offset_i,reject_Offset_i;
-Openlog *openlogScreen = nullptr;
+//Openlog *openlogScreen = nullptr;
 
 
 TestScreen::TestScreen(QWidget *parent)
@@ -377,6 +383,7 @@ TestScreen::TestScreen(QWidget *parent)
 
     ui->label_freeze->setVisible(false);//Make Freeze disable initially
     ui->label_pause->setVisible(false);//Make pause disable initially
+    ui->label_record->setVisible(false);//Make label_record disable initially
 
     ui->label_G1ST->setStyleSheet("QLabel { color : #219601; }");
     ui->label_G1ED->setStyleSheet("QLabel { color : #219601; }");
@@ -506,10 +513,10 @@ void TestScreen::onSocketReadyRead(quint8 key)
             setInputFieldsEnabled(true);
             return;
         }
-        if (openlogScreen && openlogScreen->isVisible()) {
-            openlogScreen->handleRemoteKey(key);  // ESC closes inside Openlog
-            return;
-        }
+        // if (openlogScreen && openlogScreen->isVisible()) {
+        //     openlogScreen->handleRemoteKey(key);  // ESC closes inside Openlog
+        //     return;
+        // }
 
         qDebug() << "ESC pressed on TestScreen (no popup)";
         emit closeTestScreen();
@@ -531,10 +538,10 @@ void TestScreen::onSocketReadyRead(quint8 key)
         return;
     }
 
-    if (openlogScreen && openlogScreen->isVisible()) {
-        openlogScreen->handleRemoteKey(static_cast<int>(key));
-        return;
-    }
+    // if (openlogScreen && openlogScreen->isVisible()) {
+    //     openlogScreen->handleRemoteKey(static_cast<int>(key));
+    //     return;
+    // }
 
     /* -----------------------------------------
      * 3) No popup active → TestScreen key operations
@@ -655,29 +662,40 @@ void TestScreen::onSocketReadyRead(quint8 key)
         }
         break;
 
-    case DAC:
-        DACCnt ++;
-
-        if(DACCnt == 1)
+    case DAC: //using for recording
+        if(ui->label_record->isVisible())
         {
-            ui->label_DAC->setVisible(true);
-            ui->lineEdit_CP->setVisible(true);  // make CP visible too
-            ui->lineEdit_CP->setText(QString::number(CP));
-            ui->lineEdit_CP->setFocus();   // <-- put focus directly on CP
+            ui->label_record->setVisible(false);
+            logfile.close();
+        }else{
+            ui->label_record->setVisible(true);
+            handleRecording();
         }
 
-        else if(DACCnt == 2)
-        {
-            ui->label_DAC->setVisible(false);
-            ui->lineEdit_CP->setVisible(false);
-            DACCnt = 0;
-            CP = 1 ;
-            DACx.clear();
-            DACy.clear();
-            DACx.resize(10);
-            DACy.resize(10);
-            DrawDACCurve();
-        }
+
+
+        // DACCnt ++;
+
+        // if(DACCnt == 1)
+        // {
+        //     ui->label_DAC->setVisible(true);
+        //     ui->lineEdit_CP->setVisible(true);  // make CP visible too
+        //     ui->lineEdit_CP->setText(QString::number(CP));
+        //     ui->lineEdit_CP->setFocus();   // <-- put focus directly on CP
+        // }
+
+        // else if(DACCnt == 2)
+        // {
+        //     ui->label_DAC->setVisible(false);
+        //     ui->lineEdit_CP->setVisible(false);
+        //     DACCnt = 0;
+        //     CP = 1 ;
+        //     DACx.clear();
+        //     DACy.clear();
+        //     DACx.resize(10);
+        //     DACy.resize(10);
+        //     DrawDACCurve();
+        // }
 
         break;
 
@@ -706,30 +724,30 @@ void TestScreen::onSocketReadyRead(quint8 key)
         // 1️⃣ If it's a button, click it
         if (auto btn = qobject_cast<QPushButton*>(focused))
         {
-            btn->click();
+            // btn->click();
 
-            QStackedWidget *stackedWidget = this->parent()->findChild<QStackedWidget*>("stackedWidget");
-            if (!stackedWidget) {
-                openlogScreen = new Openlog();
-                openlogScreen->setAttribute(Qt::WA_DeleteOnClose);
-                openlogScreen->show();
-                connect(openlogScreen, &QObject::destroyed, this, [this]() {
-                    openlogScreen = nullptr;
-                    setInputFieldsEnabled(true);
-                });
-                return;
-            }
+            // QStackedWidget *stackedWidget = this->parent()->findChild<QStackedWidget*>("stackedWidget");
+            // if (!stackedWidget) {
+            //     openlogScreen = new Openlog();
+            //     openlogScreen->setAttribute(Qt::WA_DeleteOnClose);
+            //     openlogScreen->show();
+            //     connect(openlogScreen, &QObject::destroyed, this, [this]() {
+            //         openlogScreen = nullptr;
+            //         setInputFieldsEnabled(true);
+            //     });
+            //     return;
+            // }
 
-            if (!openlogScreen) {
-                openlogScreen = new Openlog(stackedWidget);
-                stackedWidget->addWidget(openlogScreen);
-                connect(openlogScreen, &QObject::destroyed, this, [this]() {
-                    openlogScreen = nullptr;
-                    setInputFieldsEnabled(true);
-                });
-            }
+            // if (!openlogScreen) {
+            //     openlogScreen = new Openlog(stackedWidget);
+            //     stackedWidget->addWidget(openlogScreen);
+            //     connect(openlogScreen, &QObject::destroyed, this, [this]() {
+            //         openlogScreen = nullptr;
+            //         setInputFieldsEnabled(true);
+            //     });
+            // }
 
-            stackedWidget->setCurrentWidget(openlogScreen);
+            // stackedWidget->setCurrentWidget(openlogScreen);
             return;
         }
         else{
@@ -1250,9 +1268,11 @@ void TestScreen::updateGraphWithData()
     // }
     xData={0};
     yData={0};
+    yDataa={0};
 
     xData.resize(filtered.size());
     yData.resize(filtered.size());
+    yDataa.resize(filtered.size());
 
     maxX = 0;
     maxY = 0;
@@ -1267,6 +1287,7 @@ void TestScreen::updateGraphWithData()
 
         xData.append(addr);
         yData.append(val);
+        yDataa.append(val);
 
         // maxX = qMax(maxX, int(addr));
         // maxY = qMax(maxY, val);
@@ -1411,6 +1432,12 @@ void TestScreen::updateGraphWithData()
     }
     else{
         waveformGraph->setPen(QPen(Qt::yellow, 2));
+    }
+
+    if(ui->label_record->isVisible())
+    {
+        if(logfile.isOpen())
+            logfile.write(yDataa);
     }
 
     waveformGraph->setData(xNorm, yData);
@@ -1616,7 +1643,6 @@ void TestScreen::navigateFocusVertical(int direction)
         ui->lineEdit_G2ST,
         ui->lineEdit_G2ED,
         ui->lineEdit_TH2,
-        ui->pushButton
     };
 
     // 🔹 Trust Qt's real focus
@@ -1641,8 +1667,7 @@ void TestScreen::navigateFocusVertical(int direction)
         newIndex = 0;
 
     QWidget *newWidget = navWidgets[newIndex];
-    if(newWidget == ui->pushButton ||
-        newWidget == ui->lineEdit_Angle ||
+    if(newWidget == ui->lineEdit_Angle ||
         newWidget == ui->lineEdit_G1ST ||
         newWidget == ui->lineEdit_G1ED ||
         newWidget == ui->lineEdit_TH1 ||
@@ -2464,11 +2489,78 @@ void TestScreen::showBlankScreen()
     blank->showFullScreen(); // full screen blank window
 }
 
+void TestScreen::handleRecording()
+{
+    QString baseDir = "LogData";
+
+    // --- Ensure directories exist ---
+    QDir dir;
+    if (!dir.exists(baseDir)){
+        dir.mkpath(baseDir);
+        qDebug() << "LogData directory created";
+    }
+
+    QString dateFolder = QString("%1/%2").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy"));
+    if (!dir.exists(dateFolder))
+        dir.mkpath(dateFolder);
+
+    QString weldFolder = QString("%1/%2/%3").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg(WeldNo);
+    if (!dir.exists(weldFolder))
+        dir.mkpath(weldFolder);
+
+
+    QString configFile =
+        QString("%1/Config.txt").arg(weldFolder);
+    if(QFile::exists(configFile))
+    {
+        QFile::remove(configFile);
+    }
+    if(QFile::copy("Config.txt", configFile))
+    {
+        qDebug() << "Config.txt copied successfully";
+    }
+    else
+    {
+        qDebug() << "Failed to copy Config.txt";
+    }
+
+    QString testdetailsFile =
+        QString("%1/testdetails.json").arg(weldFolder);
+    if(QFile::exists(testdetailsFile))
+    {
+        QFile::remove(testdetailsFile);
+    }
+    if(QFile::copy("testdetails.json", testdetailsFile))
+    {
+        qDebug() << "testdetails.json copied successfully";
+    }
+    else
+    {
+        qDebug() << "Failed to copy testdetails.json";
+    }
+
+    int temp=1;
+    QString logdataFile = QString("%1/%2_%3_%4.wt").arg(weldFolder).arg(config.channel).arg(config.calset).arg(config.Angle);
+    while(QFile::exists(logdataFile))
+    {
+        logdataFile = QString("%1/%2_%3_%4(%5).wt").arg(weldFolder).arg(config.channel).arg(config.calset).arg(config.Angle).arg(temp);
+        temp++;
+    }
+
+    QFile file(logdataFile);
+
+    if(file.open(QIODevice::WriteOnly))
+    {
+        qDebug() << "WT file created:" << logdataFile;
+
+        file.close();
+    }
+
+    logfile.setFileName(logdataFile);
+    logfile.open(QIODevice::WriteOnly);
+}
+
 TestScreen::~TestScreen()
 {
     delete ui;
-}
-void close_openlog(){
-    openlogScreen->close();
-    openlogScreen = nullptr;
 }

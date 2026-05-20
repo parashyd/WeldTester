@@ -13,6 +13,7 @@ INCLUDEPATH += include/
 VPATH += scr/
 
 SOURCES += \
+    scr/openlog1.cpp \
     scr/configscreen.cpp \
     main.cpp \
     scr/mainwindow.cpp \
@@ -28,7 +29,8 @@ SOURCES += \
     scr/sh_dpram.cpp \
     scr/testdetails.cpp \
     scr/testscreen.cpp \
-    scr/testdetail0.cpp
+    scr/testdetail0.cpp \
+    scr/viewlogdata.cpp
 
 HEADERS += \
     include/configscreen.h \
@@ -44,16 +46,20 @@ HEADERS += \
     include/testdetails.h \
     include/testscreen.h \
     include/mainwindow.h \
-    include/testdetail0.h
+    include/testdetail0.h \
+    include/openlog1.h \
+    include/viewlogdata.h
 
 FORMS += \
     Openlog.ui \
     configscreen.ui \
     mainwindow.ui \
+    openlog1.ui \
     previewscreen.ui \
     testdetail0.ui \
     testdetails.ui \
-    testscreen.ui
+    testscreen.ui \
+    viewlogdata.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
