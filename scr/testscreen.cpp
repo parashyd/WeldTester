@@ -21,6 +21,7 @@
 #include "openlog.h"
 #include "previewscreen.h"
 #include "testdetail0.h"
+#include "wt_logger.h"
 
 #define MAX_LINE 200
 #define LINE_LENGTH 70
@@ -65,7 +66,8 @@ QVector<double> xData, yData;
 
 QByteArray yDataa;
 
-QFile logfile;
+//QFile logfile;
+WtLogger logfile;
 
 QVector<float> gain_offsetArr;
 QVector<int> range_offsetArr,delay_offsetArr,reject_offsetArr;
@@ -1268,8 +1270,8 @@ void TestScreen::updateGraphWithData()
     // }
     xData={0};
     yData={0};
-    yDataa={0};
-
+    //yDataa={0};
+    yDataa.clear();
     xData.resize(filtered.size());
     yData.resize(filtered.size());
     yDataa.resize(filtered.size());
@@ -1280,17 +1282,29 @@ void TestScreen::updateGraphWithData()
     // -----------------------------
     // Convert raw points → normalized arrays
     // -----------------------------
-    for (const QPointF& p : filtered)
+    // for (const QPointF& p : filtered)
+    // {
+    //     double addr = p.x();
+    //     double val  = (p.y() / 255.0) * 100.0;
+
+    //     xData.append(addr);
+    //     yData.append(val);
+    //     yDataa.append(static_cast<uint8_t>(val));
+
+    //     // maxX = qMax(maxX, int(addr));
+    //     // maxY = qMax(maxY, val);
+
+    //     maxX = qMax<double>(maxX, double(addr));
+    //     maxY = qMax<double>(maxY, val);
+    // }
+    for (int i = 0; i < filtered.size(); i++)
     {
-        double addr = p.x();
-        double val  = (p.y() / 255.0) * 100.0;
+        double addr = filtered[i].x();
+        double val  = (filtered[i].y() / 255.0) * 100.0;
 
-        xData.append(addr);
-        yData.append(val);
-        yDataa.append(val);
-
-        // maxX = qMax(maxX, int(addr));
-        // maxY = qMax(maxY, val);
+        xData[i]  = addr;
+        yData[i]  = val;
+        yDataa[i] = static_cast<uint8_t>(val);  // one byte, correct value
 
         maxX = qMax<double>(maxX, double(addr));
         maxY = qMax<double>(maxY, val);
@@ -1437,7 +1451,7 @@ void TestScreen::updateGraphWithData()
     if(ui->label_record->isVisible())
     {
         if(logfile.isOpen())
-            logfile.write(yDataa);
+            logfile.writeFrame(yDataa);
     }
 
     waveformGraph->setData(xNorm, yData);
@@ -2509,20 +2523,20 @@ void TestScreen::handleRecording()
         dir.mkpath(weldFolder);
 
 
-    QString configFile =
-        QString("%1/Config.txt").arg(weldFolder);
-    if(QFile::exists(configFile))
-    {
-        QFile::remove(configFile);
-    }
-    if(QFile::copy("Config.txt", configFile))
-    {
-        qDebug() << "Config.txt copied successfully";
-    }
-    else
-    {
-        qDebug() << "Failed to copy Config.txt";
-    }
+    // QString configFile =
+    //     QString("%1/Config.txt").arg(weldFolder);
+    // if(QFile::exists(configFile))
+    // {
+    //     QFile::remove(configFile);
+    // }
+    // if(QFile::copy("Config.txt", configFile))
+    // {
+    //     qDebug() << "Config.txt copied successfully";
+    // }
+    // else
+    // {
+    //     qDebug() << "Failed to copy Config.txt";
+    // }
 
     QString testdetailsFile =
         QString("%1/testdetails.json").arg(weldFolder);
@@ -2556,8 +2570,10 @@ void TestScreen::handleRecording()
         file.close();
     }
 
-    logfile.setFileName(logdataFile);
-    logfile.open(QIODevice::WriteOnly);
+    logfile.open(logdataFile,config);
+
+    // logfile.setFileName(logdataFile);
+    // logfile.open(QIODevice::WriteOnly);
 }
 
 TestScreen::~TestScreen()

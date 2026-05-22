@@ -1,286 +1,327 @@
 #include "viewlogdata.h"
 #include "ui_viewlogdata.h"
-#include "testscreen.h"
-#include "QFile"
+#include "wt_logger.h"
+#include "DataFile.h"
+#include "matrix_keypad.h"
 
-ConfigEntry recconfig;
+static constexpr int PLAYBACK_INTERVAL_MS = 20;  // 50 fps, same as live
 
-QVector<double> xarr,yarr;
-
+// ──────────────────────────────────────────────────────────────
+//  Constructor
+// ──────────────────────────────────────────────────────────────
 viewLogData::viewLogData(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::viewLogData)
 {
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
     ui->setupUi(this);
-    setPlotAppearance();
-    wave=ui->PLOT->addGraph();
-    loadWaveform(selectedFilePath);
 
-}
-void viewLogData::loadWaveform(QString wtFilePath)
-{
-    int channel, calset;
+    setupPlot();
+    setupControls();
 
-    QString filename =
-        QFileInfo(wtFilePath).baseName();
-
-    QString configPath =
-        QFileInfo(wtFilePath).absolutePath();
-
-    configPath += "/Config.txt";
-
-    QStringList parts =
-        filename.split("_");
-
-    if(parts.size() < 3)
-    {
-        qDebug() << "Invalid WT filename";
-        return;
-    }
-
-    channel = parts[0].toInt();
-
-    calset = parts[1].toInt();
-
-    qDebug() << "Channel:" << channel;
-    qDebug() << "Calset:" << calset;
-
-    QFile configFile(configPath);
-
-    if(!configFile.open(QIODevice::ReadOnly |
-                         QIODevice::Text))
-    {
-        qDebug() << "Failed to open Config.txt";
-
-        return;
-    }
-
-    QTextStream in(&configFile);
-
-    bool matchFound = false;
-
-    while(!in.atEnd())
-    {
-        QString line = in.readLine();
-
-        // QStringList fields =
-        //     line.split(",");
-        QStringList fields =
-            line.split(",", Qt::SkipEmptyParts);
-        if(fields.size() != 13)
-            continue;
-
-        ConfigEntry temp;
-
-        temp.calset = fields[0].toInt();
-
-        temp.channel = fields[1].toInt();
-
-        temp.range = fields[2].toDouble();
-
-        temp.delay = fields[3].toDouble();
-
-        temp.reject = fields[4].toDouble();
-
-        temp.g1_start = fields[5].toInt();
-
-        temp.g1_end = fields[6].toInt();
-
-        temp.th1 = fields[7].toInt();
-
-        temp.g2_start = fields[8].toInt();
-
-        temp.g2_end = fields[9].toInt();
-
-        temp.th2 = fields[10].toInt();
-
-        temp.Gain = fields[11].toDouble();
-
-        temp.Angle = fields[12].toFloat();
-
-        if(temp.calset == calset &&
-            temp.channel == channel)
-        {
-            recconfig = temp;
-
-            matchFound = true;
-
-            break;
-        }
-    }
-
-    configFile.close();
-
-    if(!matchFound)
-    {
-        qDebug() << "Matching config not found";
-
-        return;
-    }
-
-    frameSize =
-        recconfig.Angle < 30 ?
-            (recconfig.range *
-             RANGE_FACTOR_LT30)
-                             :
-            (recconfig.range *
-             RANGE_FACTOR_GT30);
-
-    qDebug() << "Frame Size:"
-             << frameSize;
-
-    qDebug() << selectedFilePath;
-    qDebug() << wtFilePath;
-
-
-    // QFile plybk(wtFilePath);
-    // qDebug() << "plybk initialized";
-    // plybk.open(QIODevice::ReadOnly);
-    // qDebug() << "plybk opened";
-
-    // if(!plybk.open(QIODevice::ReadOnly))
-    // {
-    //     qDebug() << "Failed to open plybk file";
-
-    //     return;
-    // }
-
-    if (channel == 1){
-        wave->setPen(QPen(Qt::magenta, 2));
-    }
-    else{
-        wave->setPen(QPen(Qt::yellow, 2));
-    }
-
-    wave->setLineStyle(QCPGraph::lsLine);
-
-    playbackFile.setFileName(wtFilePath);
-    qDebug() << " playback file initialized";
-
-    // playbackFile.open(QIODevice::ReadOnly);
-    // qDebug() << "opened playback file";
-
-
-    if(!playbackFile.open(QIODevice::ReadOnly))
-    {
-        qDebug() << "Failed to open playback file";
-
-        return;
-    }
-
-    ui->PLOT->xAxis->setRange(0, recconfig.range);
-    ui->PLOT->yAxis->setRange(0, 100);
-    updateGridInterval();
-
-    currentOffset = 0;
-
-    playbackTimer = new QTimer(this);
-
-        connect(playbackTimer,
-                &QTimer::timeout,
-                this,
-                &viewLogData::updatePlaybackFrame);
-
-
-    playbackTimer->start(20);
-
-    qDebug() << "Playback started";
+    // Open file immediately using the global selectedFilePath
+    if (!selectedFilePath.isEmpty())
+        openFile(selectedFilePath);
 }
 
-void viewLogData::updatePlaybackFrame()
+// ──────────────────────────────────────────────────────────────
+//  Plot setup – OpenGL enabled for smooth rendering
+// ──────────────────────────────────────────────────────────────
+void viewLogData::setupPlot()
 {
-    if(!playbackFile.isOpen())
-        return;
-
-    if(playbackFile.atEnd())
-    {
-        playbackTimer->stop();
-
-        playbackFile.close();
-
-        qDebug() << "Playback Finished";
-
-        return;
-    }
-    playbackFile.seek(currentOffset);
-
-    QByteArray frameData =
-        playbackFile.read(frameSize);
-
-    xarr={0};
-    yarr={0};
-
-    yarr.resize(frameSize);
-    xarr.resize(frameSize);
-
-    for(int i = 0; i < frameData.size(); i++)
-    {
-        xarr[i] = i/RANGE_FACTOR_LT30;
-        yarr[i] = static_cast<quint8>(frameData[i]);
-    }
-
-    wave->data()->clear();
-
-    wave->setData(xarr, yarr);
-
-    ui->PLOT->replot();
-    currentOffset+=frameSize;
-}
-
-
-void viewLogData::setPlotAppearance()
-{
+    ui->PLOT->setOpenGl(true);                 // <── same as testscreen
     ui->PLOT->setFixedSize(485, 335);
     ui->PLOT->setBackground(Qt::black);
-    QSharedPointer<QCPAxisTickerFixed> xTicker(new QCPAxisTickerFixed);
-    xTicker->setScaleStrategy(QCPAxisTickerFixed::ssNone);
-    ui->PLOT->xAxis->setTicker(xTicker);
-    ui->PLOT->xAxis->setBasePen(QPen(Qt::white));
-    ui->PLOT->xAxis->setTickPen(QPen(Qt::white));
-    ui->PLOT->xAxis->setTickLabelColor(Qt::white);
-    ui->PLOT->xAxis->grid()->setPen(QPen(Qt::gray));
-    ui->PLOT->xAxis->grid()->setSubGridPen(QPen(Qt::darkGray));
-    ui->PLOT->xAxis->setTickLabelSide(QCPAxis::lsOutside);
 
-    QSharedPointer<QCPAxisTickerFixed> yTicker(new QCPAxisTickerFixed);
-    yTicker->setScaleStrategy(QCPAxisTickerFixed::ssNone);
-    ui->PLOT->yAxis->setTicker(yTicker);
-    ui->PLOT->yAxis->setBasePen(QPen(Qt::white));
-    ui->PLOT->yAxis->setTickPen(QPen(Qt::white));
-    ui->PLOT->yAxis->setTickLabelColor(Qt::white);
-    ui->PLOT->yAxis->grid()->setPen(QPen(Qt::gray));
-    ui->PLOT->yAxis->grid()->setSubGridPen(QPen(Qt::darkGray));
-    ui->PLOT->yAxis->setTickLabelSide(QCPAxis::lsOutside);
+    auto makeFixedTicker = [](QCustomPlot *plot, QCPAxis *axis) {
+        QSharedPointer<QCPAxisTickerFixed> t(new QCPAxisTickerFixed);
+        t->setScaleStrategy(QCPAxisTickerFixed::ssNone);
+        axis->setTicker(t);
+        axis->setBasePen(QPen(Qt::white));
+        axis->setTickPen(QPen(Qt::white));
+        axis->setTickLabelColor(Qt::white);
+        axis->grid()->setPen(QPen(Qt::gray));
+        axis->grid()->setSubGridPen(QPen(Qt::darkGray));
+        axis->setTickLabelSide(QCPAxis::lsOutside);
+    };
+    makeFixedTicker(ui->PLOT, ui->PLOT->xAxis);
+    makeFixedTicker(ui->PLOT, ui->PLOT->yAxis);
 
     ui->PLOT->xAxis->setRange(0, 100);
     ui->PLOT->yAxis->setRange(0, 100);
 
+    m_wave = ui->PLOT->addGraph();
+    m_wave->setLineStyle(QCPGraph::lsLine);
+    m_wave->setPen(QPen(Qt::yellow, 2));
+
     ui->PLOT->replot();
-    updateGridInterval();
 }
+
+// ──────────────────────────────────────────────────────────────
+//  Connect UI controls (buttons / slider expected in .ui)
+// ──────────────────────────────────────────────────────────────
+void viewLogData::setupControls()
+{
+    m_timer = new QTimer(this);
+    m_timer->setInterval(PLAYBACK_INTERVAL_MS);
+    m_timer->setTimerType(Qt::PreciseTimer);   // avoids OS jitter
+    connect(m_timer, &QTimer::timeout, this, &viewLogData::onTimerTick);
+
+    // Wire up buttons – these object names must match your .ui file.
+    // Adjust names to whatever you have in viewlogdata.ui.
+    if (ui->btn_PlayPause)
+        connect(ui->btn_PlayPause, &QPushButton::clicked,
+                this, &viewLogData::onPlayPause);
+
+    // if (ui->btn_Stop)
+    //     connect(ui->btn_Stop, &QPushButton::clicked,
+    //             this, &viewLogData::onStop);
+
+    // if (ui->btn_Close)
+    //     connect(ui->btn_Close, &QPushButton::clicked,
+    //             this, &viewLogData::close);
+
+    // Scrub slider – user drags to jump to a frame
+    if (ui->slider_Scrub)
+    {
+        ui->slider_Scrub->setRange(0, 0);
+        connect(ui->slider_Scrub, &QSlider::sliderPressed,
+                this, [this]{ m_userScrubbing = true; m_timer->stop(); });
+        connect(ui->slider_Scrub, &QSlider::sliderReleased,
+                this, &viewLogData::onScrubReleased);
+        connect(ui->slider_Scrub, &QSlider::valueChanged,
+                this, &viewLogData::onScrubMoved);
+    }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Open a .wt file and start playback
+// ──────────────────────────────────────────────────────────────
+void viewLogData::openFile(const QString &path)
+{
+    stopPlayback();
+
+    if (!m_reader.open(path))
+    {
+        qWarning() << "[viewLogData] Failed to open" << path;
+        return;
+    }
+
+    // Configure plot axes from header
+    float range = m_reader.config().range;
+    ui->PLOT->xAxis->setRange(0, range);
+    ui->PLOT->yAxis->setRange(0, 100);
+    updateGridInterval();
+
+    // Configure wave colour by channel
+    QPen wavePen(m_reader.config().channel == 1 ? Qt::magenta : Qt::yellow, 2);
+    m_wave->setPen(wavePen);
+
+    // Configure scrub slider
+    if (ui->slider_Scrub)
+    {
+        ui->slider_Scrub->setRange(0, qMax(0, m_reader.totalFrames() - 1));
+        ui->slider_Scrub->setValue(0);
+    }
+
+    updateTimeLabel();
+    startPlayback();
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Playback control
+// ──────────────────────────────────────────────────────────────
+void viewLogData::startPlayback()
+{
+    if (!m_reader.isOpen()) return;
+    m_paused = false;
+    m_timer->start();
+    if (ui->btn_PlayPause)
+        ui->btn_PlayPause->setText("Pause");
+}
+
+void viewLogData::pausePlayback()
+{
+    m_paused = true;
+    m_timer->stop();
+    if (ui->btn_PlayPause)
+        ui->btn_PlayPause->setText("Play");
+}
+
+void viewLogData::stopPlayback()
+{
+    m_timer->stop();
+    m_paused = true;
+    m_reader.close();
+    if (ui->btn_PlayPause)
+        ui->btn_PlayPause->setText("Play");
+    if (ui->slider_Scrub)
+        ui->slider_Scrub->setValue(0);
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Core timer tick – runs every 20 ms during playback
+// ──────────────────────────────────────────────────────────────
+void viewLogData::onTimerTick()
+{
+    if (!m_reader.isOpen()) return;
+
+    if (m_reader.atEnd())
+    {
+        pausePlayback();
+        qDebug() << "[viewLogData] Playback finished";
+        return;
+    }
+
+    QByteArray frame = m_reader.readNextFrame();
+    if (frame.isEmpty()) return;
+
+    renderFrame(frame);
+
+    // Sync scrub slider without triggering valueChanged→seek loop
+    if (ui->slider_Scrub && !m_userScrubbing)
+    {
+        QSignalBlocker blocker(ui->slider_Scrub);
+        ui->slider_Scrub->setValue(m_reader.currentFrame() - 1);
+    }
+
+    updateTimeLabel();
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Render a single frame to the plot
+// ──────────────────────────────────────────────────────────────
+void viewLogData::renderFrame(const QByteArray &frame)
+{
+    const int   n  = frame.size();
+    const float rf = wtRangeFactor(m_reader.config());  // exact factor from header
+
+    // Reuse pre-allocated vectors to avoid heap churn every 20 ms
+    if (m_xBuf.size() != n) m_xBuf.resize(n);
+    if (m_yBuf.size() != n) m_yBuf.resize(n);
+
+    for (int i = 0; i < n; ++i)
+    {
+        m_xBuf[i] = i / rf;
+        m_yBuf[i] = static_cast<quint8>(frame[i]);
+    }
+
+    m_wave->data()->clear();
+    m_wave->setData(m_xBuf, m_yBuf, true); // true = already sorted
+    ui->PLOT->replot(QCustomPlot::rpQueuedReplot); // non-blocking replot
+}
+
+// ──────────────────────────────────────────────────────────────
+//  UI slots
+// ──────────────────────────────────────────────────────────────
+void viewLogData::onPlayPause()
+{
+    if (!m_reader.isOpen()) return;
+
+    if (m_paused)
+        startPlayback();
+    else
+        pausePlayback();
+}
+
+void viewLogData::onStop()
+{
+    stopPlayback();
+    // Clear the plot
+    m_wave->data()->clear();
+    ui->PLOT->replot();
+    updateTimeLabel();
+}
+
+void viewLogData::onScrubReleased()
+{
+    m_userScrubbing = false;
+    if (!m_reader.isOpen()) return;
+
+    int frame = ui->slider_Scrub ? ui->slider_Scrub->value() : 0;
+    m_reader.seekToFrame(frame);
+    renderFrame(m_reader.readNextFrame());   // preview the seeked frame
+    updateTimeLabel();
+
+    // Resume playback if it was playing before scrub
+    if (!m_paused)
+        m_timer->start();
+}
+
+void viewLogData::onScrubMoved(int value)
+{
+    if (!m_userScrubbing || !m_reader.isOpen()) return;
+    // Live preview while dragging – seek and render but don't advance
+    m_reader.seekToFrame(value);
+    QByteArray frame = m_reader.readNextFrame();
+    if (!frame.isEmpty())
+    {
+        m_reader.seekToFrame(value); // rewind back so onScrubReleased starts here
+        renderFrame(frame);
+    }
+    updateTimeLabel();
+}
+
+// ──────────────────────────────────────────────────────────────
+//  Helpers
+// ──────────────────────────────────────────────────────────────
+void viewLogData::updateTimeLabel()
+{
+    if (!ui->label_Time) return;
+
+    int cur   = m_reader.isOpen() ? m_reader.currentFrame() : 0;
+    int total = m_reader.isOpen() ? m_reader.totalFrames()  : 0;
+
+    double curSec   = cur   * 0.020;
+    double totalSec = total * 0.020;
+
+    ui->label_Time->setText(
+        QString("%1s / %2s")
+            .arg(curSec,   0, 'f', 1)
+            .arg(totalSec, 0, 'f', 1));
+}
+
 void viewLogData::updateGridInterval()
 {
-    // Update X-axis
-    double xLower = ui->PLOT->xAxis->range().lower;
-    double xUpper = ui->PLOT->xAxis->range().upper;
-    double xStep = (xUpper - xLower) / 10; // 10 intervals
+    auto setStep = [](QCPAxis *axis) {
+        double lo = axis->range().lower;
+        double hi = axis->range().upper;
+        QSharedPointer<QCPAxisTickerFixed> t =
+            axis->ticker().staticCast<QCPAxisTickerFixed>();
+        if (t) t->setTickStep((hi - lo) / 10.0);
+    };
+    setStep(ui->PLOT->xAxis);
+    setStep(ui->PLOT->yAxis);
+    ui->PLOT->replot(QCustomPlot::rpQueuedReplot);
+}
 
-    QSharedPointer<QCPAxisTickerFixed> xTicker = ui->PLOT->xAxis->ticker().staticCast<QCPAxisTickerFixed>();
-    xTicker->setTickStep(xStep);
+// ──────────────────────────────────────────────────────────────
+//  Key forwarding from OpenLog1 (your existing pattern)
+// ──────────────────────────────────────────────────────────────
+void viewLogData::handleSocketKey(quint8 key)
+{
+    // Map your hardware keys to actions
+    // Adjust key codes to match matrix_keypad.h defines
+    switch (key)
+    {
+    case RUN: // example: PLAY key
+        onPlayPause();
+        break;
+    case 0x51: // example: STOP key
+        onStop();
+        break;
 
-    // Update Y-axis
-    double yLower = ui->PLOT->yAxis->range().lower;
-    double yUpper = ui->PLOT->yAxis->range().upper;
-    double yStep = (yUpper - yLower) / 10; // 10 intervals
+    case ESC: // ESC – close
+        emit closeviewlogdata();
+        break;
 
-    QSharedPointer<QCPAxisTickerFixed> yTicker = ui->PLOT->yAxis->ticker().staticCast<QCPAxisTickerFixed>();
-    yTicker->setTickStep(yStep);
-
-    ui->PLOT->replot();
+    default:
+        break;
+    }
 }
 
 viewLogData::~viewLogData()
 {
+    stopPlayback();
     delete ui;
 }

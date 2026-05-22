@@ -48,7 +48,8 @@ HEADERS += \
     include/mainwindow.h \
     include/testdetail0.h \
     include/openlog1.h \
-    include/viewlogdata.h
+    include/viewlogdata.h \
+    wt_logger.h
 
 FORMS += \
     Openlog.ui \

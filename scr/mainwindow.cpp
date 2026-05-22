@@ -119,6 +119,11 @@ void MainWindow::onSocketReadyRead()
             openlogScreen=nullptr;
             return;
         }
+        if(viewlogdata && viewlogdata->isVisible())
+        {
+            viewlogdata->handleSocketKey(static_cast<int>(key));
+            return;
+        }
         if(openlog1 && openlog1->isVisible())
         {
             openlog1->close();
@@ -259,7 +264,7 @@ void MainWindow::navScreen(void)
                 viewlogdata->setAttribute(Qt::WA_DeleteOnClose);
                 connect(viewlogdata, &viewLogData::closeviewlogdata,this,[this](){
                     qDebug()<<"Closing viewlogdata";
-                    viewlogdata->show();
+                    viewlogdata->close();
                     viewlogdata = nullptr;
                 });
             }

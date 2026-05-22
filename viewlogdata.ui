@@ -18,9 +18,48 @@
     <rect>
      <x>20</x>
      <y>40</y>
-     <width>521</width>
-     <height>371</height>
+     <width>481</width>
+     <height>341</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_Time">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>40</y>
+     <width>66</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Time</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btn_PlayPause">
+   <property name="geometry">
+    <rect>
+     <x>540</x>
+     <y>80</y>
+     <width>94</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Play</string>
+   </property>
+  </widget>
+  <widget class="QSlider" name="slider_Scrub">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>130</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Orientation::Horizontal</enum>
    </property>
   </widget>
  </widget>
