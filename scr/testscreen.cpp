@@ -2525,7 +2525,7 @@ void TestScreen::handleRecording()
     if (!dir.exists(dateFolder))
         dir.mkpath(dateFolder);
 
-    QString weldFolder = QString("%1/%2/%3").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg(WeldNo);
+    QString weldFolder = QString("%1/%2/KM%3_M%4_%5_%6").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg(km).arg(M).arg(Rail).arg(WeldNo);
     if (!dir.exists(weldFolder))
         dir.mkpath(weldFolder);
 
@@ -2561,10 +2561,10 @@ void TestScreen::handleRecording()
     }
 
     int temp=1;
-    QString logdataFile = QString("%1/%2_%3_%4.wt").arg(weldFolder).arg(config.channel).arg(config.calset).arg(config.Angle);
+    QString logdataFile = QString("%1/%2_Ch%3_%4.wt").arg(weldFolder).arg(config.calset).arg(config.channel).arg(config.Angle);
     while(QFile::exists(logdataFile))
     {
-        logdataFile = QString("%1/%2_%3_%4(%5).wt").arg(weldFolder).arg(config.channel).arg(config.calset).arg(config.Angle).arg(temp);
+        logdataFile = QString("%1/%2_Ch%3_%4(%5).wt").arg(weldFolder).arg(config.calset).arg(config.channel).arg(config.Angle).arg(temp);
         temp++;
     }
 

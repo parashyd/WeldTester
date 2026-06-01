@@ -26,6 +26,10 @@ QString Section ;
 QString Line ;
 QString Testtype;
 QString WeldNo;
+QString km;
+QString M;
+QString Rail ;
+
 
 testdetail0::testdetail0(QWidget *parent)
     : QDialog(parent)
@@ -160,9 +164,10 @@ void testdetail0::setLogicalFocus(QWidget* widget)
     // 2️⃣ Apply highlight to the new widget\
     // "background-color: rgb(255,255,150);"
     widget->setStyleSheet(
-        "background-color: rgb(255,255,150);"
-
+        "background-color: rgb(120,180,255);"
+        "border: 2px solid black;"
         );
+
 
 
     m_currentLogicalFocus = widget;
@@ -337,6 +342,9 @@ void testdetail0::saveDataToFile()
     Line = ui->lineCombo->currentText();
     Testtype = ui->testTypeCombo->currentText();
     WeldNo = ui->weldNoEdit->text();
+    km = ui->kmEdit->text();
+    M = ui->mtrEdit->text();
+    Rail = ui->RailcomboBox->currentText();
 }
 void testdetail0::LoadSavedData()
 {
@@ -374,11 +382,11 @@ void testdetail0::handleSocketKey(quint8 key)
     switch (key) {
     case LEFT:
         navFocus(-1);
-        break;
+        return;
 
     case RIGHT:
         navFocus(+1);
-        break;
+        return;
 
     case INC:
         adjustComboBoxIndex(+1);

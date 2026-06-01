@@ -7,10 +7,7 @@
 #include <QElapsedTimer>
 #include <QTextEdit>
 
-extern QString Rail ;
 extern QString Mode;
-extern QString km;
-extern QString M;
 extern QString TP;
 extern QString LocOfDefect ;
 extern QString stations;

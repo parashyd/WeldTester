@@ -14,6 +14,9 @@ extern QString Section ;
 extern QString Line ;
 extern QString Testtype;
 extern QString WeldNo;
+extern QString km;
+extern QString M;
+extern QString Rail ;
 
 
 namespace Ui {

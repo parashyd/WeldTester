@@ -12,10 +12,7 @@
 #include <QFile>
 #include "testdetail0.h"
 
- QString Rail ;
  QString Mode;
- QString km;
- QString M;
  QString TP;
  QString LocOfDefect ;
  QString stations;
@@ -84,6 +81,9 @@ TestDetails::TestDetails(QWidget *parent)
 
     testdetails->comboBox_Probe->setCurrentIndex(config.Angle);                  // Angle (correction)
     testdetails->comboBox_Mode->setCurrentText(DC_SC_mode);
+    testdetails->lineEdit_Km->setText(km);
+    testdetails->lineEdit_Mtr->setText(M);
+    testdetails->comboBox_Rail->setCurrentText(Rail);
 
     testdetails->comboBox_LocOfDefect->setEditable(false);
     testdetails->comboBox_Probe->setEditable(false);
@@ -112,7 +112,7 @@ void TestDetails::setLogicalFocus(QWidget* widget)
 
     // 2️⃣ Apply highlight to the new widget
     widget->setStyleSheet(
-        "background-color: rgb(255,255,150);"
+        "background-color: rgb(120,180,255);"
         "border: 2px solid black;"
         );
 
