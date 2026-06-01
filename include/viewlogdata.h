@@ -49,7 +49,8 @@ private:
     WtReader      m_reader;
     QTimer       *m_timer        = nullptr;
     QCPGraph     *m_wave         = nullptr;
-
+    QCPGraph     *gborder         = nullptr;
+    QCPGraph     *gate         = nullptr;
     QVector<double> m_xBuf;   // pre-allocated, reused every frame
     QVector<double> m_yBuf;
 

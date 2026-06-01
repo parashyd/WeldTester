@@ -22,6 +22,17 @@ viewLogData::viewLogData(QWidget *parent)
     // Open file immediately using the global selectedFilePath
     if (!selectedFilePath.isEmpty())
         openFile(selectedFilePath);
+    ui->label_chval->setText(QString::number(m_reader.config().channel));
+    ui->label_calsetval->setText(QString::number(m_reader.config().calset));
+    ui->label_gainval->setText(QString::number(m_reader.config().Gain,'f',0));
+    ui->label_Rejectval->setText(QString::number(m_reader.config().reject,'f',0));
+    ui->label_rangeval->setText(QString::number(m_reader.config().range,'f',0));
+    ui->label_DelayVal->setText(QString::number(m_reader.config().delay,'f',0));
+    ui->label_Angleval->setText(QString::number(m_reader.config().Angle));
+    ui->lineEdit_GTST->setText(QString::number(5));
+    ui->lineEdit_GTED->setText(QString::number(30));
+    ui->lineEdit_TH->setText(QString::number(25));
+
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -53,6 +64,14 @@ void viewLogData::setupPlot()
     m_wave = ui->PLOT->addGraph();
     m_wave->setLineStyle(QCPGraph::lsLine);
     m_wave->setPen(QPen(Qt::yellow, 2));
+
+    gborder = ui->PLOT->addGraph();
+    gborder->setLineStyle(QCPGraph::lsLine);
+    gborder->setPen(QPen(Qt::white, 6));
+
+    gate = ui->PLOT->addGraph();
+    gate->setLineStyle(QCPGraph::lsLine);
+    gate->setPen(QPen(Qt::blue, 2));
 
     ui->PLOT->replot();
 }
@@ -200,11 +219,52 @@ void viewLogData::renderFrame(const QByteArray &frame)
     if (m_xBuf.size() != n) m_xBuf.resize(n);
     if (m_yBuf.size() != n) m_yBuf.resize(n);
 
+    double phValue =0;
+    double peakIndex =  -1;
+
+    double st = ui->lineEdit_GTST->text().toDouble() * m_reader.config().range / 100;
+    double ed = ui->lineEdit_GTED->text().toDouble()* m_reader.config().range / 100;
+    double th = ui->lineEdit_TH->text().toDouble();
     for (int i = 0; i < n; ++i)
     {
         m_xBuf[i] = i / rf;
         m_yBuf[i] = static_cast<quint8>(frame[i]);
+
+        //double x = m_reader.config().Angle<30?m_xBuf[i]/RANGE_FACTOR_LT30:m_xBuf[i]/RANGE_FACTOR_GT30;
+
+        double x = m_xBuf[i];
+        if (x >= st && x <= ed)
+        {
+            if (m_yBuf[i] > phValue){
+                peakIndex = i;
+            }
+
+            phValue = qMax(phValue, m_yBuf[i]);
+        }
     }
+
+    double bp = 0;
+
+    if (peakIndex >= 0)
+        for (int i = peakIndex; i >= 0; i--)
+            if (m_yBuf[i] == 0) { bp = m_xBuf[i]; break; }
+
+
+    ui->lineEdit_PH->setText(QString::number(phValue, 'f', 0));
+    ui->lineEdit->setText(QString::number(bp, 'f', 0));
+
+    double ang = m_reader.config().Angle * M_PI / 180.0;
+
+    double d  = bp * cos(ang);
+    double sd = bp * sin(ang);
+
+
+    ui->lineEdit_D->setText(QString::number(d, 'f', 0));
+    ui->lineEdit_SD->setText(QString::number(sd, 'f', 0));
+
+    gate->data()->clear();
+    gate->setData(QVector<double>{st, ed},
+                    QVector<double>{th, th});
 
     m_wave->data()->clear();
     m_wave->setData(m_xBuf, m_yBuf, true); // true = already sorted

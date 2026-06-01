@@ -1,6 +1,6 @@
 
 #include "Audio.h"
-
+int buzon=0;
 void write_sysfs(const char *path, const char *value) {
     int fd = open(path, O_WRONLY);
     if (fd < 0) {
@@ -57,9 +57,7 @@ int file_exists(const char *path) {
     return 0;
 
 }*/
-
-int BuzzerDuty(int duty_ns)
-{
+int Buzzerinit(){
     char path[128];
 
     // Export PWM if needed
@@ -68,23 +66,44 @@ int BuzzerDuty(int duty_ns)
         write_sysfs(PWM_CHIP "/export", PWM_CHANNEL);
         sleep(1);
     }
-
     // Set period
     snprintf(path, sizeof(path), PWM_CHIP "/pwm%s/period", PWM_CHANNEL);
     write_sysfs(path, PWM_PERIOD_NS);
+    return 0;
+}
+
+int BuzzerDuty(int duty_ns)
+{
+    char path[128];
 
     // Set duty cycle
     snprintf(path, sizeof(path), PWM_CHIP "/pwm%s/duty_cycle", PWM_CHANNEL);
     char duty_str[16];
     snprintf(duty_str, sizeof(duty_str), "%d", duty_ns);
     write_sysfs(path, duty_str);
+    return 0;
+}
 
+int BuzzerOn(bool val)
+{
+    char path[128];
     // Enable PWM
     snprintf(path, sizeof(path), PWM_CHIP "/pwm%s/enable", PWM_CHANNEL);
-    write_sysfs(path, "1");
+    if(val){
+        write_sysfs(path, "1");
+        buzon=1;
+    }else{
+        write_sysfs(path, "0");
+        buzon=0;
+    }
 
-    printf("AudioLevel: %d\n",duty_ns);
-
+    //printf("AudioLevel: %d\n",duty_ns);
     return 0;
+}
+bool isBuzzerOn(){
+    if(buzon){
+        return true;
+    }
+    return false;
 }
 

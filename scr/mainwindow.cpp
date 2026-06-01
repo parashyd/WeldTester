@@ -31,6 +31,19 @@ MainWindow::MainWindow(QWidget *parent)
     QMainWindow {
         background-color: #070b10;
     }
+    // QWidget {
+    //     background-color: #2B3138;
+    //     color: #F2F5F8;
+    //     font-family: "Segoe UI";
+    //     font-size: 11px;
+    // }
+    // QWidget {
+    // background-color: #070b10;
+    // }
+
+    // QDialog {
+    //     background-color: #070b10;
+    // }
 
     /* ===== CENTRAL WIDGET ===== */
     QWidget#centralwidget {
@@ -155,12 +168,16 @@ void MainWindow::onSocketReadyRead()
         openlogScreen->handleRemoteKey(static_cast<int>(key));
         return;
     }
+    if(viewlogdata && viewlogdata->isVisible())
+    {
+        viewlogdata->handleSocketKey(static_cast<int>(key));
+        return;
+    }
     if(openlog1 && openlog1->isVisible())
     {
         openlog1->handleSocketKey(static_cast<int>(key));
         return;
     }
-
     switch (key)
     {
     case UP: case LEFT:

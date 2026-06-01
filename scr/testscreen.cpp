@@ -270,8 +270,8 @@ TestScreen::TestScreen(QWidget *parent)
     // Compute initial duty
     int duty = 200000 * AudioLevel;
     if (duty > 1000000) duty = 1000000;
-
-    BuzzerDuty(duty);
+    Buzzerinit();
+    //BuzzerDuty(duty);
 
     m_audioPercent = (float)duty / 1000000 * 100.0f;
     ui->label_audioIndicator->update();
@@ -1279,50 +1279,9 @@ void TestScreen::updateGraphWithData()
     maxX = 0;
     maxY = 0;
 
-    // -----------------------------
-    // Convert raw points → normalized arrays
-    // -----------------------------
-    // for (const QPointF& p : filtered)
-    // {
-    //     double addr = p.x();
-    //     double val  = (p.y() / 255.0) * 100.0;
-
-    //     xData.append(addr);
-    //     yData.append(val);
-    //     yDataa.append(static_cast<uint8_t>(val));
-
-    //     // maxX = qMax(maxX, int(addr));
-    //     // maxY = qMax(maxY, val);
-
-    //     maxX = qMax<double>(maxX, double(addr));
-    //     maxY = qMax<double>(maxY, val);
-    // }
-    for (int i = 0; i < filtered.size(); i++)
-    {
-        double addr = filtered[i].x();
-        double val  = (filtered[i].y() / 255.0) * 100.0;
-
-        xData[i]  = addr;
-        yData[i]  = val;
-        yDataa[i] = static_cast<uint8_t>(val);  // one byte, correct value
-
-        maxX = qMax<double>(maxX, double(addr));
-        maxY = qMax<double>(maxY, val);
-    }
-
-    if (xData.isEmpty()) return;
-
     // Normalize X values
     QVector<double> xNorm;
     xNorm.reserve(xData.size());
-
-    // for (double a : xData)
-    //     xNorm.append(a / RANGE_FACTOR);
-
-    for (double a : xData){
-        config.Angle<=30 ? xNorm.append(a / RANGE_FACTOR_LT30) : xNorm.append(a / RANGE_FACTOR_GT30);
-    }
-
     // -----------------------------
     // Compute G1/G2 range windows
     // -----------------------------
@@ -1338,10 +1297,19 @@ void TestScreen::updateGraphWithData()
     ph1Value = ph2Value = 0;
     peakIndex1 = peakIndex2 = -1;
 
-    for (int i = 0; i < xNorm.size(); i++)
+    for (int i = 0; i < filtered.size(); i++)
     {
-        double x = xNorm[i];
+        double addr = filtered[i].x();
+        double val  = (filtered[i].y() / 255.0) * 100.0;
 
+        xData[i]  = addr;
+        config.Angle<=30 ? xNorm.append(xData[i] / RANGE_FACTOR_LT30) : xNorm.append(xData[i] / RANGE_FACTOR_GT30);
+
+        yData[i]  = val;
+        yDataa[i] = static_cast<uint8_t>(val); // one byte, correct value
+       //yDataa.append(val);
+
+        double x = xNorm[i];
         if (x >= g1Start && x <= g1End)
         {
             if (yData[i] > ph1Value){
@@ -1351,13 +1319,52 @@ void TestScreen::updateGraphWithData()
 
             ph1Value = qMax(ph1Value, yData[i]);
         }
-
         if (x >= g2Start && x <= g2End)
         {
             if (yData[i] > ph2Value)
                 peakIndex2 = i;
 
             ph2Value = qMax(ph2Value, yData[i]);
+        }
+        maxX = qMax<double>(maxX, double(addr));
+        maxY = qMax<double>(maxY, val);
+    }
+
+    if (xData.isEmpty()) return;
+
+    int g1buzon=0, g2buzon=0;
+    for (int i = 0; i < xNorm.size(); i++)
+    {
+        double x = xNorm[i];
+        if (x >= g1Start && x <= g1End)
+        {
+            if(yData[i]>config.th1)
+            {
+                g1buzon=1;
+                break;
+            }
+        }
+        if (x >= g2Start && x <= g2End)
+        {
+            if(yData[i]>config.th2)
+            {
+                g2buzon=1;
+                break;
+            }
+        }
+    }
+    if(g1buzon || g2buzon)
+    {
+        if(!isBuzzerOn()){
+            BuzzerOn(true);
+            ui->lineEdit_ch->setStyleSheet(        "background-color: red;"
+                                           "border: 2px solid black;");
+        }
+    }
+    else{
+        if(isBuzzerOn()){
+            BuzzerOn(false);
+            ui->lineEdit_ch->setStyleSheet("");
         }
     }
 
