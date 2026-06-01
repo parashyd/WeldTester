@@ -521,6 +521,8 @@ void TestScreen::onSocketReadyRead(quint8 key)
         // }
 
         qDebug() << "ESC pressed on TestScreen (no popup)";
+        plotUpdateTimer->stop();
+        BuzzerOn(false);
         emit closeTestScreen();
 
         return;
@@ -641,6 +643,10 @@ void TestScreen::onSocketReadyRead(quint8 key)
         break;
 
     case SAVE:
+        if(isBuzzerOn())
+        {
+            BuzzerOn(false);
+        }
         handleSaveFlow();
         break;
 

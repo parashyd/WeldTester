@@ -18,6 +18,7 @@
 #include <qobject.h>
 #include "openlog.h"
 #include "viewlogdata.h"
+#include "Audio.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -241,8 +242,8 @@ void MainWindow::navScreen(void)
             {
                 if(!testscreen){
                     testscreen = new TestScreen(this);
-                    testscreen->show();
                     testscreen->setAttribute(Qt::WA_DeleteOnClose);
+                    testscreen->show();
 
                     connect(testscreen,&TestScreen::closeTestScreen,this,[this]()
                             {

@@ -498,9 +498,9 @@ void TestDetails::navigateFocus(int direction)
     // 🔹 Apply yellow highlight to the newly focused widget
     nextWidget->setStyleSheet(
         "QLineEdit, QTextEdit, QComboBox {"
-        "   background-color: rgb(255, 255, 150);"
-        "   border: 1px solid black;"
-        "   outline: none;"
+        "background-color: rgb(120,180,255);"
+        "border: 1px solid black;"
+        "outline: none;"
         "}"
         "QLineEdit:focus, QTextEdit:focus, QComboBox:focus {"
         "   background-color: rgb(255, 255, 150);"

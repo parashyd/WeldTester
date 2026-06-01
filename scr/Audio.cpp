@@ -96,7 +96,6 @@ int BuzzerOn(bool val)
         write_sysfs(path, "0");
         buzon=0;
     }
-
     //printf("AudioLevel: %d\n",duty_ns);
     return 0;
 }
