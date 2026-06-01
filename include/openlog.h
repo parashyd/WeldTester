@@ -40,7 +40,8 @@ private:
 
     QListWidget *currentList = nullptr;
     FullscreenImageViewer *currentViewer = nullptr;
-
+signals:
+    void closeopenlogscreen();
 };
 
 #endif // OPENLOG_H

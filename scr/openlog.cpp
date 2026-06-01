@@ -247,7 +247,7 @@ void Openlog::handleRemoteKey(int keyCode)
             currentViewer->closeFullscreen();
             currentViewer = nullptr;
         } else {
-            //emit requestClose();
+            emit closeopenlogscreen();
             // close
             //close_openlog();
         }

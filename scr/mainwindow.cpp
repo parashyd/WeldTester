@@ -127,12 +127,12 @@ void MainWindow::onSocketReadyRead()
             configscreen=nullptr;
             return;
         }
-        if(openlogScreen && openlogScreen->isVisible())
-        {
-            openlogScreen->close();
-            openlogScreen=nullptr;
-            return;
-        }
+        // if(openlogScreen && openlogScreen->isVisible())
+        // {
+        //     openlogScreen->close();
+        //     openlogScreen=nullptr;
+        //     return;
+        // }
         if(viewlogdata && viewlogdata->isVisible())
         {
             viewlogdata->handleSocketKey(static_cast<int>(key));
@@ -267,6 +267,11 @@ void MainWindow::navScreen(void)
         openlogScreen = new Openlog(this);
         openlogScreen->setAttribute(Qt::WA_DeleteOnClose);
         openlogScreen->show();
+        connect(openlogScreen,&Openlog::closeopenlogscreen,this,[this]{
+            qDebug()<<"Closing openlogscreen";
+            openlogScreen->close();
+            openlogScreen = nullptr;
+        });
     }
     if (m_currentLogicalFocus == ui->label_openlog)
     {
