@@ -945,7 +945,8 @@ mainwindow.o: scr/mainwindow.cpp include/mainwindow.h \
 		include/viewlogdata.h \
 		wt_logger.h \
 		ui_mainwindow.h \
-		include/matrix_keypad.h
+		include/matrix_keypad.h \
+		include/Audio.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o scr/mainwindow.cpp
 
 Audio.o: scr/Audio.cpp include/Audio.h

@@ -5,8 +5,9 @@
 #include "matrix_keypad.h"
 #include <QDebug>
 #include <QTableWidgetItem>
-
+#include <QFile>
 #include <stdio.h>
+#include "QTimer"
 
 #define MAX_LINE_LEN 256
 
@@ -16,6 +17,18 @@ ConfigScreen::ConfigScreen(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+    saveMessageTimer = new QTimer(this);
+
+    saveMessageTimer->setSingleShot(true);
+
+    connect(saveMessageTimer,
+            &QTimer::timeout,
+            this,
+            [this]()
+            {
+                ui->statuslabel->clear();
+            });
+
     loadConfigToTables();
 }
 
@@ -95,7 +108,7 @@ void ConfigScreen::handleSocketKey(quint8 key)
 
         qDebug() << "Focused Channel 1 Table";
 
-        break;
+        return;
 
     case CH_B:
 
@@ -108,31 +121,31 @@ void ConfigScreen::handleSocketKey(quint8 key)
 
         qDebug() << "Focused Channel 2 Table";
 
-        break;
+        return;
 
     case UP:
         moveFocus(-1, 0);
-        break;
+        return;
 
     case DOWN:
         moveFocus(1, 0);
-        break;
+        return;
 
     case LEFT:
         moveFocus(0, -1);
-        break;
+        return;
 
     case RIGHT:
         moveFocus(0, 1);
-        break;
+        return;
 
     case INC:
-       // adjustValue(+1);
-        break;
+        adjustValue(+1);
+        return;
 
     case DEC:
-       // adjustValue(-1);
-        break;
+        adjustValue(-1);
+        return;
 
     case OK:
     {
@@ -141,21 +154,188 @@ void ConfigScreen::handleSocketKey(quint8 key)
         table->editItem(
             table->item(currentRow, currentCol));
 
-        break;
+        return;
     }
 
     case SAVE:
         qDebug() << "SAVE CONFIG";
-        break;
+        saveConfigFile();
+        return;
+    case BACKSPACE:
+        handleBackspaceInput();
+        return;
 
     case ESC:
         close();
+        return;
+
+    default:
+    {
+        int mapped =
+            normalizeKeyForNumeric(key);
+
+        if(mapped != -1)
+        {
+            handleDigitInput(
+                mapped - '0');
+        }
+
         break;
+        return;
     }
+    }
+
 }
 
+void ConfigScreen::saveConfigFile()
+{
+    QFile file("Config.txt");
 
+    if(!file.open(
+            QIODevice::WriteOnly |
+            QIODevice::Text))
+    {
+        qDebug() << "Cannot open Config.txt";
+        return;
+    }
 
+    QTextStream out(&file);
+
+    for(int row=0; row<10; row++)
+    {
+        QString gain =
+            ui->configTable->item(row,0)->text();
+
+        QString delay =
+            ui->configTable->item(row,1)->text();
+
+        QString range =
+            ui->configTable->item(row,2)->text();
+
+        QString reject =
+            ui->configTable->item(row,3)->text();
+
+        QString g1s =
+            ui->configTable->item(row,4)->text();
+
+        QString g1e =
+            ui->configTable->item(row,5)->text();
+
+        QString th1 =
+            ui->configTable->item(row,6)->text();
+
+        QString g2s =
+            ui->configTable->item(row,7)->text();
+
+        QString g2e =
+            ui->configTable->item(row,8)->text();
+
+        QString th2 =
+            ui->configTable->item(row,9)->text();
+
+        QString angle =
+            ui->configTable->item(row,10)->text();
+
+        out
+            << row+1 << ","
+            << 1 << ","
+            << range << ","
+            << delay << ","
+            << reject << ","
+            << g1s << ","
+            << g1e << ","
+            << th1 << ","
+            << g2s << ","
+            << g2e << ","
+            << th2 << ","
+            << gain << ","
+            << angle << ",\n";
+    }
+
+    for(int row=0; row<10; row++)
+    {
+        QString gain =
+            ui->configTable_2->item(row,0)->text();
+
+        QString delay =
+            ui->configTable_2->item(row,1)->text();
+
+        QString range =
+            ui->configTable_2->item(row,2)->text();
+
+        QString reject =
+            ui->configTable_2->item(row,3)->text();
+
+        QString g1s =
+            ui->configTable_2->item(row,4)->text();
+
+        QString g1e =
+            ui->configTable_2->item(row,5)->text();
+
+        QString th1 =
+            ui->configTable_2->item(row,6)->text();
+
+        QString g2s =
+            ui->configTable_2->item(row,7)->text();
+
+        QString g2e =
+            ui->configTable_2->item(row,8)->text();
+
+        QString th2 =
+            ui->configTable_2->item(row,9)->text();
+
+        QString angle =
+            ui->configTable_2->item(row,10)->text();
+
+        out
+            << row+1 << ","
+            << 2 << ","
+            << range << ","
+            << delay << ","
+            << reject << ","
+            << g1s << ","
+            << g1e << ","
+            << th1 << ","
+            << g2s << ","
+            << g2e << ","
+            << th2 << ","
+            << gain << ","
+            << angle << ",\n";
+    }
+
+    file.close();
+
+    qDebug() << "Config.txt Updated";
+    ui->statuslabel->setText("Config Data Saved Successfully");
+
+    ui->statuslabel->setStyleSheet(
+        "color: #00ff66;"
+        "font-size: 11px;"
+        "font-weight: bold;");
+    saveMessageTimer->start(2000);
+}
+
+void ConfigScreen::adjustValue(int delta)
+{
+    QTableWidget *table =
+        activeTable();
+
+    QTableWidgetItem *item =
+        table->item(
+            currentRow,
+            currentCol);
+
+    if(!item)
+        return;
+
+    int value =
+        item->text().toInt();
+
+    value += delta;
+
+    item->setText(
+        QString::number(value));
+}
 
 void ConfigScreen::loadConfigToTables()
 {
@@ -252,7 +432,78 @@ void ConfigScreen::loadConfigToTables()
 
     fclose(configFile);
 }
+int ConfigScreen::normalizeKeyForNumeric(quint8 key)
+{
+    if (key >= '0' && key <= '9')
+        return key;
 
+    switch(key)
+    {
+    case 'A': case 'B': case 'C': return '1';
+    case 'D': case 'E': case 'F': return '2';
+    case 'G': case 'H': case 'I': return '3';
+    case 'J': case 'K': case 'L': return '4';
+    case 'M': case 'N': case 'O': return '5';
+    case 'P': case 'Q': case 'R': case 'S': return '6';
+    case 'T': case 'U': case 'V': return '7';
+    case 'W': case 'X': case 'Y': case 'Z': return '8';
+    case '-': return '9';
+    }
+
+    return -1;
+}
+void ConfigScreen::handleDigitInput(int digit)
+{
+    QTableWidget *table = activeTable();
+
+    QTableWidgetItem *item =
+        table->item(currentRow,currentCol);
+
+    if(!item)
+    {
+        item = new QTableWidgetItem("0");
+
+        table->setItem(
+            currentRow,
+            currentCol,
+            item);
+    }
+
+    if(!editState.timer.isValid() ||
+        editState.timer.elapsed() > 3000)
+    {
+        editState.inputBuffer.clear();
+    }
+
+    editState.inputBuffer += QString::number(digit);
+
+    item->setText(editState.inputBuffer);
+
+    editState.timer.restart();
+}
+void ConfigScreen::handleBackspaceInput()
+{
+    QTableWidget *table = activeTable();
+
+    QTableWidgetItem *item =
+        table->item(currentRow, currentCol);
+
+    if(!item)
+        return;
+
+    QString text = item->text();
+
+    if(text.isEmpty())
+        return;
+
+    text.chop(1);
+
+    item->setText(text);
+
+    editState.inputBuffer = text;
+
+    editState.timer.restart();
+}
 ConfigScreen::~ConfigScreen()
 {
     delete ui;

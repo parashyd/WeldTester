@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QTableWidget>
+#include <QElapsedTimer>
 
 namespace Ui {
 class ConfigScreen;
@@ -22,9 +23,24 @@ private:
     int currentTable = 0;   // 0 = CH1 , 1 = CH2
     int currentRow = 0;
     int currentCol = 0;
+    QTimer *saveMessageTimer;
+
     void loadConfigToTables();
     void setLogicalFocus();
     void moveFocus(int dRow, int dCol);
+    void handleDigitInput(int digit);
+    void saveConfigFile();
+    int normalizeKeyForNumeric(quint8 key);
+    void adjustValue(int delta);
+    void handleBackspaceInput();
+
+    struct KeyPressState
+    {
+        QString inputBuffer;
+        QElapsedTimer timer;
+    };
+
+    KeyPressState editState;
 
     QTableWidget* activeTable();
 

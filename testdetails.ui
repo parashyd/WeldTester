@@ -83,7 +83,7 @@
      <x>10</x>
      <y>50</y>
      <width>621</width>
-     <height>51</height>
+     <height>52</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -305,12 +305,12 @@
      <widget class="QComboBox" name="comboBox_Rail">
       <item>
        <property name="text">
-        <string>LR</string>
+        <string>LH</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>RR</string>
+        <string>RH</string>
        </property>
       </item>
      </widget>

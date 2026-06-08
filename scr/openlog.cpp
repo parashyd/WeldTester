@@ -62,63 +62,43 @@ public:
  * ============================================================ */
 
 Openlog::Openlog(QWidget *parent)
-    : QWidget(parent),
+    : QDialog(parent),
     ui(new Ui::Openlog),
     watcher(new QFileSystemWatcher(this)),
     currentViewer(nullptr)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::Window );
 
-    /* --- Focus setup --- */
-    setFocusPolicy(Qt::NoFocus); // Parent itself does not take focus
 
-    ui->listWidget_Folder->setFocusPolicy(Qt::StrongFocus);
-    ui->listWidget_Images->setFocusPolicy(Qt::StrongFocus);
+    // /* ✅ Focus-aware styling */
+    // QString style = R"(
+    // QListWidget {
+    // color: white;
+    // background-color: #1e1e1e;
+    // border: 2px solid #444;
+    // }
 
-    /* ✅ Focus-aware styling */
-    QString style = R"(
-    QListWidget {
-    color: white;
-    background-color: #1e1e1e;
-    border: 2px solid #444;
-    }
+    // QListWidget::item {
+    // padding: 6px;
+    // }
 
-    QListWidget::item {
-    padding: 6px;
-    }
+    // QListWidget::item:selected {
+    // background-color: #0078d7;
+    // color: white;
+    // }
 
-    QListWidget::item:selected {
-    background-color: #0078d7;
-    color: white;
-    }
+    // QListWidget:focus {
+    // border: 2px solid #00ffcc;
+    // }
 
-    QListWidget:focus {
-    border: 2px solid #00ffcc;
-    }
+    // QListWidget:!focus {
+    // border: 2px solid #444;
+    // }
+    // )";
 
-    QListWidget:!focus {
-    border: 2px solid #444;
-    }
-    )";
-
-    ui->listWidget_Folder->setStyleSheet(style);
-    ui->listWidget_Images->setStyleSheet(style);
-
-    connect(ui->listWidget_Folder, &QListWidget::itemSelectionChanged,
-            this, [this]() {
-                if (ui->listWidget_Folder->hasFocus()) {
-                    ui->listWidget_Images->clearSelection();
-                    currentList = ui->listWidget_Folder;
-                }
-            });
-
-    connect(ui->listWidget_Images, &QListWidget::itemSelectionChanged,
-            this, [this]() {
-                if (ui->listWidget_Images->hasFocus()) {
-                    ui->listWidget_Folder->clearSelection();
-                    currentList = ui->listWidget_Images;
-                }
-            });
+    // ui->listWidget_Folder->setStyleSheet(style);
+    // ui->listWidget_Images->setStyleSheet(style);
 
 
     basePath = QCoreApplication::applicationDirPath() + "/SavedData";
@@ -142,9 +122,11 @@ Openlog::Openlog(QWidget *parent)
 
     loadFolders();
 
-    /* --- Initial focus --- */
-    currentList = ui->listWidget_Folder;
-    currentList->setFocus();
+    currentFocus = 0;
+
+    ui->listWidget_Folder->setCurrentRow(0);
+
+    updateFocusStyle();
 }
 
 Openlog::~Openlog()
@@ -206,53 +188,124 @@ void Openlog::onImageActivated(QListWidgetItem *item)
 }
 
 /* -------------------- REMOTE / KEYPAD -------------------- */
-void Openlog::handleRemoteKey(int keyCode)
+void Openlog::handleRemoteKey(int key)
 {
-    auto *folder = ui->listWidget_Folder;
-    auto *image  = ui->listWidget_Images;
+    QListWidget *currentList = nullptr;
 
-    switch (keyCode)
+    switch(currentFocus)
     {
-    case UP:
-    case DOWN: {
-        int delta = (keyCode == UP) ? -1 : 1;
-        int row = qBound(0, currentList->currentRow() + delta, currentList->count() - 1);
-        currentList->setCurrentRow(row);
+    case 0:
+        currentList = ui->listWidget_Folder;
+        break;
+
+    case 1:
+        currentList = ui->listWidget_Images;
         break;
     }
 
-    case LEFT:
-        currentList = folder;
-        folder->setFocus();
+    if(!currentList)
+        return;
+
+    int row = currentList->currentRow();
+
+    switch(key)
+    {
+    case UP:
+
+        if(row > 0)
+            currentList->setCurrentRow(row - 1);
+
+        break;
+
+    case DOWN:
+
+        if(row < currentList->count() - 1)
+            currentList->setCurrentRow(row + 1);
+
         break;
 
     case RIGHT:
-        if (image->count()) {
-            currentList = image;
-            image->setFocus();
+
+        if(currentFocus == 0 &&
+            ui->listWidget_Images->count() > 0)
+        {
+            currentFocus = 1;
+
+            updateFocusStyle();
+
+            ui->listWidget_Images->setCurrentRow(0);
         }
+
+        break;
+
+    case LEFT:
+
+        if(currentFocus == 1)
+        {
+            currentFocus = 0;
+
+            updateFocusStyle();
+        }
+
         break;
 
     case OK:
-        if (currentList == image)
-            onImageActivated(image->currentItem());
-        break;
 
+        if(currentFocus == 0)
+        {
+            QListWidgetItem *item =
+                ui->listWidget_Folder->currentItem();
+
+            if(item)
+                onFolderChanged(item);
+        }
+
+        else if(currentFocus == 1)
+        {
+            QListWidgetItem *item =
+                ui->listWidget_Images->currentItem();
+
+            if(item)
+                onImageActivated(item);
+        }
+
+        break;
 
     case ESC:
-        if (currentViewer)
+
+        if(currentViewer)
         {
-            qDebug() << "ESC -> closing fullscreen image";
-            // Forward ESC to the fullscreen window
             currentViewer->closeFullscreen();
             currentViewer = nullptr;
-        } else {
-            emit closeopenlogscreen();
-            // close
-            //close_openlog();
         }
-        break;
+        else
+        {
+            emit closeopenlogscreen();
+        }
 
+        break;
     }
 }
+void Openlog::updateFocusStyle()
+{
+    ui->listWidget_Folder->setStyleSheet("");
+    ui->listWidget_Images->setStyleSheet("");
 
+    QString focusStyle =
+        "QListWidget {"
+        "border: 2px solid #3aa0ff;"
+        "background-color: #dceeff;"
+        "border-radius: 6px;"
+        "}";
+
+    switch(currentFocus)
+    {
+    case 0:
+        ui->listWidget_Folder->setStyleSheet(focusStyle);
+        break;
+
+    case 1:
+        ui->listWidget_Images->setStyleSheet(focusStyle);
+        break;
+    }
+}

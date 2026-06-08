@@ -9,6 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QFile>
+#include "QTimer"
 
 enum class InputMode {
     Numeric,
@@ -110,6 +111,16 @@ testdetail0::testdetail0(QWidget *parent)
 )");
     ui->lineothersEdit->setVisible(false);
 
+    QTimer *timer = new QTimer(this);
+
+    connect(timer, &QTimer::timeout, this, [=]() {
+        QDateTime now = QDateTime::currentDateTime();
+        ui->dateEdit->setText(now.toString("dd-MM-yyyy"));
+        ui->timeEdit->setText(now.toString("HH:mm:ss"));
+    });
+
+    timer->start(1000);
+
     inputModesTD0[ui->opEdit]=InputMode::Alphabetic;
     inputModesTD0[ui->divEdit]=InputMode::Alphanumeric;
     inputModesTD0[ui->secEdit]=InputMode::Alphanumeric;
@@ -205,8 +216,8 @@ void testdetail0::navFocus(int direction)
         ui->kmEdit,
         ui->mtrEdit,
         ui->RailcomboBox,
-        ui->weldNoEdit,
-        ui->TestButton
+        ui->weldNoEdit
+       //ui->TestButton
     };
 
     // 🔹 Trust Qt's real focus
@@ -388,11 +399,11 @@ void testdetail0::handleSocketKey(quint8 key)
         navFocus(+1);
         return;
 
-    case INC:
+    case DOWN:
         adjustComboBoxIndex(+1);
         return;
 
-    case DEC:
+    case UP:
         adjustComboBoxIndex(-1);
         return;
 

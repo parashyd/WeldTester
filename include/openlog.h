@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QFileSystemWatcher>
 #include <QListWidgetItem>
-
+#include "QDialog"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Openlog; }   // match your .ui filename
@@ -12,7 +12,7 @@ QT_END_NAMESPACE
 
 class FullscreenImageViewer;   // <<< forward declaration
 
-class Openlog : public QWidget
+class Openlog : public QDialog
 {
     Q_OBJECT
 public:
@@ -38,8 +38,14 @@ private:
     QFileSystemWatcher *watcher;
     QString basePath;
 
+    int currentFocus = 0;
     QListWidget *currentList = nullptr;
     FullscreenImageViewer *currentViewer = nullptr;
+    void updateFocusStyle();
+
+
+
+
 signals:
     void closeopenlogscreen();
 };

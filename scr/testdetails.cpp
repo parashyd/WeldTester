@@ -177,13 +177,13 @@ void TestDetails::handleSocketKey(quint8 key)
         PreviewClick();
         break;
 
-    case UP:   // UP
-        qDebug() << "UP ARROW" << key;
+    case LEFT:   // LEFT
+        qDebug() << "LEFT ARROW" << key;
         navigateFocus(-1);
         return;
 
-    case DOWN:   // DOWN
-        qDebug() << "DOWN ARROW" << key;
+    case RIGHT:   // RIGHT
+        qDebug() << "RIGHT ARROW" << key;
         navigateFocus(1);
         return;
 
@@ -192,13 +192,13 @@ void TestDetails::handleSocketKey(quint8 key)
         handleBackspaceInput();
         return;
 
-    case DEC:   // '-'
-        qDebug() << "'-' arrow" << key;
+    case UP:   // 'UP'
+        qDebug() << "UP arrow" << key;
         adjustComboBoxIndex(-1);
         return;
 
-    case INC:   // '+'
-        qDebug() << "'+' arrow" << key;
+    case DOWN:   // DOWN
+        qDebug() << "DOWN arrow" << key;
         adjustComboBoxIndex(1);
         return;
     }
