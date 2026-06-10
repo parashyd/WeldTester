@@ -106,6 +106,10 @@ private slots:
     void HandleGateUpDownLift(int lift);
     void HandleGateShift(int shift);
 
+    inline void focusGate1(int replotRequired);
+    inline void focusGate2(int replotRequired);
+    inline void plotGate1(int replotRequired);
+    inline void plotGate2(int replotRequired);
 
 
 
@@ -137,6 +141,7 @@ private:
     int userinput_prv[3] = {0};  // store previous values persistently
 
     QTimer *plotUpdateTimer;
+    QTimer *gpsUpdateTimer;
     QTimer *BatteryUpdateTimer;
     QWidget *m_currentFocusedWidget = nullptr;
     QWidget* m_currentLogicalFocus = nullptr;  // currently highlighted widget

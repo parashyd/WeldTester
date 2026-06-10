@@ -13,6 +13,7 @@ INCLUDEPATH += include/
 VPATH += scr/
 
 SOURCES += \
+    scr/gps.c \
     scr/openlog1.cpp \
     scr/configscreen.cpp \
     main.cpp \
@@ -33,6 +34,7 @@ SOURCES += \
     scr/viewlogdata.cpp
 
 HEADERS += \
+    include/gps.h \
     include/configscreen.h \
     include/Audio.h \
     include/Battery.h \
@@ -49,7 +51,7 @@ HEADERS += \
     include/testdetail0.h \
     include/openlog1.h \
     include/viewlogdata.h \
-    wt_logger.h
+    include/wt_logger.h
 
 FORMS += \
     Openlog.ui \
