@@ -270,7 +270,7 @@ TestScreen::TestScreen(QWidget *parent)
 
 
     // Compute initial duty
-    int duty = 200000 * AudioLevel;
+    int duty = 250000 * AudioLevel;
     if (duty > 1000000) duty = 1000000;
     Buzzerinit();
     //BuzzerDuty(duty);
@@ -1080,11 +1080,11 @@ void TestScreen::adjustAudioLevel(void)
 
     AudioLevel++;  // increment count
     //qDebug() << "AUD" << key;
-    if (AudioLevel > 5) AudioLevel = 0; // optional max count
+    if (AudioLevel > 4) AudioLevel = 0; // optional max count
 
     int duty = 0;
     if (AudioLevel > 0) {
-        duty = 200000 * AudioLevel;
+        duty = 250000 * AudioLevel;
         if (duty > 1000000) duty = 1000000;
     }
 
@@ -2444,11 +2444,16 @@ void TestScreen::paintAudioIndicator(QPainter &p)
 
     // --- Step 2: Calculate arc count ---
     int arcCount = 0;
-    if (m_audioPercent >= 20) arcCount = 1;
-    if (m_audioPercent >= 40) arcCount = 2;
-    if (m_audioPercent >= 60) arcCount = 3;
-    if (m_audioPercent >= 80) arcCount = 4;
-    if (m_audioPercent >= 100) arcCount = 5;
+    // if (m_audioPercent >= 20) arcCount = 1;
+    // if (m_audioPercent >= 40) arcCount = 2;
+    // if (m_audioPercent >= 60) arcCount = 3;
+    // if (m_audioPercent >= 80) arcCount = 4;
+    // if (m_audioPercent >= 100) arcCount = 5;
+
+    if (m_audioPercent >= 25) arcCount = 1;
+    if (m_audioPercent >= 50) arcCount = 2;
+    if (m_audioPercent >= 75) arcCount = 3;
+    if (m_audioPercent >= 100) arcCount = 4;
 
     QPoint center(iconRect.right() + 3, hgt / 2);  // center for arcs
     // QPen pen(Qt::darkBlue, 2);
