@@ -12,11 +12,11 @@ EQ            = =
 
 ####### Compiler, tools and options
 
-CC            = aarch64-tdx-linux-gcc -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security
-CXX           = aarch64-tdx-linux-g++ -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security
+CC            = aarch64-tdx-linux-gcc  -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong  -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux
+CXX           = aarch64-tdx-linux-g++  -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong  -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux
 DEFINES       = -DQCUSTOMPLOT_USE_OPENGL -DQT_NO_DEBUG -DQT_SVG_LIB -DQT_PRINTSUPPORT_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
-CFLAGS        = -pipe --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-CXXFLAGS      = -pipe --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
+CFLAGS        = -pipe  -O2 -pipe -g -feliminate-unused-debug-types  --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
+CXXFLAGS      = -pipe  -O2 -pipe -g -feliminate-unused-debug-types  --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -std=gnu++1z -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 INCPATH       = -I. -Iinclude -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtSvg -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtPrintSupport -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtOpenGL -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtWidgets -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtGui -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtNetwork -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtCore -I. -I. -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++
 QMAKE         = /opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/qmake
 DEL_FILE      = rm -f
@@ -38,10 +38,10 @@ TAR           = tar -cf
 COMPRESS      = gzip -9f
 DISTNAME      = WeldTester1.0.0
 DISTDIR = /home/pe-rnd3/workspace/Weld\ Tester/GIT_WeldTester/WeldTester/.tmp/WeldTester1.0.0
-LINK          = aarch64-tdx-linux-g++ -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security
-LFLAGS        = --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -Wl,-O1
+LINK          = aarch64-tdx-linux-g++  -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong  -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux
+LFLAGS        = -Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed  -Wl,-z,relro,-z,now --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -Wl,-O1
 LIBS          = $(SUBLIBS) /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/libQt5Svg.so /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/libQt5PrintSupport.so /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/libQt5OpenGL.so /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/libQt5Widgets.so /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/libQt5Gui.so /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/libQt5Network.so /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/libQt5Core.so -lGLESv2 -lEGL -lpthread   
-AR            = aarch64-tdx-linux-gcc-ar cqs
+AR            = aarch64-tdx-linux-ar cqs
 RANLIB        = 
 SED           = sed
 STRIP         = aarch64-tdx-linux-strip
@@ -769,7 +769,7 @@ compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
 moc_predefs.h: /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp
-	aarch64-tdx-linux-g++ -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security -pipe --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -std=gnu++1z -Wall -Wextra -dM -E -o moc_predefs.h /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp
+	aarch64-tdx-linux-g++  -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong  -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -pipe  -O2 -pipe -g -feliminate-unused-debug-types  --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -std=gnu++1z -Wall -Wextra -dM -E -o moc_predefs.h /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp
 
 compiler_moc_header_make_all: moc_configscreen.cpp moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp moc_openlog1.cpp moc_viewlogdata.cpp
 compiler_moc_header_clean:

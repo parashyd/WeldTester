@@ -1404,8 +1404,8 @@ void TestScreen::updateGraphWithData()
 
 inline void TestScreen::plotGate1(int replotRequired)
 {
-    ph1Value = ph2Value = 0;
-    peakIndex1 = peakIndex2 = -1;
+    ph1Value = 0;
+    peakIndex1 = -1;
     //xNorm.reserve(xData.size());
     double g1Start = (config.g1_start * config.range) / 100.0;
     double g1End   = (config.g1_end   * config.range) / 100.0;
@@ -1469,8 +1469,8 @@ inline void TestScreen::plotGate1(int replotRequired)
 inline void TestScreen::plotGate2(int replotRequired)
 {
     //QVector<double> xNorm;
-    ph1Value = ph2Value = 0;
-    peakIndex1 = peakIndex2 = -1;
+    ph1Value =  0;
+    peakIndex1 =  -1;
     //xNorm.reserve(xData.size());
     double g2Start = (config.g2_start * config.range) / 100.0;
     double g2End   = (config.g2_end   * config.range) / 100.0;

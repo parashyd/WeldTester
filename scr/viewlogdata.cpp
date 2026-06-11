@@ -3,9 +3,12 @@
 #include "wt_logger.h"
 #include "DataFile.h"
 #include "matrix_keypad.h"
-
+#include "qlineedit.h"
 static constexpr int PLAYBACK_INTERVAL_MS = 20;  // 50 fps, same as live
-
+static int GatePressCount=0,GTST,GTED,TH;
+bool gatefocus=false;
+double phValuee;
+double peakIndexx ;
 // ──────────────────────────────────────────────────────────────
 //  Constructor
 // ──────────────────────────────────────────────────────────────
@@ -32,7 +35,18 @@ viewLogData::viewLogData(QWidget *parent)
     ui->lineEdit_GTST->setText(QString::number(5));
     ui->lineEdit_GTED->setText(QString::number(30));
     ui->lineEdit_TH->setText(QString::number(25));
-
+    GTST = ui->lineEdit_GTST->text().toInt();
+    GTED = ui->lineEdit_GTED->text().toInt();
+    TH = ui->lineEdit_TH->text().toInt();
+    connect(ui->lineEdit_GTST,&QLineEdit::textChanged,this,[this](){
+        GTST = ui->lineEdit_GTST->text().toInt();
+    });
+    connect(ui->lineEdit_GTED,&QLineEdit::textChanged,this,[this](){
+        GTED = ui->lineEdit_GTED->text().toInt();
+    });
+    connect(ui->lineEdit_TH,&QLineEdit::textChanged,this,[this](){
+        TH = ui->lineEdit_TH->text().toInt();
+    });
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -219,12 +233,6 @@ void viewLogData::renderFrame(const QByteArray &frame)
     if (m_xBuf.size() != n) m_xBuf.resize(n);
     if (m_yBuf.size() != n) m_yBuf.resize(n);
 
-    double phValue =0;
-    double peakIndex =  -1;
-
-    double st = ui->lineEdit_GTST->text().toDouble() * m_reader.config().range / 100;
-    double ed = ui->lineEdit_GTED->text().toDouble()* m_reader.config().range / 100;
-    double th = ui->lineEdit_TH->text().toDouble();
     for (int i = 0; i < n; ++i)
     {
         m_xBuf[i] = i / rf;
@@ -232,43 +240,60 @@ void viewLogData::renderFrame(const QByteArray &frame)
 
         //double x = m_reader.config().Angle<30?m_xBuf[i]/RANGE_FACTOR_LT30:m_xBuf[i]/RANGE_FACTOR_GT30;
 
-        double x = m_xBuf[i];
-        if (x >= st && x <= ed)
-        {
-            if (m_yBuf[i] > phValue){
-                peakIndex = i;
-            }
-
-            phValue = qMax(phValue, m_yBuf[i]);
-        }
     }
 
-    double bp = 0;
-
-    if (peakIndex >= 0)
-        for (int i = peakIndex; i >= 0; i--)
-            if (m_yBuf[i] == 0) { bp = m_xBuf[i]; break; }
-
-
-    ui->lineEdit_PH->setText(QString::number(phValue, 'f', 0));
-    ui->lineEdit->setText(QString::number(bp, 'f', 0));
-
-    double ang = m_reader.config().Angle * M_PI / 180.0;
-
-    double d  = bp * cos(ang);
-    double sd = bp * sin(ang);
-
-
-    ui->lineEdit_D->setText(QString::number(d, 'f', 0));
-    ui->lineEdit_SD->setText(QString::number(sd, 'f', 0));
-
-    gate->data()->clear();
-    gate->setData(QVector<double>{st, ed},
-                    QVector<double>{th, th});
+    plotGate(0);
 
     m_wave->data()->clear();
     m_wave->setData(m_xBuf, m_yBuf, true); // true = already sorted
     ui->PLOT->replot(QCustomPlot::rpQueuedReplot); // non-blocking replot
+}
+
+inline void viewLogData::plotGate(int replotRequired)
+{
+    phValuee =  0;
+    peakIndexx = -1;
+
+    double st = ui->lineEdit_GTST->text().toDouble() * m_reader.config().range / 100;
+    double ed = ui->lineEdit_GTED->text().toDouble() * m_reader.config().range / 100;
+    double th = ui->lineEdit_TH->text().toDouble();
+
+    for (int i = 0; i < m_yBuf.size(); i++)
+    {
+        //config.Angle<=30 ? xNorm.append(xData[i] / RANGE_FACTOR_LT30) : xNorm.append(xData[i] / RANGE_FACTOR_GT30);
+        double x = m_xBuf[i];
+        if (x >= st && x <= ed)
+        {
+            if (m_yBuf[i] > phValuee){
+                peakIndexx = i;
+            }
+
+            phValuee = qMax(phValuee, m_yBuf[i]);
+        }
+    }
+
+    double bp = 0;
+    if (peakIndexx >= 0)
+        for (int i = peakIndexx; i >= 0; i--)
+            if (m_yBuf[i] == 0) { bp = m_xBuf[i]; break; }
+
+    ui->lineEdit_PH->setText(QString::number(phValuee, 'f', 0));
+    ui->lineEdit->setText(QString::number(bp, 'f', 0));
+    double ang = m_reader.config().Angle * M_PI / 180.0;
+
+    double d1  = bp * cos(ang);
+    double sd1 = bp * sin(ang);
+    ui->lineEdit_D->setText(QString::number(d1, 'f', 0));
+    ui->lineEdit_SD->setText(QString::number(sd1, 'f', 0));
+
+    if(gatefocus){
+        focusGate(0);
+    }
+    gate->data()->clear();
+    gate->setData(QVector<double>{st, ed},
+                    QVector<double>{(double)th, (double)th});
+    if(replotRequired)
+        ui->PLOT->replot();
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -375,11 +400,161 @@ void viewLogData::handleSocketKey(quint8 key)
         emit closeviewlogdata();
         break;
 
+    case CALSET:
+        if(GatePressCount == 0){
+            focusGate(1);
+            gatefocus=true;
+            GatePressCount=1;
+            break;
+        }else if(GatePressCount==1)
+        {
+            gborder->data()->clear();
+            ui->PLOT->replot();
+            gatefocus=false;
+            GatePressCount=0;
+            break;
+        }
+        break;
+    case LEFT:
+        if(gatefocus)
+        {
+            HandleGateShift(-1);
+        }
+        break;
+
+    case RIGHT:
+        if(gatefocus)
+        {
+            HandleGateShift(1);
+        }
+        break;
+    case UP: // UP
+        if(gatefocus)
+        {
+            HandleGateUpDownLift(1);
+        }
+        break;
+
+    case DOWN: // DOWN
+        if(gatefocus)
+        {
+            HandleGateUpDownLift(-1);
+        }
+        break;
+    case DEC: // '-'
+        if(gatefocus){
+            adjustGatewidth(-1);
+        }
+        break;
+
+    case INC: // '+'
+        if(gatefocus){
+            adjustGatewidth(1);
+        }
+        break;
+
     default:
         break;
     }
 }
+inline void viewLogData::focusGate(int replotRequired)
+{
 
+    double gStart = (GTST * m_reader.config().range) / 100.0;
+    double gEnd   = ( GTED   * m_reader.config().range) / 100.0;
+
+    gborder->data()->clear();
+    gborder->data()->clear();
+    gborder->setData(QVector<double>{gStart, gEnd},
+                      QVector<double>{(double)TH, (double)TH});
+
+    if(replotRequired)
+        ui->PLOT->replot();
+}
+void viewLogData::HandleGateShift(int shift){
+
+    auto adjustshift = [&](auto& field, int minVal, int maxVal,QLineEdit* L,int k) {
+        using T = std::decay_t<decltype(field)>;
+        T current = static_cast<T>(L->text().toDouble());
+        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(shift * k), static_cast<T>(maxVal));
+        field = newValue;
+        L->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
+    };
+    if(gatefocus)
+    {
+        if(shift == -1 && GTST== 5) //if gate reaches starting point return
+            return;
+
+        if(shift == 1 && GTED == 99)  //if gate reaches ending point return
+            return;
+
+        if (shift==-1 && GTST<10){
+            int k=(GTST-5)%5;
+            adjustshift(GTST,5,99,ui->lineEdit_GTST,k);
+            adjustshift(GTED,5,99,ui->lineEdit_GTED,k);
+            plotGate(1);
+            return;
+        }
+
+        if(shift == 1 && GTED>94){
+            int k = (99-GTED)%5 ;
+            adjustshift(GTST,5,99,ui->lineEdit_GTST,k);
+            adjustshift(GTED,5,99,ui->lineEdit_GTED,k);
+            plotGate(1);
+            return;
+        }
+
+        adjustshift(GTST,5,99,ui->lineEdit_GTST,5);
+        adjustshift(GTED,5,99,ui->lineEdit_GTED,5);
+        plotGate(1);
+
+    }
+}
+void viewLogData::HandleGateUpDownLift(int lift){
+
+    QLineEdit* Th;
+    auto adjustlift = [&](auto& field, int minVal, int maxVal) {
+        using T = std::decay_t<decltype(field)>;
+        T current = static_cast<T>(Th->text().toDouble());
+        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(lift * 5), static_cast<T>(maxVal));
+        field = newValue;
+        Th->setText(QString::number(newValue, 'f', std::is_floating_point<T>::value ? 1 : 0));
+    };
+
+    if(gatefocus)
+    {
+        Th = ui->lineEdit_TH;
+        adjustlift(TH,5,99);
+        plotGate(1);
+    }
+
+}
+void viewLogData::adjustGatewidth(int delta)
+{
+    QLineEdit* focused;
+
+
+    auto adjustValue = [&](auto& field, int minVal, int maxVal,float off) {
+        using T = std::decay_t<decltype(field)>;
+        T current = static_cast<T>(focused->text().toDouble());
+        T newValue = qBound(static_cast<T>(minVal), current + static_cast<T>(delta * off), static_cast<T>(maxVal));
+        field = newValue;
+        focused->setText(QString::number(newValue, 'd',0));
+    };
+
+    if(gatefocus){
+        focused = ui->lineEdit_GTED;
+        if(GTST==GTED && delta ==-1){
+            return;
+        }
+        if(GTST<=GTED){
+            adjustValue(GTED, 5, 99,1);
+            plotGate(1);}
+        return;
+    }
+
+
+}
 viewLogData::~viewLogData()
 {
     stopPlayback();
