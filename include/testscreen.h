@@ -108,8 +108,8 @@ private slots:
 
     inline void focusGate1(int replotRequired);
     inline void focusGate2(int replotRequired);
-    inline void plotGate1(int replotRequired);
-    inline void plotGate2(int replotRequired);
+    inline void plotGate1(int replotRequired, int ParamCalc);
+    inline void plotGate2(int replotRequired, int ParamCalc);
 
 
 

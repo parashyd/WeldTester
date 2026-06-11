@@ -1313,6 +1313,8 @@ void TestScreen::updateGraphWithData()
 
     maxX = 0;
     maxY = 0;
+    bool g1buzon=false;
+    bool g2buzon=false;
 
     // Normalize X values
     //QVector<double> xNorm;
@@ -1344,14 +1346,52 @@ void TestScreen::updateGraphWithData()
         yData[i]  = val;
         yDataa[i] = static_cast<uint8_t>(val); // one byte, correct value
 
+        if (xNorm[i] >= g1Start && xNorm[i] <= g1End)
+        {
+            if(yData[i]>config.th1)
+            {
+                g1buzon=true;
+            }
+        }
+        if (xNorm[i] >= g2Start && xNorm[i] <= g2End)
+        {
+            if(yData[i]>config.th2)
+            {
+                g2buzon=true;
+            }
+        }
         maxX = qMax<double>(maxX, double(addr));
         maxY = qMax<double>(maxY, val);
     }
 
     if (xData.isEmpty()) return;
     ///qDebug() << "XdataSize"<< xData.size()<<"XnormSize"<< xNorm.size()<<"ydataSize" << yData.size();
-    plotGate1(0);
-    plotGate2(0);
+    static int k =0;
+    if(g1buzon || g2buzon)
+    {
+        if(!isBuzzerOn()){
+            BuzzerOn(true);
+            ui->lineEdit_ch->setStyleSheet(        "background-color: red;"
+                                           "border: 2px solid black;");
+        }
+    }
+    else{
+        if(isBuzzerOn()){
+            BuzzerOn(false);
+            ui->lineEdit_ch->setStyleSheet("");
+        }
+    }
+
+    plotGate1(0,k);
+    plotGate2(0,k);
+    if(k==5)
+    {
+        k=0;
+    }
+    else{
+    k++;
+    }
+
     // -----------------------------
     // Update UI
     // -----------------------------
@@ -1402,14 +1442,13 @@ void TestScreen::updateGraphWithData()
     ui->Plot->replot();
 }
 
-inline void TestScreen::plotGate1(int replotRequired)
+inline void TestScreen::plotGate1(int replotRequired,int ParamCalc)
 {
     ph1Value = 0;
     peakIndex1 = -1;
     //xNorm.reserve(xData.size());
     double g1Start = (config.g1_start * config.range) / 100.0;
     double g1End   = (config.g1_end   * config.range) / 100.0;
-    bool g1buzon=false;
 
     for (int i = 0; i < yData.size(); i++)
     {
@@ -1422,41 +1461,27 @@ inline void TestScreen::plotGate1(int replotRequired)
                 peakIndex1 = i;
                 xPeakIndex1=xNorm[i];
             }
-            if(yData[i]>config.th1)
-            {
-                g1buzon=true;
-            }
+
             ph1Value = qMax(ph1Value, yData[i]);
         }
     }
-    if(g1buzon)
-    {
-        if(!isBuzzerOn()){
-            BuzzerOn(true);
-            ui->lineEdit_ch->setStyleSheet(        "background-color: red;"
-                                           "border: 2px solid black;");
-        }
-    }
-    else{
-        if(isBuzzerOn()){
-            BuzzerOn(false);
-            ui->lineEdit_ch->setStyleSheet("");
-        }
-    }
+
     double bp1 = 0;
     if (peakIndex1 >= 0)
         for (int i = peakIndex1; i >= 0; i--)
             if (yData[i] == 0) { bp1 = xNorm[i]; break; }
 
-    ui->lineEdit_PH1->setText(QString::number(ph1Value, 'f', 0));
-    ui->lineEdit_BP1->setText(QString::number(bp1, 'f', 0));
+
     double ang = config.Angle * M_PI / 180.0;
 
     double d1  = bp1 * cos(ang);
     double sd1 = bp1 * sin(ang);
+    if(ParamCalc == 5){
+    ui->lineEdit_PH1->setText(QString::number(ph1Value, 'f', 0));
+    ui->lineEdit_BP1->setText(QString::number(bp1, 'f', 0));
     ui->lineEdit_D1->setText(QString::number(d1, 'f', 0));
     ui->lineEdit_SD1->setText(QString::number(sd1, 'f', 0));
-
+    }
     if(gate1_focus){
         focusGate1(0);
     }
@@ -1466,7 +1491,7 @@ inline void TestScreen::plotGate1(int replotRequired)
     if(replotRequired)
         ui->Plot->replot();
 }
-inline void TestScreen::plotGate2(int replotRequired)
+inline void TestScreen::plotGate2(int replotRequired,int ParamCalc)
 {
     //QVector<double> xNorm;
     ph1Value =  0;
@@ -1474,7 +1499,6 @@ inline void TestScreen::plotGate2(int replotRequired)
     //xNorm.reserve(xData.size());
     double g2Start = (config.g2_start * config.range) / 100.0;
     double g2End   = (config.g2_end   * config.range) / 100.0;
-    bool g2buzon=false;
 
     for (int i = 0; i < yData.size(); i++)
     {
@@ -1486,25 +1510,8 @@ inline void TestScreen::plotGate2(int replotRequired)
             if (yData[i] > ph2Value){
                 peakIndex2 = i;
             }
-            if(yData[i]>config.th2)
-            {
-                g2buzon=true;
-            }
+
             ph2Value = qMax(ph2Value, yData[i]);
-        }
-    }
-    if(g2buzon)
-    {
-        if(!isBuzzerOn()){
-            BuzzerOn(true);
-            ui->lineEdit_ch->setStyleSheet(        "background-color: red;"
-                                           "border: 2px solid black;");
-        }
-    }
-    else{
-        if(isBuzzerOn()){
-            BuzzerOn(false);
-            ui->lineEdit_ch->setStyleSheet("");
         }
     }
     double bp2 = 0;
@@ -1512,15 +1519,17 @@ inline void TestScreen::plotGate2(int replotRequired)
         for (int i = peakIndex2; i >= 0; i--)
             if (yData[i] == 0) { bp2 = xNorm[i]; break; }
 
-    ui->lineEdit_PH2->setText(QString::number(ph2Value, 'f', 0));
-    ui->lineEdit_BP2->setText(QString::number(bp2, 'f', 0));
+
     double ang = config.Angle * M_PI / 180.0;
 
     double d2  = bp2 * cos(ang);
     double sd2 = bp2 * sin(ang);
+    if(ParamCalc==5){
+    ui->lineEdit_PH2->setText(QString::number(ph2Value, 'f', 0));
+    ui->lineEdit_BP2->setText(QString::number(bp2, 'f', 0));
     ui->lineEdit_D2->setText(QString::number(d2, 'f', 0));
     ui->lineEdit_SD2->setText(QString::number(sd2, 'f', 0));
-
+    }
     if(gate2_focus){
         focusGate2(0);
     }
@@ -1669,13 +1678,13 @@ void TestScreen::HandleGateUpDownLift(int lift){
     {
         Th = ui->lineEdit_TH1;
         adjustlift(config.th1,5,99);
-        plotGate1(1);
+        plotGate1(1,5);
     }
     else
     {
         Th = ui->lineEdit_TH2;
         adjustlift(config.th2,5,99);
-        plotGate2(1);
+        plotGate2(1,5);
     }
 }
 void TestScreen::HandleGateShift(int shift){
@@ -1701,7 +1710,7 @@ void TestScreen::HandleGateShift(int shift){
             int k=(config.g1_start-5)%5;
             adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
             adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
-            plotGate1(1);
+            plotGate1(1,5);
             return;
         }
 
@@ -1709,13 +1718,13 @@ void TestScreen::HandleGateShift(int shift){
             int k = (99-config.g1_end)%5 ;
             adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
             adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
-            plotGate1(1);
+            plotGate1(1,5);
             return;
         }
 
         adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,5);
         adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,5);
-        plotGate1(1);
+        plotGate1(1,5);
 
     }
     else
@@ -1730,7 +1739,7 @@ void TestScreen::HandleGateShift(int shift){
             int k =(config.g2_start-5)%5;
             adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
             adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
-            plotGate2(1);
+            plotGate2(1,5);
             return;
         }
 
@@ -1738,13 +1747,13 @@ void TestScreen::HandleGateShift(int shift){
             int k =(99-config.g2_end)%5;
             adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
             adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
-            plotGate2(1);
+            plotGate2(1,5);
             return;
         }
 
         adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,5);
         adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,5);
-        plotGate2(1);
+        plotGate2(1,5);
     }
 
 }
@@ -1939,7 +1948,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
         }
         if(config.g1_start<=config.g1_end){
             adjustValue(config.g1_end, 5, 99,1);
-            plotGate1(1);}
+            plotGate1(1,5);}
         return;
     }
     else if(gate2_focus){
@@ -1949,7 +1958,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
         }
         if(config.g2_start<=config.g2_end){
             adjustValue(config.g2_end, 5, 99,1);
-            plotGate2(1);
+            plotGate2(1,5);
         }
         return;
     }
