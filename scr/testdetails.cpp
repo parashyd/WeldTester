@@ -256,14 +256,51 @@ void TestDetails::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
     //quint8 keyVal = static_cast<quint8>(keyChar.unicode()); // For comparisons with lastKey
 
     //-------- Handle special characters (common to all modes) --------
-        if (keyChar == '*' || keyChar == '-' || keyChar == '.' || keyChar == '\r' || keyChar == '\x14') {
-            QChar c = (keyChar == '\x14') ? '-' : keyChar; // Ctrl-T (\x14) → dash
-            state.inputBuffer += c;
-            lineEdit->setText(state.inputBuffer);
-            lineEdit->setCursorPosition(state.inputBuffer.length());
-            qDebug() << "[UI] Special Key:" << c << "Text:" << state.inputBuffer;
-            return;
+    quint8 specialKey = 0;
+
+    if (key == '.' || key == '*')
+        specialKey = 200;
+
+    else if (key == '-' || key == '_' || key == ' ')
+        specialKey = 201;
+
+    if (specialKey)
+    {
+        QString cycle;
+
+        if (specialKey == 200)
+            cycle = ".*";
+
+        else if (specialKey == 201)
+            cycle = "-_ ";
+
+        if (state.lastKey == specialKey &&
+            state.timer.isValid() &&
+            state.timer.elapsed() <= 1000)
+        {
+            state.pressCount =
+                (state.pressCount + 1) % cycle.length();
         }
+        else
+        {
+            if (!state.lastChar.isEmpty())
+                state.inputBuffer += state.lastChar;
+
+            state.pressCount = 0;
+        }
+
+        state.lastKey = specialKey;
+        state.lastChar = QString(cycle[state.pressCount]);
+        state.timer.restart();
+
+        QString display =
+            state.inputBuffer + state.lastChar;
+
+        lineEdit->setText(display);
+        lineEdit->setCursorPosition(display.length());
+
+        return;
+    }
 
     /* ---------------- Numeric Mode ---------------- */
     if (mode == InputMode::Numeric)
