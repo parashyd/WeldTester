@@ -502,15 +502,31 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
             state.pressCount = 0;
         }
 
-        state.lastKey = specialKey;
-        state.lastChar = QString(cycle[state.pressCount]);
-        state.timer.restart();
+        // state.lastKey = specialKey;
+        // state.lastChar = QString(cycle[state.pressCount]);
+        // state.timer.restart();
 
-        QString display =
-            state.inputBuffer + state.lastChar;
+        // QString display =
+        //     state.inputBuffer + state.lastChar;
 
-        lineEdit->setText(display);
-        lineEdit->setCursorPosition(display.length());
+        // lineEdit->setText(display);
+        // lineEdit->setCursorPosition(display.length());
+
+        // return;
+        QString selectedChar =
+            QString(cycle[state.pressCount]);
+
+        // Commit directly to buffer
+        state.inputBuffer += selectedChar;
+
+        // Reset multi-tap state
+        state.lastChar.clear();
+        state.lastKey = 0;
+        state.pressCount = 0;
+        state.timer.invalidate();
+
+        lineEdit->setText(state.inputBuffer);
+        lineEdit->setCursorPosition(state.inputBuffer.length());
 
         return;
     }

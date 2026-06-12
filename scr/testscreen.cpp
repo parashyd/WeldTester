@@ -660,6 +660,8 @@ void TestScreen::onSocketReadyRead(quint8 key)
         if (plotUpdateTimer->isActive() )
         {
             plotUpdateTimer->stop();
+            plotGate1(1,5);
+            plotGate2(1,5);
             ui->label_pause->setVisible(true);
         }
         else{
