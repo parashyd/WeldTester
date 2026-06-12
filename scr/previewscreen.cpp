@@ -415,6 +415,14 @@ void PreviewScreen::on_pushButton_save_clicked()
 
     QString jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5.jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M);
 
+
+    int temp=1;
+    while(QFile::exists(jpgFileName))
+    {
+        jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5(%6).jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M).arg(temp);
+        temp++;
+    }
+
     if (!scaledJpg.save(jpgFileName, "JPG", 90))
         qWarning() << "Failed to save JPG:" << jpgFileName;
     else
