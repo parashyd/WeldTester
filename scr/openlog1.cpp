@@ -29,6 +29,7 @@ OpenLog1::OpenLog1(QWidget *parent)
             this,
             &OpenLog1::onWeldFolderClicked);
     ui->dateFolderList->setCurrentRow(0);
+    currentFocus = 0;
     updateFocusStyle();
 }
 
@@ -49,18 +50,21 @@ void OpenLog1::handleSocketKey(quint8 key)
     case 2:
         currentList = ui->fileList;
         break;
+    default:
+        break;
     }
 
-    if(!currentList)
-        return;
-
-    int row = currentList->currentRow();
+    // if(!currentList)
+    //     return;
+    int row=0;
+    if(currentList!=nullptr)
+        row = currentList->currentRow();
 
     switch(key)
     {
     case UP:
 
-        if(row > 0)
+        if(row > 0 && (currentList!=nullptr))
         {
             currentList->setCurrentRow(row - 1);
         }
@@ -69,16 +73,18 @@ void OpenLog1::handleSocketKey(quint8 key)
 
     case DOWN:
 
-        if(row < currentList->count() - 1)
-        {
-            currentList->setCurrentRow(row + 1);
+        if(currentList!=nullptr){
+            if(row < currentList->count() - 1)
+            {
+                currentList->setCurrentRow(row + 1);
+            }
         }
 
         break;
 
     case RIGHT:
-
-        if(currentFocus < 2)
+    qDebug() << "RIGHT CurrentFocus =" << currentFocus;
+        if(currentFocus < 6)
         {
             currentFocus++;
 
@@ -95,12 +101,16 @@ void OpenLog1::handleSocketKey(quint8 key)
                 if(ui->fileList->count() > 0)
                     ui->fileList->setCurrentRow(0);
             }
+
+            else {
+                updateFocusStyle();
+            }
         }
 
         break;
 
     case LEFT:
-
+    qDebug() << "LEFT CurrentFocus =" << currentFocus;
         if(currentFocus > 0)
         {
             currentFocus--;
@@ -114,6 +124,9 @@ void OpenLog1::handleSocketKey(quint8 key)
             {
                 updateFocusStyle();
             }
+            else{
+                updateFocusStyle();
+
         }
 
         break;
@@ -185,12 +198,16 @@ void OpenLog1::handleSocketKey(quint8 key)
         break;
     }
 }
+}
 void OpenLog1::updateFocusStyle()
 {
     ui->dateFolderList->setStyleSheet("");
     ui->weldFolderList->setStyleSheet("");
     ui->fileList->setStyleSheet("");
-
+    ui->copyButton->setStyleSheet("");
+    ui->copyAllButton->setStyleSheet("");
+    ui->deleteButton->setStyleSheet("");
+    ui->deleteAllButton->setStyleSheet("");
     QString focusStyle =
         "QListWidget {"
         "border: 2px solid #3aa0ff;"
@@ -198,6 +215,12 @@ void OpenLog1::updateFocusStyle()
         "border-radius: 6px;"
         "}";
 
+    QString focusStyle2 =
+        "QPushButton {"
+        "border: 2px solid #3aa0ff;"
+        "background-color: #dceeff;"
+        "border-radius: 6px;"
+        "}";
     switch(currentFocus)
     {
     case 0:
@@ -211,6 +234,23 @@ void OpenLog1::updateFocusStyle()
     case 2:
         ui->fileList->setStyleSheet(focusStyle);
         break;
+
+    case 3:
+        ui->copyButton->setStyleSheet(focusStyle2);
+        break;
+
+    case 4:
+        ui->copyAllButton->setStyleSheet(focusStyle2);
+        break;
+
+    case 5:
+        ui->deleteButton->setStyleSheet(focusStyle2);
+        break;
+
+    case 6:
+        ui->deleteAllButton->setStyleSheet(focusStyle2);
+        break;
+
     }
 }
 void OpenLog1::loadDateFolders()
