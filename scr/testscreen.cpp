@@ -1533,6 +1533,7 @@ inline void TestScreen::plotGate2(int replotRequired,int ParamCalc)
     ui->lineEdit_D2->setText(QString::number(d2, 'f', 0));
     ui->lineEdit_SD2->setText(QString::number(sd2, 'f', 0));
     }
+
     if(gate2_focus){
         focusGate2(0);
     }
