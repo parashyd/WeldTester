@@ -19,6 +19,7 @@
 #include "openlog.h"
 #include "viewlogdata.h"
 #include "Audio.h"
+QString MachNo;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -76,6 +77,32 @@ MainWindow::MainWindow(QWidget *parent)
     // }
     startSocketServer();
 
+
+    QFile file("BIN.BIN");
+
+    if (!file.open(QIODevice::ReadOnly))
+    {
+        qDebug() << "Failed to open BIN.BIN";
+        return;
+    }
+    // BIN.BIN contains 2 bytes: 0x90 0x00
+    QByteArray data = file.readAll();
+    file.close();
+
+    if (data.size() < 2)
+    {
+        qDebug() << "Invalid file";
+        return;
+    }
+
+    // Little-endian 16-bit integer
+    quint16 value = static_cast<quint8>(data[0]) |
+                    (static_cast<quint8>(data[1]) << 8);
+
+    // Print as 4-digit number: 0144
+    MachNo= QString("%1").arg(value, 4, 10, QChar('0'));
+
+    qDebug() << "Mach No : "<<MachNo;
 
 }
 void MainWindow::startSocketServer()

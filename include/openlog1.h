@@ -25,6 +25,7 @@ private:
     QString selectedDateFolder;
 
     QString selectedWeldFolder;
+    QTimer *StatusLabelTimer;
 
     void loadDateFolders();
 
@@ -32,6 +33,14 @@ private:
 
     void loadFiles(const QString &weldFolder);
     void updateFocusStyle();
+    QString findUsbPath();
+    QString uniqueFolderName(QString parent, QString folderName);
+    bool copyFolderRecursively(const QString &src,const QString &dst);
+
+
+
+
+
 
 private slots:
     void onDateFolderClicked(QListWidgetItem *item);

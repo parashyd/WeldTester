@@ -13,6 +13,7 @@
 #include <sched.h>
 #include <QTimer>
 #include <QtGlobal>
+#include "mainwindow.h"
 #include "matrix_keypad.h"
 #include "Battery.h"
 #include <QSvgRenderer>
@@ -660,8 +661,8 @@ void TestScreen::onSocketReadyRead(quint8 key)
         if (plotUpdateTimer->isActive() )
         {
             plotUpdateTimer->stop();
-            plotGate1(1,5);
-            plotGate2(1,5);
+            plotGate1(1,10);
+            plotGate2(1,10);
             ui->label_pause->setVisible(true);
         }
         else{
@@ -1385,8 +1386,8 @@ void TestScreen::updateGraphWithData()
     }
 
     plotGate1(0,k);
-    plotGate2(0,k);
-    if(k==5)
+    plotGate2(0,k);//displaying ph values for every 10 iterations (10 * 20ms = 200ms)
+    if(k==10)
     {
         k=0;
     }
@@ -1478,7 +1479,7 @@ inline void TestScreen::plotGate1(int replotRequired,int ParamCalc)
 
     double d1  = bp1 * cos(ang);
     double sd1 = bp1 * sin(ang);
-    if(ParamCalc == 5){
+    if(ParamCalc == 10){
     ui->lineEdit_PH1->setText(QString::number(ph1Value, 'f', 0));
     ui->lineEdit_BP1->setText(QString::number(bp1, 'f', 0));
     ui->lineEdit_D1->setText(QString::number(d1, 'f', 0));
@@ -1526,7 +1527,7 @@ inline void TestScreen::plotGate2(int replotRequired,int ParamCalc)
 
     double d2  = bp2 * cos(ang);
     double sd2 = bp2 * sin(ang);
-    if(ParamCalc==5){
+    if(ParamCalc==10){
     ui->lineEdit_PH2->setText(QString::number(ph2Value, 'f', 0));
     ui->lineEdit_BP2->setText(QString::number(bp2, 'f', 0));
     ui->lineEdit_D2->setText(QString::number(d2, 'f', 0));
@@ -1680,13 +1681,13 @@ void TestScreen::HandleGateUpDownLift(int lift){
     {
         Th = ui->lineEdit_TH1;
         adjustlift(config.th1,5,99);
-        plotGate1(1,5);
+        plotGate1(1,10);
     }
     else
     {
         Th = ui->lineEdit_TH2;
         adjustlift(config.th2,5,99);
-        plotGate2(1,5);
+        plotGate2(1,10);
     }
 }
 void TestScreen::HandleGateShift(int shift){
@@ -1712,7 +1713,7 @@ void TestScreen::HandleGateShift(int shift){
             int k=(config.g1_start-5)%5;
             adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
             adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
-            plotGate1(1,5);
+            plotGate1(1,10);
             return;
         }
 
@@ -1720,13 +1721,13 @@ void TestScreen::HandleGateShift(int shift){
             int k = (99-config.g1_end)%5 ;
             adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
             adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
-            plotGate1(1,5);
+            plotGate1(1,10);
             return;
         }
 
         adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,5);
         adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,5);
-        plotGate1(1,5);
+        plotGate1(1,10);
 
     }
     else
@@ -1741,7 +1742,7 @@ void TestScreen::HandleGateShift(int shift){
             int k =(config.g2_start-5)%5;
             adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
             adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
-            plotGate2(1,5);
+            plotGate2(1,10);
             return;
         }
 
@@ -1749,13 +1750,13 @@ void TestScreen::HandleGateShift(int shift){
             int k =(99-config.g2_end)%5;
             adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
             adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
-            plotGate2(1,5);
+            plotGate2(1,10);
             return;
         }
 
         adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,5);
         adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,5);
-        plotGate2(1,5);
+        plotGate2(1,10);
     }
 
 }
@@ -1950,7 +1951,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
         }
         if(config.g1_start<=config.g1_end){
             adjustValue(config.g1_end, 5, 99,1);
-            plotGate1(1,5);}
+            plotGate1(1,10);}
         return;
     }
     else if(gate2_focus){
@@ -1960,7 +1961,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
         }
         if(config.g2_start<=config.g2_end){
             adjustValue(config.g2_end, 5, 99,1);
-            plotGate2(1,5);
+            plotGate2(1,10);
         }
         return;
     }

@@ -11,7 +11,7 @@
 #include <QJsonArray>
 #include <QFile>
 #include "testdetail0.h"
-
+#include "mainwindow.h"
  QString Mode;
  QString TP;
  QString LocOfDefect ;

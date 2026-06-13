@@ -17,7 +17,7 @@
 #include "testdetail0.h"
 #include <QDir>
 #include <QDebug>
-
+#include "mainwindow.h"
 extern SharedData* shared;
 
 PreviewScreen::PreviewScreen(QWidget *parent)

@@ -907,12 +907,19 @@ gps.o: scr/gps.c include/gps.h
 
 openlog1.o: scr/openlog1.cpp include/openlog1.h \
 		ui_openlog1.h \
+		include/testdetail0.h \
 		include/matrix_keypad.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
 		include/DataFile.h \
 		include/shared_data.h \
-		include/qcustomplot.h
+		include/qcustomplot.h \
+		include/mainwindow.h \
+		include/testdetails.h \
+		include/previewscreen.h \
+		include/testscreen.h \
+		include/configscreen.h \
+		include/openlog.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o openlog1.o scr/openlog1.cpp
 
 configscreen.o: scr/configscreen.cpp include/configscreen.h \
@@ -997,7 +1004,13 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/qcustomplot.h \
 		include/matrix_keypad.h \
 		include/testscreen.h \
-		include/testdetail0.h
+		include/testdetail0.h \
+		include/mainwindow.h \
+		include/configscreen.h \
+		include/openlog.h \
+		include/openlog1.h \
+		include/viewlogdata.h \
+		include/wt_logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o previewscreen.o scr/previewscreen.cpp
 
 qcustomplot.o: scr/qcustomplot.cpp include/qcustomplot.h
@@ -1014,7 +1027,13 @@ testdetails.o: scr/testdetails.cpp include/testdetails.h \
 		include/DataFile.h \
 		include/shared_data.h \
 		include/qcustomplot.h \
-		include/testdetail0.h
+		include/testdetail0.h \
+		include/mainwindow.h \
+		include/configscreen.h \
+		include/openlog.h \
+		include/openlog1.h \
+		include/viewlogdata.h \
+		include/wt_logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testdetails.o scr/testdetails.cpp
 
 testscreen.o: scr/testscreen.cpp include/testscreen.h \
@@ -1024,18 +1043,34 @@ testscreen.o: scr/testscreen.cpp include/testscreen.h \
 		include/previewscreen.h \
 		include/qcustomplot.h \
 		ui_testscreen.h \
+		include/mainwindow.h \
+		include/testdetail0.h \
+		include/configscreen.h \
+		include/openlog.h \
+		include/openlog1.h \
+		include/viewlogdata.h \
+		include/wt_logger.h \
 		include/matrix_keypad.h \
 		include/Battery.h \
 		include/Audio.h \
-		include/openlog.h \
-		include/testdetail0.h \
-		include/wt_logger.h \
 		include/gps.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testscreen.o scr/testscreen.cpp
 
 testdetail0.o: scr/testdetail0.cpp include/testdetail0.h \
 		ui_testdetail0.h \
-		include/matrix_keypad.h
+		include/matrix_keypad.h \
+		include/mainwindow.h \
+		include/testdetails.h \
+		include/previewscreen.h \
+		include/testscreen.h \
+		include/DataFile.h \
+		include/shared_data.h \
+		include/qcustomplot.h \
+		include/configscreen.h \
+		include/openlog.h \
+		include/openlog1.h \
+		include/viewlogdata.h \
+		include/wt_logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testdetail0.o scr/testdetail0.cpp
 
 viewlogdata.o: scr/viewlogdata.cpp include/viewlogdata.h \

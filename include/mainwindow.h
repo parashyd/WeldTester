@@ -11,6 +11,7 @@
 #include "openlog.h"
 #include "openlog1.h"
 #include "viewlogdata.h"
+extern QString MachNo;
 
 namespace Ui {
 class MainWindow;

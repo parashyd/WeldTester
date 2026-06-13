@@ -10,7 +10,7 @@
 #include <QJsonArray>
 #include <QFile>
 #include "QTimer"
-
+#include "mainwindow.h"
 enum class InputMode {
     Numeric,
     Alphabetic,
@@ -20,7 +20,6 @@ enum class InputMode {
 
 QMap<QLineEdit*, InputMode> inputModesTD0;
 
-QString MachNo;
 QString OperatorName;
 QString Division ;
 QString Section ;
@@ -502,17 +501,6 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
             state.pressCount = 0;
         }
 
-        // state.lastKey = specialKey;
-        // state.lastChar = QString(cycle[state.pressCount]);
-        // state.timer.restart();
-
-        // QString display =
-        //     state.inputBuffer + state.lastChar;
-
-        // lineEdit->setText(display);
-        // lineEdit->setCursorPosition(display.length());
-
-        // return;
         QString selectedChar =
             QString(cycle[state.pressCount]);
 
