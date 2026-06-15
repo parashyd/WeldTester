@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
+#include <stdlib.h>
 
 static FILE *gps_fp = NULL;
 static char latitude[32];
@@ -146,9 +147,38 @@ static void GPS_Update(void)
         field++;
     }
 
-    snprintf(latitude, sizeof(latitude), "%s %s", lat, ns);
-    snprintf(longitude, sizeof(longitude), "%s %s", lon, ew);
+    // snprintf(latitude, sizeof(latitude), "%s %s", lat, ns);
+    // snprintf(longitude, sizeof(longitude), "%s %s", lon, ew);
+    nmeaToDMS(lat, ns[0], latitude, sizeof(latitude));
+    nmeaToDMS(lon, ew[0], longitude, sizeof(longitude));
 }
+
+
+
+void nmeaToDMS(const char *nmea,
+                      char hemisphere,
+                      char *output,
+                      size_t size)
+{
+    double val = atof(nmea);
+
+    int degrees = (int)(val / 100);
+    double minutesFull = val - degrees * 100;
+
+    int minutes = (int)minutesFull;
+
+    double secondsFull = (minutesFull - minutes) * 60.0;
+    int seconds = (int)(secondsFull + 0.5); // round off
+
+    snprintf(output,
+             size,
+             "%d° %d' %d\" %c",
+             degrees,
+             minutes,
+             seconds,
+             hemisphere);
+}
+
 
 char *GPS_GetLatitude(void)
 {
