@@ -303,19 +303,23 @@ TestScreen::TestScreen(QWidget *parent)
 
     ui->label_latitude->setStyleSheet(
         "background-color: transparent;"
-        "color: rgba(255, 255, 255, 100);"
+        // "color: rgba(255, 255, 255, 100);"
+        "color: white;"
         );
     ui->label_logitude->setStyleSheet(
         "background-color: transparent;"
-        "color: rgba(255, 255, 255, 100);"
+        // "color: rgba(255, 255, 255, 100);"
+        "color: white;"
         );
+
     ui->label_latitude->setText("Waiting...");
     ui->label_logitude->setText("Waiting...");
     connect(gpsUpdateTimer, &QTimer::timeout, this,     [this]() {
        ui->label_latitude->setText(GPS_GetLatitude());
        ui->label_logitude->setText(GPS_GetLongitude());
     });
-    gpsUpdateTimer->start(10000); //10 sec
+    // gpsUpdateTimer->start(10000); //10 sec
+    gpsUpdateTimer->start(1000); //1 sec
 
 
     // Appearance

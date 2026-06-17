@@ -9,7 +9,7 @@ extern "C" {
 int GPS_Init(void);
 char *GPS_GetLatitude(void);
 char *GPS_GetLongitude(void);
-void nmeaToDMS(const char *nmea,
+static void nmeaToDMS(const char *nmea,
                char hemisphere,
                char *output,
                size_t size);

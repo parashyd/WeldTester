@@ -8,7 +8,11 @@
 #include "matrix_keypad.h"
 #include "viewlogdata.h"
 #include "mainwindow.h"
-
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <algorithm>
+#include <QDate>
 int currentFocus = 0;
 QString selectedFilePath;
 
@@ -64,6 +68,7 @@ void OpenLog1::handleSocketKey(quint8 key)
     case 2:
         currentList = ui->fileList;
         break;
+
     default:
         break;
     }
@@ -211,17 +216,18 @@ void OpenLog1::handleSocketKey(quint8 key)
             }
             break;
         }
-        else if(currentFocus == 3)
+        else if(currentFocus == 3) //copy
         {
             QString usbRoot = findUsbPath();
 
             if(usbRoot.isEmpty()){
-                ui->label->setText("No Pendrive Detected");
+                ui->label->setText(" ⚠️ No Pendrive Detected");
+                StatusLabelTimer->start(2000);
                 return;
             }
 
             QString machineFolder =
-                usbRoot + "/" + MachNo;
+                usbRoot + "/WT" + MachNo;
 
             if (!QDir().exists(machineFolder)){
                 QDir().mkpath(machineFolder);
@@ -230,11 +236,11 @@ void OpenLog1::handleSocketKey(quint8 key)
                 basePath + "/" +
                 selectedDateFolder;
 
-            QString dst =
-                uniqueFolderName(
-                    machineFolder,
-                    selectedDateFolder);
-
+            // QString dst =
+            //     uniqueFolderName(
+            //         machineFolder,
+            //         selectedDateFolder);
+            QString dst = machineFolder +"/"+selectedDateFolder;
             if(copyFolderRecursively(src,dst))
             {
                 ui->label->setStyleSheet(
@@ -256,7 +262,7 @@ void OpenLog1::handleSocketKey(quint8 key)
             }
             break;
         }
-        else if(currentFocus == 4)
+        else if(currentFocus == 4) //copy all
         {
             QString usbRoot = findUsbPath();
 
@@ -264,7 +270,7 @@ void OpenLog1::handleSocketKey(quint8 key)
                 return;
 
             QString machineFolder =
-                usbRoot + "/" + MachNo;
+                usbRoot + "/WT" + MachNo;
 
             if (!QDir().exists(machineFolder)){
                     QDir().mkpath(machineFolder);
@@ -279,11 +285,11 @@ void OpenLog1::handleSocketKey(quint8 key)
 
             foreach(QFileInfo folder, folders)
             {
-                QString dst =
-                    uniqueFolderName(
-                        machineFolder,
-                        folder.fileName());
-
+                // QString dst =
+                //     uniqueFolderName(
+                //         machineFolder,
+                //         folder.fileName());
+                QString dst = machineFolder +"/"+folder.fileName();
 
                 if(copyFolderRecursively(folder.absoluteFilePath(),dst))
                 {
@@ -291,7 +297,7 @@ void OpenLog1::handleSocketKey(quint8 key)
                         "color: #00ff66;"
                         "font-size: 11px;"
                         "font-weight: bold;");
-                    ui->label->setText("Copied "+ selectedDateFolder);
+                    ui->label->setText("Copied ");
                     StatusLabelTimer->start(2000);
                 }
                 else{
@@ -299,13 +305,13 @@ void OpenLog1::handleSocketKey(quint8 key)
                         "color: RED;"
                         "font-size: 11px;"
                         "font-weight: bold;");
-                    ui->label->setText("Copying "+selectedDateFolder+" has failed");
+                    ui->label->setText("Copying has failed");
                     StatusLabelTimer->start(2000);
                 }
             }
             break;
         }
-        else if(currentFocus == 5)
+        else if(currentFocus == 5) //delete
         {
             QString path =
                 basePath + "/" +
@@ -326,7 +332,7 @@ void OpenLog1::handleSocketKey(quint8 key)
             ui->fileList->clear();
             break;
         }
-        else if(currentFocus == 6)
+        else if(currentFocus == 6) //delete all
         {
             QDir dir(basePath);
 
@@ -410,6 +416,21 @@ void OpenLog1::updateFocusStyle()
 
     }
 }
+// void OpenLog1::loadDateFolders()
+// {
+//     ui->dateFolderList->clear();
+
+//     QDir dir(basePath);
+
+//     QFileInfoList folderList =
+//         dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
+//                           QDir::Name);
+
+//     for(const QFileInfo &info : folderList)
+//     {
+//         ui->dateFolderList->addItem(info.fileName());
+//     }
+// }
 void OpenLog1::loadDateFolders()
 {
     ui->dateFolderList->clear();
@@ -417,15 +438,39 @@ void OpenLog1::loadDateFolders()
     QDir dir(basePath);
 
     QFileInfoList folderList =
-        dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
-                          QDir::Name);
+        dir.entryInfoList(
+            QDir::Dirs |
+            QDir::NoDotAndDotDot);
+
+    std::sort(folderList.begin(),
+              folderList.end(),
+              [](const QFileInfo &a,
+                 const QFileInfo &b)
+              {
+                  QDate da =
+                      QDate::fromString(
+                          a.fileName(),
+                          "dd-MM-yyyy");
+
+                  QDate db =
+                      QDate::fromString(
+                          b.fileName(),
+                          "dd-MM-yyyy");
+
+                  return da > db;   // Latest first
+              });
 
     for(const QFileInfo &info : folderList)
     {
-        ui->dateFolderList->addItem(info.fileName());
+        ui->dateFolderList->addItem(
+            info.fileName());
+    }
+
+    if(ui->dateFolderList->count() > 0)
+    {
+        ui->dateFolderList->setCurrentRow(0);
     }
 }
-
 void OpenLog1::onDateFolderClicked(QListWidgetItem *item)
 {
     selectedDateFolder = item->text();
@@ -490,7 +535,7 @@ void OpenLog1::loadFiles(const QString &weldFolder)
     qDebug() << "Loaded WT files from:" << path;
 }
 
-QString OpenLog1::findUsbPath()
+QString findUsbPath()
 {
     QDir mediaDir("/media");
 
@@ -510,7 +555,7 @@ QString OpenLog1::findUsbPath()
 
     return "";
 }
-QString OpenLog1::uniqueFolderName(QString parent,
+QString uniqueFolderName(QString parent,
                          QString folderName)
 {
     QString candidate =
@@ -536,7 +581,7 @@ QString OpenLog1::uniqueFolderName(QString parent,
         count++;
     }
 }
-bool OpenLog1::copyFolderRecursively(
+bool copyFolderRecursively(
     const QString &src,
     const QString &dst)
 {
@@ -567,14 +612,27 @@ bool OpenLog1::copyFolderRecursively(
                 srcPath,
                 dstPath);
         }
+        // else
+        // {
+        //     QFile::copy(
+        //         srcPath,
+        //         dstPath);
+        // }
         else
         {
-            QFile::copy(
-                srcPath,
-                dstPath);
+            if(QFile::copy(srcPath, dstPath))
+            {
+                int fd = open(dstPath.toStdString().c_str(), O_RDONLY);
+
+                if(fd >= 0)
+                {
+                    fsync(fd);
+                    close(fd);
+                }
+            }
         }
     }
-
+    sync();
     return true;
 }
 OpenLog1::~OpenLog1()

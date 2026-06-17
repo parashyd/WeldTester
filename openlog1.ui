@@ -46,21 +46,14 @@
     <item>
      <widget class="QPushButton" name="deleteButton">
       <property name="text">
-       <string>Del</string>
+       <string>Delete</string>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QPushButton" name="deleteAllButton">
       <property name="text">
-       <string>Del All</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="previewButton">
-      <property name="text">
-       <string>Preview</string>
+       <string>Delete All</string>
       </property>
      </widget>
     </item>

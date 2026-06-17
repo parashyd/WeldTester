@@ -20,9 +20,9 @@
    <property name="geometry">
     <rect>
      <x>9</x>
-     <y>9</y>
+     <y>29</y>
      <width>308</width>
-     <height>462</height>
+     <height>391</height>
     </rect>
    </property>
    <widget class="QLabel" name="label_Folder">
@@ -40,7 +40,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Folders</string>
+     <string>Date Folders</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -52,7 +52,7 @@
       <x>10</x>
       <y>40</y>
       <width>291</width>
-      <height>411</height>
+      <height>331</height>
      </rect>
     </property>
    </widget>
@@ -61,9 +61,9 @@
    <property name="geometry">
     <rect>
      <x>323</x>
-     <y>9</y>
+     <y>29</y>
      <width>308</width>
-     <height>462</height>
+     <height>391</height>
     </rect>
    </property>
    <widget class="QLabel" name="label_Images">
@@ -81,7 +81,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Images</string>
+     <string>Files</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -93,10 +93,63 @@
       <x>0</x>
       <y>40</y>
       <width>291</width>
-      <height>411</height>
+      <height>331</height>
      </rect>
     </property>
    </widget>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>440</y>
+     <width>561</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QPushButton" name="CopyButton">
+      <property name="text">
+       <string>Copy</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="CopyAllButton">
+      <property name="text">
+       <string>Copy All</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="DeleteButton">
+      <property name="text">
+       <string>Delete</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="DeleteAllButton">
+      <property name="text">
+       <string>Delete All</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>371</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
   </widget>
  </widget>
  <resources/>

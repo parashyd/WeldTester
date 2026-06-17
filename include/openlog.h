@@ -37,6 +37,7 @@ private:
     Ui::Openlog *ui;
     QFileSystemWatcher *watcher;
     QString basePath;
+    QTimer *StatusLabTimer;
 
     int currentFocus = 0;
     QListWidget *currentList = nullptr;

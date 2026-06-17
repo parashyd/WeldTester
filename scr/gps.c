@@ -155,7 +155,7 @@ static void GPS_Update(void)
 
 
 
-void nmeaToDMS(const char *nmea,
+static void nmeaToDMS(const char *nmea,
                       char hemisphere,
                       char *output,
                       size_t size)

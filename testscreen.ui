@@ -344,8 +344,8 @@
             <widget class="QLabel" name="label_latitude">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>10</y>
+               <x>80</x>
+               <y>0</y>
                <width>111</width>
                <height>18</height>
               </rect>
@@ -357,14 +357,40 @@
             <widget class="QLabel" name="label_logitude">
              <property name="geometry">
               <rect>
-               <x>170</x>
-               <y>8</y>
+               <x>270</x>
+               <y>0</y>
                <width>111</width>
                <height>20</height>
               </rect>
              </property>
              <property name="text">
               <string/>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_Lat">
+             <property name="geometry">
+              <rect>
+               <x>40</x>
+               <y>0</y>
+               <width>31</width>
+               <height>18</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Lat :</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_2">
+             <property name="geometry">
+              <rect>
+               <x>230</x>
+               <y>0</y>
+               <width>31</width>
+               <height>18</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Lon :</string>
              </property>
             </widget>
            </widget>

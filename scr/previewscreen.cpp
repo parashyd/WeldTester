@@ -18,6 +18,7 @@
 #include <QDir>
 #include <QDebug>
 #include "mainwindow.h"
+#include "gps.h"
 extern SharedData* shared;
 
 PreviewScreen::PreviewScreen(QWidget *parent)
@@ -77,6 +78,12 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     ui->label_Delyval->setText(QString::number(config.delay));
     ui->label_RangeVal->setText(QString::number(config.range));
 
+    QDateTime now = QDateTime::currentDateTime();
+    ui->label_Date->setText(now.toString("dd-MM-yyyy"));
+    ui->label_Time->setText(now.toString("HH:mm:ss"));
+
+    ui->label_latitude_2->setText(GPS_GetLatitude());
+    ui->label_logitude_2->setText(GPS_GetLongitude());
     ui->label_G1->setStyleSheet("QLabel { color : #219601; }");
     ui->label_G2->setStyleSheet("QLabel { color : #0818ff; }");
     qDebug() <<"fetched data from previous screen";
@@ -413,13 +420,15 @@ void PreviewScreen::on_pushButton_save_clicked()
     //                           .arg(wheelNo)
     //                           .arg(frameNo);
 
-    QString jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5.jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M);
+    //QString jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5.jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M);
+    QString jpgFileName = QString("%1/%2_%3_%4-%5_%6_CH-%7.jpg").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel);
 
 
     int temp=1;
     while(QFile::exists(jpgFileName))
     {
-        jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5(%6).jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M).arg(temp);
+        //jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5(%6).jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M).arg(temp);
+        jpgFileName =  QString("%1/%2_%3_%4-%5_%6_CH-%7(%8).jpg").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel).arg(temp);
         temp++;
     }
 

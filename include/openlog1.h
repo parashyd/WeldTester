@@ -5,6 +5,11 @@
 #include <QWidget>
 #include <QListWidgetItem>
 extern QString selectedFilePath;
+
+QString findUsbPath();
+QString uniqueFolderName(QString parent, QString folderName);
+bool copyFolderRecursively(const QString &src,const QString &dst);
+
 namespace Ui {
 class OpenLog1;
 }
@@ -16,6 +21,7 @@ class OpenLog1 : public QDialog
 public:
     explicit OpenLog1(QWidget *parent = nullptr);
     void handleSocketKey(quint8 key);
+
     ~OpenLog1();
 
 private:
@@ -33,9 +39,8 @@ private:
 
     void loadFiles(const QString &weldFolder);
     void updateFocusStyle();
-    QString findUsbPath();
-    QString uniqueFolderName(QString parent, QString folderName);
-    bool copyFolderRecursively(const QString &src,const QString &dst);
+
+
 
 
 
