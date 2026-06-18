@@ -16,11 +16,16 @@
   <widget class="QLabel" name="label_Time">
    <property name="geometry">
     <rect>
-     <x>370</x>
+     <x>410</x>
      <y>440</y>
      <width>81</width>
      <height>18</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
    </property>
    <property name="text">
     <string>Time</string>
@@ -31,7 +36,7 @@
     <rect>
      <x>10</x>
      <y>440</y>
-     <width>71</width>
+     <width>61</width>
      <height>21</height>
     </rect>
    </property>
@@ -44,7 +49,7 @@
     <rect>
      <x>80</x>
      <y>440</y>
-     <width>281</width>
+     <width>321</width>
      <height>20</height>
     </rect>
    </property>
@@ -57,13 +62,23 @@
     <rect>
      <x>10</x>
      <y>410</y>
-     <width>451</width>
-     <height>21</height>
+     <width>481</width>
+     <height>28</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QLabel" name="label">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
        <string>PH</string>
       </property>
@@ -74,6 +89,11 @@
     </item>
     <item>
      <widget class="QLabel" name="label_BP">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
        <string>BP</string>
       </property>
@@ -84,6 +104,11 @@
     </item>
     <item>
      <widget class="QLabel" name="label_D">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
        <string>D</string>
       </property>
@@ -94,6 +119,11 @@
     </item>
     <item>
      <widget class="QLabel" name="label_Sd">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
        <string>SD</string>
       </property>
@@ -107,55 +137,384 @@
   <widget class="QCustomPlot" name="PLOT" native="true">
    <property name="geometry">
     <rect>
+     <x>10</x>
+     <y>70</y>
+     <width>471</width>
+     <height>321</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QWidget" name="formLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>500</x>
+     <y>40</y>
+     <width>211</width>
+     <height>176</height>
+    </rect>
+   </property>
+   <layout class="QFormLayout" name="formLayout">
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_8">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Weld Type :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="label_WeldTypVal">
+      <property name="text">
+       <string>WeldTypVal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="label_10">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Test Type :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="label_TstTypVal">
+      <property name="text">
+       <string>TstTypVal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_9">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Km :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLabel" name="label_KmVal">
+      <property name="text">
+       <string>KmVal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLabel" name="label_11">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Mtr :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLabel" name="label_MtrVal">
+      <property name="text">
+       <string>MtrVal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QLabel" name="label_13">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Rail :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QLabel" name="label_RailVal">
+      <property name="text">
+       <string>RailVal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
+     <widget class="QLabel" name="label_12">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Weld No :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1">
+     <widget class="QLabel" name="label_14">
+      <property name="text">
+       <string>WeldNoVal</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>621</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QLabel" name="label_3">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>OP Name :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_OpNameVal">
+      <property name="text">
+       <string>Op Na</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_4">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Div :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_DivVal">
+      <property name="text">
+       <string>DVal</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_6">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Sec :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_SecVal">
+      <property name="text">
+       <string>SVal</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_7">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Line :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_LineVal">
+      <property name="text">
+       <string>LiVal</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_5">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Date :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_DateVal">
+      <property name="text">
+       <string>DateVal</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_18">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Time :</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_TimeVal">
+      <property name="text">
+       <string>TimeVal</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="label_15">
+   <property name="geometry">
+    <rect>
      <x>20</x>
      <y>50</y>
-     <width>441</width>
-     <height>341</height>
+     <width>71</width>
+     <height>18</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Latitude :</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_LatVal">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>50</y>
+     <width>111</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>LatVal</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_17">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>50</y>
+     <width>81</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Longitude :</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_LonVal">
+   <property name="geometry">
+    <rect>
+     <x>305</x>
+     <y>50</y>
+     <width>110</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>LonVal</string>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>490</x>
-     <y>200</y>
-     <width>141</width>
-     <height>271</height>
+     <x>500</x>
+     <y>220</y>
+     <width>131</width>
+     <height>290</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout_2">
     <item row="0" column="0">
-     <widget class="QLabel" name="label_ch">
+     <widget class="QLabel" name="label_calset">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>Ch No.</string>
+       <string>Calset :</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLabel" name="label_chval">
-      <property name="text">
-       <string>chval</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_calset">
-      <property name="text">
-       <string>Calset</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
      <widget class="QLabel" name="label_calsetval">
       <property name="text">
        <string>calsetval</string>
       </property>
      </widget>
     </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_ch">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Ch No. :</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="label_chval">
+      <property name="text">
+       <string>chval</string>
+      </property>
+     </widget>
+    </item>
     <item row="2" column="0">
      <widget class="QLabel" name="label_gain">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>Gain</string>
+       <string>Gain :</string>
       </property>
      </widget>
     </item>
@@ -168,22 +527,25 @@
     </item>
     <item row="3" column="0">
      <widget class="QLabel" name="label_range">
-      <property name="text">
-       <string>Range</string>
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
       </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QLabel" name="label_rangeval">
       <property name="text">
-       <string>rangeval</string>
+       <string>Range :</string>
       </property>
      </widget>
     </item>
     <item row="4" column="0">
      <widget class="QLabel" name="label_Delay">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>Delay</string>
+       <string>Delay :</string>
       </property>
      </widget>
     </item>
@@ -196,8 +558,13 @@
     </item>
     <item row="5" column="0">
      <widget class="QLabel" name="label_Reject">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>Reject</string>
+       <string>Reject :</string>
       </property>
      </widget>
     </item>
@@ -210,8 +577,13 @@
     </item>
     <item row="6" column="0">
      <widget class="QLabel" name="label_Angle">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>Angle</string>
+       <string>Angle :</string>
       </property>
      </widget>
     </item>
@@ -224,8 +596,13 @@
     </item>
     <item row="7" column="0">
      <widget class="QLabel" name="label_GTST">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>GTST</string>
+       <string>GTST :</string>
       </property>
      </widget>
     </item>
@@ -243,12 +620,23 @@
         <height>0</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>45</width>
+        <height>16777215</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="8" column="0">
      <widget class="QLabel" name="label_2">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>GTED</string>
+       <string>GTED :</string>
       </property>
      </widget>
     </item>
@@ -260,17 +648,42 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>45</width>
+        <height>16777215</height>
+       </size>
+      </property>
      </widget>
     </item>
     <item row="9" column="0">
      <widget class="QLabel" name="label_TH">
+      <property name="font">
+       <font>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>TH</string>
+       <string>TH :</string>
       </property>
      </widget>
     </item>
     <item row="9" column="1">
-     <widget class="QLineEdit" name="lineEdit_TH"/>
+     <widget class="QLineEdit" name="lineEdit_TH">
+      <property name="maximumSize">
+       <size>
+        <width>45</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLabel" name="label_rangeval">
+      <property name="text">
+       <string>rangeval</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

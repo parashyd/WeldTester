@@ -46,7 +46,7 @@ private:
     void HandleGateShift(int shift);
     void HandleGateUpDownLift(int lift);
     void adjustGatewidth(int delta);
-
+    void LoadTestDetails();
     inline void focusGate(int replotRequired);
     inline void plotGate(int replotRequired);
 

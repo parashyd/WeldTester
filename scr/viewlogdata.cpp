@@ -47,6 +47,7 @@ viewLogData::viewLogData(QWidget *parent)
     connect(ui->lineEdit_TH,&QLineEdit::textChanged,this,[this](){
         TH = ui->lineEdit_TH->text().toInt();
     });
+    LoadTestDetails();
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -55,7 +56,7 @@ viewLogData::viewLogData(QWidget *parent)
 void viewLogData::setupPlot()
 {
     ui->PLOT->setOpenGl(true);                 // <── same as testscreen
-    ui->PLOT->setFixedSize(485, 335);
+    ui->PLOT->setFixedSize(485, 320);
     ui->PLOT->setBackground(Qt::black);
 
     auto makeFixedTicker = [](QCustomPlot *plot, QCPAxis *axis) {
@@ -554,6 +555,44 @@ void viewLogData::adjustGatewidth(int delta)
     }
 
 
+}
+void viewLogData::LoadTestDetails()
+{
+    QFileInfo fi(selectedFilePath);
+
+    QString jsonPath =
+        fi.absolutePath() +
+        "/testdetails.json";
+
+    QFile file(jsonPath);
+    if (!file.exists()) {
+        return;
+    }
+
+    if (file.open(QIODevice::ReadOnly)) {
+        QByteArray data = file.readAll();
+        file.close();
+
+        QJsonDocument doc = QJsonDocument::fromJson(data);
+        QJsonObject obj = doc.object();
+
+        ui->label_OpNameVal->setText(obj["OpName"].toString());
+        ui->label_DivVal->setText(obj["Div"].toString());
+        ui->label_SecVal->setText(obj["Sec"].toString());
+        ui->label_LineVal->setText(obj["Line"].toString());
+        // if(ui->lineothersEdit->isVisible())
+        //     ui->lineothersEdit->setText(obj["LineOthers"].toString());
+        ui->label_WeldTypVal->setText(obj["WeldType"].toString());
+        ui->label_TstTypVal->setText(obj["TestType"].toString());
+        ui->label_KmVal->setText(obj["Km"].toString());
+        ui->label_MtrVal->setText(obj["Mtr"].toString());
+        ui->label_RailVal->setText(obj["Rail"].toString());
+        ui->label_14->setText(obj["WeldNo"].toString());
+        ui->label_DateVal->setText(m_reader.startDate());
+        ui->label_TimeVal->setText(m_reader.startTime());
+        ui->label_LatVal->setText(m_reader.latitude());
+        ui->label_LonVal->setText(m_reader.longitude());
+    }
 }
 viewLogData::~viewLogData()
 {
