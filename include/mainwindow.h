@@ -54,6 +54,7 @@ private:
     QWidget *m_currentFocusedWidget = nullptr;
     QWidget* m_currentLogicalFocus = nullptr;
     void startSocketServer();
+    void ReadMachNo();
 };
 
 #endif // MAINWINDOW_H

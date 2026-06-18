@@ -19,6 +19,8 @@
 #include "openlog.h"
 #include "viewlogdata.h"
 #include "Audio.h"
+#include "gps.h"
+
 QString MachNo;
 
 MainWindow::MainWindow(QWidget *parent)
@@ -77,7 +79,13 @@ MainWindow::MainWindow(QWidget *parent)
     // }
     startSocketServer();
 
+    ReadMachNo();
 
+    int ret = GPS_Init();
+    qDebug() << "GPS_Init =" << ret;
+
+}
+void MainWindow::ReadMachNo(){
     QFile file("BIN.BIN");
 
     if (!file.open(QIODevice::ReadOnly))
@@ -103,7 +111,6 @@ MainWindow::MainWindow(QWidget *parent)
     MachNo= QString("%1").arg(value, 4, 10, QChar('0'));
 
     qDebug() << "Mach No : "<<MachNo;
-
 }
 void MainWindow::startSocketServer()
 {

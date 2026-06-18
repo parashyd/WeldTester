@@ -987,13 +987,19 @@ mk_dm2.o: scr/mk_dm2.cpp include/matrix_keypad.h \
 
 openlog.o: scr/openlog.cpp include/openlog.h \
 		ui_Openlog.h \
+		include/openlog1.h \
 		include/matrix_keypad.h \
 		include/testscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
 		include/testdetails.h \
 		include/previewscreen.h \
-		include/qcustomplot.h
+		include/qcustomplot.h \
+		include/mainwindow.h \
+		include/testdetail0.h \
+		include/configscreen.h \
+		include/viewlogdata.h \
+		include/wt_logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o openlog.o scr/openlog.cpp
 
 previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
@@ -1010,7 +1016,8 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/openlog.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
-		include/wt_logger.h
+		include/wt_logger.h \
+		include/gps.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o previewscreen.o scr/previewscreen.cpp
 
 qcustomplot.o: scr/qcustomplot.cpp include/qcustomplot.h

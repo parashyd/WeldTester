@@ -188,7 +188,7 @@ char *GPS_GetLatitude(void)
     GPS_Update();
 
     if (strlen(latitude) == 0)
-        return "NO FIX";
+        return "Waiting... ";
 
     return latitude;
 }

@@ -298,9 +298,6 @@ TestScreen::TestScreen(QWidget *parent)
     DACline = ui->Plot->addGraph();
 
 
-    int ret = GPS_Init();
-    qDebug() << "GPS_Init =" << ret;
-
     ui->label_latitude->setStyleSheet(
         "background-color: transparent;"
         // "color: rgba(255, 255, 255, 100);"
