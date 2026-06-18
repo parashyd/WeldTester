@@ -168,14 +168,14 @@ static void nmeaToDMS(const char *nmea,
     int minutes = (int)minutesFull;
 
     double secondsFull = (minutesFull - minutes) * 60.0;
-    int seconds = (int)(secondsFull + 0.5); // round off
+    //int seconds = (int)(secondsFull + 0.5); // round off
 
     snprintf(output,
              size,
-             "%d° %d' %d\" %c",
+             "%d° %d' %.2f\" %c",
              degrees,
              minutes,
-             seconds,
+             secondsFull,
              hemisphere);
 }
 

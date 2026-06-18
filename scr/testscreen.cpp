@@ -274,7 +274,7 @@ TestScreen::TestScreen(QWidget *parent)
     int duty = 250000 * AudioLevel;
     if (duty > 1000000) duty = 1000000;
     Buzzerinit();
-    //BuzzerDuty(duty);
+    BuzzerDuty(duty);
 
     m_audioPercent = (float)duty / 1000000 * 100.0f;
     ui->label_audioIndicator->update();

@@ -8,7 +8,8 @@
 #include <QByteArray>
 #include <QDebug>
 #include "DataFile.h"
-
+#include "QDateTime"
+#include "gps.h"
 // ═══════════════════════════════════════════════════════════════
 //  .wt  FILE FORMAT  (all values little-endian)
 //
@@ -38,7 +39,9 @@
 // ═══════════════════════════════════════════════════════════════
 
 static constexpr uint32_t WT_MAGIC        = 0x574C5447u; // 'WLTG'
-static constexpr int      WT_HEADER_SIZE  = 84;
+// static constexpr int      WT_HEADER_SIZE  = 84;
+static constexpr int      WT_HEADER_SIZE  = 180;
+
 
 //static constexpr float    RANGE_FACTOR_LT30 = 3.378f;
 //static constexpr float    RANGE_FACTOR_GT30 = 6.212f;
@@ -63,10 +66,18 @@ inline int wtFrameSize(const ConfigEntry &c)
 namespace wt_detail {
 
 // Pack header into a fixed 84-byte buffer
+// inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
+//                        const ConfigEntry &c,
+//                        int32_t totalFrames,
+//                        int32_t frameSize)
 inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
                        const ConfigEntry &c,
                        int32_t totalFrames,
-                       int32_t frameSize)
+                       int32_t frameSize,
+                       const char *date,
+                       const char *time,
+                       const char *lat,
+                       const char *lon)
 {
     memset(buf, 0, WT_HEADER_SIZE);
     int off = 0;
@@ -96,14 +107,35 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
 
     // Metadata
     memcpy(buf + off, &totalFrames, 4); off += 4;  // offset 76
-    memcpy(buf + off, &frameSize,   4);            // offset 80
+    memcpy(buf + off, &frameSize,   4); off += 4;   // offset 80
+
+    memcpy(buf + off, date, 16);
+    off += 16;
+
+    memcpy(buf + off, time, 16);
+    off += 16;
+
+    memcpy(buf + off, lat, 32);
+    off += 32;
+
+    memcpy(buf + off, lon, 32);
+    off += 32;
 }
 
 // Unpack header from a fixed 84-byte buffer
-inline bool unpackHeader(const uint8_t buf[WT_HEADER_SIZE],
-                         ConfigEntry &c,
-                         int32_t &totalFrames,
-                         int32_t &frameSize)
+// inline bool unpackHeader(const uint8_t buf[WT_HEADER_SIZE],
+//                          ConfigEntry &c,
+//                          int32_t &totalFrames,
+//                          int32_t &frameSize)
+inline bool unpackHeader(
+    const uint8_t buf[WT_HEADER_SIZE],
+    ConfigEntry &c,
+    int32_t &totalFrames,
+    int32_t &frameSize,
+    char startDate[16],
+    char startTime[16],
+    char latitude[32],
+    char longitude[32])
 {
     int off = 0;
 
@@ -135,8 +167,19 @@ inline bool unpackHeader(const uint8_t buf[WT_HEADER_SIZE],
     memcpy(&f32, buf + off, 4); c.Angle    = f32; off += 4;
 
     memcpy(&totalFrames, buf + off, 4); off += 4;
-    memcpy(&frameSize,   buf + off, 4);
+    memcpy(&frameSize,   buf + off, 4);off += 4;
 
+    memcpy(startDate, buf + off, 16);
+    off += 16;
+
+    memcpy(startTime, buf + off, 16);
+    off += 16;
+
+    memcpy(latitude, buf + off, 32);
+    off += 32;
+
+    memcpy(longitude, buf + off, 32);
+    off += 32;
     if (frameSize <= 0 || totalFrames < 0)
     {
         qWarning() << "[wt] Invalid frameSize or totalFrames";
@@ -180,7 +223,28 @@ public:
 
         // Write header – totalFrames is 0 for now, patched on close()
         uint8_t buf[WT_HEADER_SIZE];
-        wt_detail::packHeader(buf, config, 0, m_frameSize);
+        //wt_detail::packHeader(buf, config, 0, m_frameSize);
+
+        QDateTime now = QDateTime::currentDateTime();
+
+        QByteArray date =
+            now.toString("dd-MM-yyyy")
+                .toLocal8Bit();
+
+        QByteArray time =
+            now.toString("HH:mm:ss")
+                .toLocal8Bit();
+
+        wt_detail::packHeader(
+            buf,
+            config,
+            0,
+            m_frameSize,
+            date.constData(),
+            time.constData(),
+            GPS_GetLatitude(),
+            GPS_GetLongitude());
+
         fwrite(buf, 1, WT_HEADER_SIZE, m_fp);
 
         qDebug() << "[WtLogger] Recording started ->" << filePath
@@ -320,6 +384,25 @@ public:
     }
     const ConfigEntry &config()   const { return m_config; }
 
+    QString startDate() const
+    {
+        return QString(m_startDate);
+    }
+
+    QString startTime() const
+    {
+        return QString(m_startTime);
+    }
+
+    QString latitude() const
+    {
+        return QString(m_latitude);
+    }
+
+    QString longitude() const
+    {
+        return QString(m_longitude);
+    }
 private:
     bool readHeader()
     {
@@ -342,8 +425,18 @@ private:
         }
 
         int32_t totalFrames = 0, frameSize = 0;
-        if (!wt_detail::unpackHeader(buf, m_config, totalFrames, frameSize))
+        if (!wt_detail::unpackHeader(
+                buf,
+                m_config,
+                totalFrames,
+                frameSize,
+                m_startDate,
+                m_startTime,
+                m_latitude,
+                m_longitude))
+        {
             return false;
+        }
 
         m_totalFrames = totalFrames;
         m_frameSize   = frameSize;
@@ -355,5 +448,9 @@ private:
     int         m_totalFrames  = 0;
     int         m_frameSize    = 0;
     int         m_currentFrame = 0;
+    char m_startDate[16] = {};
+    char m_startTime[16] = {};
+    char m_latitude[32]  = {};
+    char m_longitude[32] = {};
 };
-#endif // WT_LOGGER_H
+#endif    // WT_LOGGER_H
