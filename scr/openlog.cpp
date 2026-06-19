@@ -273,6 +273,7 @@ void Openlog::onImageActivated(QListWidgetItem *item)
 /* -------------------- REMOTE / KEYPAD -------------------- */
 void Openlog::handleRemoteKey(int key)
 {
+
     QListWidget *currentList = nullptr;
 
     switch(currentFocus)
@@ -296,8 +297,39 @@ void Openlog::handleRemoteKey(int key)
     if(currentList!=nullptr)
         row = currentList->currentRow();
 
+    if(key==ESC){
+        if(currentViewer)
+            {
+                currentViewer->closeFullscreen();
+                currentViewer = nullptr;
+            }
+            else
+            {
+                emit closeopenlogscreen();
+            }
+            return;
+    }
+
+    if(currentViewer != nullptr){
+        return;
+    }
+
     switch(key)
     {
+    // case ESC:
+
+    //     if(currentViewer)
+    //     {
+    //         currentViewer->closeFullscreen();
+    //         currentViewer = nullptr;
+    //     }
+    //     else
+    //     {
+    //         emit closeopenlogscreen();
+    //     }
+
+    //     break;
+
     case UP:
 
         if(row > 0)
@@ -519,19 +551,7 @@ void Openlog::handleRemoteKey(int key)
 
         break;
 
-    case ESC:
 
-        if(currentViewer)
-        {
-            currentViewer->closeFullscreen();
-            currentViewer = nullptr;
-        }
-        else
-        {
-            emit closeopenlogscreen();
-        }
-
-        break;
     }
 }
 void Openlog::updateFocusStyle()

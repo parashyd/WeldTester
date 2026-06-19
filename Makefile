@@ -823,6 +823,7 @@ moc_mainwindow.cpp: include/mainwindow.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
+		include/gps.h \
 		moc_predefs.h \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc $(DEFINES) --include '/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester/moc_predefs.h' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++ -I'/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester' -I'/home/pe-rnd3/workspace/Weld Tester/GIT_WeldTester/WeldTester/include' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtSvg -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtPrintSupport -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtOpenGL -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtWidgets -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtGui -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtNetwork -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtCore -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0 -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/aarch64-tdx-linux -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/backward -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include-fixed -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include include/mainwindow.h -o moc_mainwindow.cpp
@@ -841,6 +842,7 @@ moc_viewlogdata.cpp: include/viewlogdata.h \
 		include/wt_logger.h \
 		include/DataFile.h \
 		include/shared_data.h \
+		include/gps.h \
 		include/qcustomplot.h \
 		moc_predefs.h \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
@@ -913,6 +915,7 @@ openlog1.o: scr/openlog1.cpp include/openlog1.h \
 		include/wt_logger.h \
 		include/DataFile.h \
 		include/shared_data.h \
+		include/gps.h \
 		include/qcustomplot.h \
 		include/mainwindow.h \
 		include/testdetails.h \
@@ -942,6 +945,7 @@ main.o: main.cpp include/testscreen.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
+		include/gps.h \
 		include/matrix_keypad.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
@@ -958,6 +962,7 @@ mainwindow.o: scr/mainwindow.cpp include/mainwindow.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
+		include/gps.h \
 		ui_mainwindow.h \
 		include/matrix_keypad.h \
 		include/Audio.h
@@ -999,7 +1004,8 @@ openlog.o: scr/openlog.cpp include/openlog.h \
 		include/testdetail0.h \
 		include/configscreen.h \
 		include/viewlogdata.h \
-		include/wt_logger.h
+		include/wt_logger.h \
+		include/gps.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o openlog.o scr/openlog.cpp
 
 previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
@@ -1040,7 +1046,8 @@ testdetails.o: scr/testdetails.cpp include/testdetails.h \
 		include/openlog.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
-		include/wt_logger.h
+		include/wt_logger.h \
+		include/gps.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testdetails.o scr/testdetails.cpp
 
 testscreen.o: scr/testscreen.cpp include/testscreen.h \
@@ -1057,10 +1064,10 @@ testscreen.o: scr/testscreen.cpp include/testscreen.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
+		include/gps.h \
 		include/matrix_keypad.h \
 		include/Battery.h \
-		include/Audio.h \
-		include/gps.h
+		include/Audio.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testscreen.o scr/testscreen.cpp
 
 testdetail0.o: scr/testdetail0.cpp include/testdetail0.h \
@@ -1077,13 +1084,15 @@ testdetail0.o: scr/testdetail0.cpp include/testdetail0.h \
 		include/openlog.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
-		include/wt_logger.h
+		include/wt_logger.h \
+		include/gps.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testdetail0.o scr/testdetail0.cpp
 
 viewlogdata.o: scr/viewlogdata.cpp include/viewlogdata.h \
 		include/wt_logger.h \
 		include/DataFile.h \
 		include/shared_data.h \
+		include/gps.h \
 		include/qcustomplot.h \
 		ui_viewlogdata.h \
 		include/matrix_keypad.h
