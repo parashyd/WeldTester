@@ -40,7 +40,13 @@ OpenLog1::OpenLog1(QWidget *parent)
     StatusLabelTimer = new QTimer(this);
 
     StatusLabelTimer->setSingleShot(true);
+    // QPixmap pixmap = this->grab();
 
+    // // --- Adjust JPG output size ---
+    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // QString jpgFileName = QString("OpenLogScreen.jpg");
+    // scaledJpg.save(jpgFileName, "JPG", 100 );
     connect(StatusLabelTimer,
             &QTimer::timeout,
             this,

@@ -140,7 +140,13 @@ Openlog::Openlog(QWidget *parent)
     currentFocus = 0;
 
     ui->listWidget_Folder->setCurrentRow(0);
+    // QPixmap pixmap = this->grab();
 
+    // // --- Adjust JPG output size ---
+    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // QString jpgFileName = QString("OpenScreen.jpg");
+    // scaledJpg.save(jpgFileName, "JPG", 100 );
     updateFocusStyle();
 }
 

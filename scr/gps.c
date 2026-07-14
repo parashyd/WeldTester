@@ -48,6 +48,9 @@ int GPS_Init()
         return -1;
     }
 
+  memset(latitude, 0, sizeof(latitude));
+  memset(longitude, 0, sizeof(longitude));
+
     return 0;
 }
 
@@ -160,6 +163,14 @@ static void nmeaToDMS(const char *nmea,
                       char *output,
                       size_t size)
 {
+
+    if (nmea == NULL || *nmea == '\0')
+    {
+        snprintf(output,
+                 size,
+                 "Waiting...");
+        return;
+    }
     double val = atof(nmea);
 
     int degrees = (int)(val / 100);
@@ -193,7 +204,17 @@ char *GPS_GetLatitude(void)
     return latitude;
 }
 
+// char *GPS_GetLongitude(void)
+// {
+//     return longitude;
+// }
 char *GPS_GetLongitude(void)
 {
+    if (gps_fp == NULL)
+        return "GPS OFF";
+
+    if (strlen(longitude) == 0)
+        return "Waiting...";
+
     return longitude;
 }

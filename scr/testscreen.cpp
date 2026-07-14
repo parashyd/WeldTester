@@ -247,6 +247,13 @@ TestScreen::TestScreen(QWidget *parent)
 // )");
 
     ui->setupUi(this);
+    // QPixmap pixmap = this->grab();
+
+    // // --- Adjust JPG output size ---
+    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // QString jpgFileName = QString("TestScreen.jpg");
+    // scaledJpg.save(jpgFileName, "JPG", 100 );
 
     display_mc_no();
     gain_offsetArr={0.5,1,2,3,6,10};
@@ -405,6 +412,15 @@ TestScreen::TestScreen(QWidget *parent)
     //     updateGraphWithData();
     // });
 
+    //Added to hard code the velocity based on angle
+    connect(ui->lineEdit_Angle, &QLineEdit::textChanged, this, [this](const QString &){
+        if(config.Angle<30){
+            ui->lineEdit_Velocity->setText("5920");
+        }
+        else {
+            ui->lineEdit_Velocity->setText("3230");
+        }
+    });
 
     ui->label_freeze->setVisible(false);//Make Freeze disable initially
     ui->label_pause->setVisible(false);//Make pause disable initially
@@ -604,7 +620,7 @@ void TestScreen::onSocketReadyRead(quint8 key)
         break;
 
     case VELOCITY:
-        prepareVelocityInput();
+        prepareVelocityInput(); //commented for this revision, will implement this in next release
         break;
 
     case ZOOM:
@@ -673,6 +689,7 @@ void TestScreen::onSocketReadyRead(quint8 key)
         break;
 
     case SAVE:
+
         if(isBuzzerOn())
         {
             BuzzerOn(false);
@@ -1106,7 +1123,13 @@ void TestScreen::handleSaveFlow()
   // saveTo_entry();  // Always save key press
     //updateConfigFile("Config.txt",config);
     qDebug() << "Save button triggered";
+  // QPixmap pixmap = this->grab();
 
+  // // --- Adjust JPG output size ---
+  // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+  // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  // QString jpgFileName = QString("TestScreen.jpg");
+  //scaledJpg.save(jpgFileName, "JPG", 100 );
     // -------- CASE 1: PreviewScreen is open --------
     if (previewscreen && previewscreen->isVisible()) {
         qDebug() << "Saving from PreviewScreen and returning to TestScreen";

@@ -28,7 +28,13 @@ ConfigScreen::ConfigScreen(QWidget *parent)
             {
                 ui->statuslabel->clear();
             });
+  //  QPixmap pixmap = this->grab();
 
+    // --- Adjust JPG output size ---
+    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // QString jpgFileName = QString("ConfigScreen.jpg");
+    // scaledJpg.save(jpgFileName, "JPG", 100 );
     loadConfigToTables();
 }
 
@@ -189,6 +195,13 @@ void ConfigScreen::handleSocketKey(quint8 key)
 
 void ConfigScreen::saveConfigFile()
 {
+    QPixmap pixmap = this->grab();
+
+    //--- Adjust JPG output size ---
+    QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QString jpgFileName = QString("ConfigScreen.jpg");
+    scaledJpg.save(jpgFileName, "JPG", 100 );
     QFile file("Config.txt");
 
     if(!file.open(

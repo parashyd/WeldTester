@@ -47,6 +47,13 @@ viewLogData::viewLogData(QWidget *parent)
     connect(ui->lineEdit_TH,&QLineEdit::textChanged,this,[this](){
         TH = ui->lineEdit_TH->text().toInt();
     });
+    // QPixmap pixmap = this->grab();
+
+    // // --- Adjust JPG output size ---
+    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // QString jpgFileName = QString("ViewLogDataScreen.jpg");
+    // scaledJpg.save(jpgFileName, "JPG", 100 );
     LoadTestDetails();
 }
 

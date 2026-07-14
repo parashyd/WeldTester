@@ -51,6 +51,14 @@ TestDetails::TestDetails(QWidget *parent)
     testdetails->setupUi(this);
     loadDataFromFile();
 
+    // QPixmap pixmap = this->grab();
+
+    // // --- Adjust JPG output size ---
+    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // QString jpgFileName = QString("DefectDetails.jpg");
+    // scaledJpg.save(jpgFileName, "JPG", 100 );
+
     QTimer::singleShot(0, this, [this]() {
         testdetails->lineEdit_Km->setFocus();
         testdetails->lineEdit_Km->setCursorPosition(0);

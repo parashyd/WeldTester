@@ -108,6 +108,14 @@ testdetail0::testdetail0(QWidget *parent)
     }
 
 )");
+    QPixmap pixmap = this->grab();
+
+    // --- Adjust JPG output size ---
+    QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QString jpgFileName = QString("TestDeatails.jpg");
+    scaledJpg.save(jpgFileName, "JPG", 100 );
+
     ui->lineothersEdit->setVisible(false);
 
     QTimer *timer = new QTimer(this);

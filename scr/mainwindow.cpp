@@ -84,6 +84,14 @@ MainWindow::MainWindow(QWidget *parent)
     int ret = GPS_Init();
     qDebug() << "GPS_Init =" << ret;
 
+    // QPixmap pixmap = this->grab();
+
+    // // --- Adjust JPG output size ---
+    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
+    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    // QString jpgFileName = QString("Homescreen.jpg");
+    // scaledJpg.save(jpgFileName, "JPG", 100);
+
 }
 void MainWindow::ReadMachNo(){
     QFile file("BIN.BIN");
