@@ -1083,17 +1083,16 @@ void TestScreen::prepareCalsetInput()
 
     // 🔹 Logical focus + highlight
     setLogicalFocus(ui->lineEdit_calset);
-
     // 🔹 Enable the widget
     ui->lineEdit_calset->setEnabled(true);
 
     // 🔹 Clear or reset your input tracking
-    calsetStr.clear();
-    calsetState.pressCount = 0;
-    calsetState.timer.start(); // start timing from now
+    // calsetStr.clear();
+    // calsetState.pressCount = 0;
+    // calsetState.timer.start(); // start timing from now
 
-    inputStates[ui->lineEdit_calset].inputBuffer.clear();
-    inputStates[ui->lineEdit_calset].timer.start();
+    // inputStates[ui->lineEdit_calset].inputBuffer.clear();
+    // inputStates[ui->lineEdit_calset].timer.start();
 }
 
 void TestScreen::adjustAudioLevel(void)
@@ -1929,7 +1928,12 @@ void TestScreen::handleDigitInput(int digit)
     if (value < min)
         value = min;
 
-    if      (focused == ui->lineEdit_calset)   config.calset   = value;
+    if      (focused == ui->lineEdit_calset)
+    {
+        config.calset   = value;
+        ui->lineEdit_calset->setText(QString::number(value, 'd', 0));
+
+    }
     else if (focused == ui->lineEdit_Velocity)
     {
         config.velocity = value;
@@ -2094,7 +2098,11 @@ void TestScreen::handleBackspaceInput()
         value = min;
     }
 
-    if      (focused == ui->lineEdit_calset)   config.calset   = value;
+    if      (focused == ui->lineEdit_calset)
+    {
+        config.calset   = value;
+        ui->lineEdit_calset->setText(QString::number(value, 'd', 0));
+    }
     else if (focused == ui->lineEdit_Velocity) config.velocity = value;
     else if (focused == ui->lineEdit_Gain)     config.Gain     = value;
     else if (focused == ui->lineEdit_Range)    config.range    = value;
@@ -2362,7 +2370,7 @@ void TestScreen::saveConfigToFile()
 
 void TestScreen::setupValidators()
 {
-    ui->lineEdit_calset->setValidator(new QIntValidator(1, 100, this));
+    ui->lineEdit_calset->setValidator(new QIntValidator(1, 50, this));
     ui->lineEdit_Gain->setValidator(new QIntValidator(0, 80, this));
     ui->lineEdit_Range->setValidator(new QIntValidator(50, 1000, this));
     ui->lineEdit_Delay->setValidator(new QIntValidator(0, 200, this));
