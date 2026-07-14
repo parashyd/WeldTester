@@ -84,6 +84,14 @@ MainWindow::MainWindow(QWidget *parent)
     int ret = GPS_Init();
     qDebug() << "GPS_Init =" << ret;
 
+
+    ui->label_UnitNo->setStyleSheet(
+        "background-color: transparent;"
+        // "color: rgba(255, 255, 255, 100);"
+        "color: white;"
+        );
+    ui->label_UnitNo->setText("WT-2311D - "+MachNo);
+
     // QPixmap pixmap = this->grab();
 
     // // --- Adjust JPG output size ---
@@ -101,6 +109,9 @@ void MainWindow::ReadMachNo(){
         qDebug() << "Failed to open BIN.BIN";
         return;
     }
+    else{
+        MachNo="0000";
+    }
     // BIN.BIN contains 2 bytes: 0x90 0x00
     QByteArray data = file.readAll();
     file.close();
@@ -109,6 +120,9 @@ void MainWindow::ReadMachNo(){
     {
         qDebug() << "Invalid file";
         return;
+    }
+    else{
+        MachNo="0000";
     }
 
     // Little-endian 16-bit integer
