@@ -1889,7 +1889,7 @@ void TestScreen::handleDigitInput(int digit)
     // ---------- Determine limits ----------
     int min = 0, max = 999;
 
-    if      (focused == ui->lineEdit_calset)   { min = 1;  max = 100; }
+    if      (focused == ui->lineEdit_calset)   { min = 1;  max = 50; }
     else if (focused == ui->lineEdit_Velocity) { min = 0;  max = 9999; }
     else if (focused == ui->lineEdit_Gain)     { min = 0;  max = 80; }
     else if (focused == ui->lineEdit_Range)    { min = 50;  max = 1000; }
@@ -2058,7 +2058,7 @@ void TestScreen::handleBackspaceInput()
     // ---------- Limits ----------
     int min = 0, max = 999;
 
-    if      (focused == ui->lineEdit_calset)   { min = 1;  max = 100; }
+    if      (focused == ui->lineEdit_calset)   { min = 1;  max = 50; }
     else if (focused == ui->lineEdit_Velocity) { min = 0;  max = 9999; }
     else if (focused == ui->lineEdit_Gain)     { min = 0;  max = 80; }
     else if (focused == ui->lineEdit_Range)    { min = 50; max = 1000; }  // updated

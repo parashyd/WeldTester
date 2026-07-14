@@ -28,7 +28,7 @@
     <rect>
      <x>0</x>
      <y>40</y>
-     <width>628</width>
+     <width>641</width>
      <height>211</height>
     </rect>
    </property>
@@ -40,8 +40,11 @@
    <property name="frameShape">
     <enum>QFrame::Shape::StyledPanel</enum>
    </property>
+   <property name="horizontalScrollBarPolicy">
+    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+   </property>
    <property name="rowCount">
-    <number>10</number>
+    <number>50</number>
    </property>
    <property name="columnCount">
     <number>11</number>
@@ -58,6 +61,46 @@
    <attribute name="verticalHeaderDefaultSectionSize">
     <number>19</number>
    </attribute>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
    <row/>
    <row/>
    <row/>
@@ -129,7 +172,7 @@
     <rect>
      <x>0</x>
      <y>270</y>
-     <width>628</width>
+     <width>641</width>
      <height>214</height>
     </rect>
    </property>
@@ -138,8 +181,11 @@
      <pointsize>9</pointsize>
     </font>
    </property>
+   <property name="horizontalScrollBarPolicy">
+    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+   </property>
    <property name="rowCount">
-    <number>10</number>
+    <number>50</number>
    </property>
    <property name="columnCount">
     <number>11</number>
@@ -162,6 +208,46 @@
    <attribute name="verticalHeaderDefaultSectionSize">
     <number>19</number>
    </attribute>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
    <row/>
    <row/>
    <row/>

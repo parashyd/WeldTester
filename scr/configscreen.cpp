@@ -63,10 +63,14 @@ void ConfigScreen::moveFocus(int dRow, int dCol)
     currentRow += dRow;
     currentCol += dCol;
 
+    // if(currentRow < 0)
+    //     currentRow = 9;
     if(currentRow < 0)
-        currentRow = 9;
+        currentRow = 49;
 
-    if(currentRow > 9)
+    // if(currentRow > 9)
+    //     currentRow = 0;
+    if(currentRow > 49)
         currentRow = 0;
 
     if(currentCol < 0)
@@ -214,7 +218,8 @@ void ConfigScreen::saveConfigFile()
 
     QTextStream out(&file);
 
-    for(int row=0; row<10; row++)
+    // for(int row=0; row<10; row++)
+    for(int row=0; row<50; row++)
     {
         QString gain =
             ui->configTable->item(row,0)->text();
@@ -265,7 +270,8 @@ void ConfigScreen::saveConfigFile()
             << angle << ",\n";
     }
 
-    for(int row=0; row<10; row++)
+    // for(int row=0; row<10; row++)
+    for(int row=0; row<50; row++)
     {
         QString gain =
             ui->configTable_2->item(row,0)->text();
