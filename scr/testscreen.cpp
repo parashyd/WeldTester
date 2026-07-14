@@ -1893,8 +1893,8 @@ void TestScreen::handleDigitInput(int digit)
     else if (focused == ui->lineEdit_Velocity) { min = 0;  max = 9999; }
     else if (focused == ui->lineEdit_Gain)     { min = 0;  max = 80; }
     else if (focused == ui->lineEdit_Range)    { min = 50;  max = 1000; }
-    else if (focused == ui->lineEdit_Delay)    { min = 0;  max = 100; }
-    else if (focused == ui->lineEdit_Reject)   { min = 0;  max = 80; }
+    else if (focused == ui->lineEdit_Delay)    { min = 0;  max = 200; }
+    else if (focused == ui->lineEdit_Reject)   { min = 0;  max = 99; }
     else if (focused == ui->lineEdit_Angle)    { min = 0;  max = 90; }
     else if (focused == ui->lineEdit_G1ST ||
              focused == ui->lineEdit_G1ED ||
@@ -1996,8 +1996,8 @@ void TestScreen::adjustCurrentLineEdit(int delta)
             onApplyGainClicked();
     }
     else if (focused == ui->lineEdit_Range)  {adjustValue(config.range,  50, 1000, range_offsetArr[range_Offset_i]);} // assume range is double
-    else if (focused == ui->lineEdit_Delay)  adjustValue(config.delay,  0, 100, delay_offsetArr[delay_Offset_i]); // float or int
-    else if (focused == ui->lineEdit_Reject) adjustValue(config.reject, 0, 80, reject_offsetArr[reject_Offset_i]);  // float or int
+    else if (focused == ui->lineEdit_Delay)  adjustValue(config.delay,  0, 200, delay_offsetArr[delay_Offset_i]); // float or int
+    else if (focused == ui->lineEdit_Reject) adjustValue(config.reject, 0, 99, reject_offsetArr[reject_Offset_i]);  // float or int
     else if (focused == ui->lineEdit_Angle)  adjustValue(config.Angle,  0, 90,1);  // float
     else if (focused == ui->lineEdit_G1ST)   adjustValue(config.g1_start, 5, 99,1); // int
     else if (focused == ui->lineEdit_G1ED)   adjustValue(config.g1_end,   5, 99,1); // int
@@ -2062,8 +2062,8 @@ void TestScreen::handleBackspaceInput()
     else if (focused == ui->lineEdit_Velocity) { min = 0;  max = 9999; }
     else if (focused == ui->lineEdit_Gain)     { min = 0;  max = 80; }
     else if (focused == ui->lineEdit_Range)    { min = 50; max = 1000; }  // updated
-    else if (focused == ui->lineEdit_Delay)    { min = 0;  max = 100; }
-    else if (focused == ui->lineEdit_Reject)   { min = 0;  max = 80; }
+    else if (focused == ui->lineEdit_Delay)    { min = 0;  max = 200; }
+    else if (focused == ui->lineEdit_Reject)   { min = 0;  max = 99; }
     else if (focused == ui->lineEdit_Angle)    { min = 0;  max = 90; }
     else if (focused == ui->lineEdit_G1ST ||
              focused == ui->lineEdit_G1ED ||
@@ -2365,8 +2365,8 @@ void TestScreen::setupValidators()
     ui->lineEdit_calset->setValidator(new QIntValidator(1, 100, this));
     ui->lineEdit_Gain->setValidator(new QIntValidator(0, 80, this));
     ui->lineEdit_Range->setValidator(new QIntValidator(50, 1000, this));
-    ui->lineEdit_Delay->setValidator(new QIntValidator(0, 100, this));
-    ui->lineEdit_Reject->setValidator(new QIntValidator(0, 80, this));
+    ui->lineEdit_Delay->setValidator(new QIntValidator(0, 200, this));
+    ui->lineEdit_Reject->setValidator(new QIntValidator(0, 99, this));
     ui->lineEdit_Angle->setValidator(new QIntValidator(0, 90, this));
     ui->lineEdit_G1ST->setValidator(new QIntValidator(5, 99, this));
     ui->lineEdit_G1ED->setValidator(new QIntValidator(5, 99, this));
