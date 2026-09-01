@@ -20,7 +20,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>CONFIGURATION - ALL CALSETS (1 - 10)</string>
+    <string>CONFIGURATION - ALL CALSETS (1 - 50)</string>
    </property>
   </widget>
   <widget class="QTableWidget" name="configTable">

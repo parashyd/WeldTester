@@ -23,6 +23,7 @@
 #include "previewscreen.h"
 #include "testdetail0.h"
 #include "wt_logger.h"
+#include <QElapsedTimer>
 extern "C" {
 #include "gps.h"
 }
@@ -53,7 +54,7 @@ float RANGE_FACTOR, DELAY_FACTOR = 3.378, m_audioPercent = 0;
 float RANGE_FACTOR_LT30 = 3.378;
 float RANGE_FACTOR_GT30 = 6.212;
 int peakIndex =-1,peakIndex1 = -1, peakIndex2 = -1,UserVelocity,userGainVal,SEC,CP=1;
-static int ModeCnt = 0,AudioLevel = 0,DACCnt = 0,CalGateCnt = 0;
+static int ModeCnt = 0,AudioLevel = 0,DACCnt = 0,CalGateCnt = 0,channelCnt=0;
 
 bool freeze;
 bool zoom = false;
@@ -367,7 +368,7 @@ TestScreen::TestScreen(QWidget *parent)
         }
     });
     // plotUpdateTimer->start(100);
-    plotUpdateTimer->start(20);    //100msec, 10msec
+    plotUpdateTimer->start(20);      //100msec, 10msec
     qDebug()<<"plottimerstarted";
 
     connect(qApp, &QApplication::focusChanged, this, [this](QWidget* old, QWidget* now){
@@ -592,21 +593,40 @@ void TestScreen::onSocketReadyRead(quint8 key)
      * ----------------------------------------- */
     switch (key)
     {
-    case CH_A:
-        receivedChannel = "1";
-        ui->lineEdit_ch->setText(receivedChannel);
-        //entry.channel = 1;
-        config.channel = 1;
-        autoRunConfig();
+    case CHANNEL:
+        channelCnt++;
+        if(channelCnt == 1){
+            receivedChannel = "1";
+            ui->lineEdit_ch->setText(receivedChannel);
+            //entry.channel = 1;
+            config.channel = 1;
+            autoRunConfig();
+        }
+        else if(channelCnt == 2){
+            receivedChannel = "2";
+            ui->lineEdit_ch->setText(receivedChannel);
+            // entry.channel = 2;
+            config.channel = 2;
+            autoRunConfig();
+            channelCnt=0;
+        }
         break;
 
-    case CH_B:
-        receivedChannel = "2";
-        ui->lineEdit_ch->setText(receivedChannel);
-       // entry.channel = 2;
-        config.channel = 2;
-        autoRunConfig();
-        break;
+    // case CH_A:
+    //     receivedChannel = "1";
+    //     ui->lineEdit_ch->setText(receivedChannel);
+    //     //entry.channel = 1;
+    //     config.channel = 1;
+    //     autoRunConfig();
+    //     break;
+
+    // case CH_B:
+    //     receivedChannel = "2";
+    //     ui->lineEdit_ch->setText(receivedChannel);
+    //    // entry.channel = 2;
+    //     config.channel = 2;
+    //     autoRunConfig();
+    //     break;
 
     case FREEZE: // Freeze
         if(ui->label_freeze->isVisible())
@@ -634,8 +654,31 @@ void TestScreen::onSocketReadyRead(quint8 key)
         break;
 
     case CALSET:
+        qDebug() <<"calset Active";
+        prepareCalsetInput();
+        break;
+
+    case GATE:
         CalGateCnt ++;
         if(CalGateCnt == 1)
+        {
+            gate1_focus=true;
+            gate2_focus=false;
+            ui->lineEdit_calset->setStyleSheet("");
+            g1border->setVisible(true);
+            g2border->setVisible(false);
+            focusGate1(1);
+        }
+        else if(CalGateCnt == 2)
+        {
+            gate1_focus=false;
+            gate2_focus=true;
+            ui->lineEdit_calset->setStyleSheet("");
+            g1border->setVisible(false);
+            g2border->setVisible(true);
+            focusGate2(1);
+        }
+        else if(CalGateCnt == 3)
         {
             gate1_focus=false;
             gate2_focus=false;
@@ -645,27 +688,6 @@ void TestScreen::onSocketReadyRead(quint8 key)
             g1border->data()->clear();
             g2border->data()->clear();
             ui->Plot->replot();
-            qDebug() <<"calset Active";
-            prepareCalsetInput();
-        }
-        else if(CalGateCnt == 2)
-        {
-            gate1_focus=true;
-            gate2_focus=false;
-            ui->lineEdit_calset->setStyleSheet("");
-            g1border->setVisible(true);
-            g2border->setVisible(false);
-            focusGate1(1);
-        }
-        else if(CalGateCnt == 3)
-        {
-            gate1_focus=false;
-            gate2_focus=true;
-            ui->lineEdit_calset->setStyleSheet("");
-            g1border->setVisible(false);
-            g2border->setVisible(true);
-            focusGate2(1);
-
             CalGateCnt = 0;
         }
         break;
@@ -717,7 +739,7 @@ void TestScreen::onSocketReadyRead(quint8 key)
         }
         break;
 
-    case DAC: //using for recording
+    case REC: //using for recording
         if(ui->label_record->isVisible())
         {
             ui->label_record->setVisible(false);
@@ -1311,6 +1333,8 @@ void TestScreen::autoRunConfig()
 
 void TestScreen::updateGraphWithData()
 {
+    QElapsedTimer timer;
+    timer.start();
     if (!shared) return;
 
     QVector<QPointF> filtered;
@@ -1465,7 +1489,10 @@ void TestScreen::updateGraphWithData()
 
     waveformGraph->setData(xNorm, yData);
 
-    ui->Plot->replot();
+   ui->Plot->replot();
+    // qDebug() << "updateGraphWithData took"
+    //          << timer.nsecsElapsed() / 1000000.0
+    //          << "ms";
 }
 
 inline void TestScreen::plotGate1(int replotRequired,int ParamCalc)
@@ -1727,59 +1754,59 @@ void TestScreen::HandleGateShift(int shift){
     // int width2 = g2_end-g2_start;
     if(gate1_focus)
     {
-        if(shift == -1 && config.g1_start == 5) //if gate reaches starting point return
+        if(shift == -1 && config.g1_start == 3) //if gate reaches starting point return
             return;
 
         if(shift == 1 && config.g1_end == 99)  //if gate reaches ending point return
             return;
 
         if (shift==-1 && config.g1_start<10){
-            int k=(config.g1_start-5)%5;
-            adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
-            adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
+            int k=(config.g1_start-3)%5;
+            adjustshift(config.g1_start,3,99,ui->lineEdit_G1ST,k);
+            adjustshift(config.g1_end,3,99,ui->lineEdit_G1ED,k);
             plotGate1(1,10);
             return;
         }
 
         if(shift == 1 && config.g1_end>94){
             int k = (99-config.g1_end)%5 ;
-            adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,k);
-            adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,k);
+            adjustshift(config.g1_start,3,99,ui->lineEdit_G1ST,k);
+            adjustshift(config.g1_end,3,99,ui->lineEdit_G1ED,k);
             plotGate1(1,10);
             return;
         }
 
-        adjustshift(config.g1_start,5,99,ui->lineEdit_G1ST,5);
-        adjustshift(config.g1_end,5,99,ui->lineEdit_G1ED,5);
+        adjustshift(config.g1_start,3,99,ui->lineEdit_G1ST,5);
+        adjustshift(config.g1_end,3,99,ui->lineEdit_G1ED,5);
         plotGate1(1,10);
 
     }
     else
     {
-        if(shift == -1 && config.g2_start == 5) //if gate reaches starting point return
+        if(shift == -1 && config.g2_start == 3) //if gate reaches starting point return
             return;
 
         if(shift == 1 && config.g2_end == 99)  //if gate reaches ending point return
             return;
 
         if (shift==-1 && config.g2_start<10){
-            int k =(config.g2_start-5)%5;
-            adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
-            adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
+            int k =(config.g2_start-3)%5;
+            adjustshift(config.g2_start,3,99,ui->lineEdit_G2ST,k);
+            adjustshift(config.g2_end,3,99,ui->lineEdit_G2ED,k);
             plotGate2(1,10);
             return;
         }
 
         if(shift == 1 && config.g2_end>94){
             int k =(99-config.g2_end)%5;
-            adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,k);
-            adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,k);
+            adjustshift(config.g2_start,3,99,ui->lineEdit_G2ST,k);
+            adjustshift(config.g2_end,3,99,ui->lineEdit_G2ED,k);
             plotGate2(1,10);
             return;
         }
 
-        adjustshift(config.g2_start,5,99,ui->lineEdit_G2ST,5);
-        adjustshift(config.g2_end,5,99,ui->lineEdit_G2ED,5);
+        adjustshift(config.g2_start,3,99,ui->lineEdit_G2ST,5);
+        adjustshift(config.g2_end,3,99,ui->lineEdit_G2ED,5);
         plotGate2(1,10);
     }
 
@@ -1896,11 +1923,15 @@ void TestScreen::handleDigitInput(int digit)
     else if (focused == ui->lineEdit_Reject)   { min = 0;  max = 99; }
     else if (focused == ui->lineEdit_Angle)    { min = 0;  max = 90; }
     else if (focused == ui->lineEdit_G1ST ||
-             focused == ui->lineEdit_G1ED ||
-             focused == ui->lineEdit_TH1  ||
-             focused == ui->lineEdit_G2ST ||
-             focused == ui->lineEdit_G2ED ||
-             focused == ui->lineEdit_TH2)
+            focused == ui->lineEdit_G1ED ||
+            focused == ui->lineEdit_G2ST ||
+            focused == ui->lineEdit_G2ED )
+    {
+        min = 3;
+        max = 99;
+    }
+    else if (focused == ui->lineEdit_TH1  ||
+            focused == ui->lineEdit_TH2)
     {
         min = 5;
         max = 99;
@@ -1979,7 +2010,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
             return;
         }
         if(config.g1_start<=config.g1_end){
-            adjustValue(config.g1_end, 5, 99,1);
+            adjustValue(config.g1_end, 3, 99,1);
             plotGate1(1,10);}
         return;
     }
@@ -1989,7 +2020,7 @@ void TestScreen::adjustCurrentLineEdit(int delta)
             return;
         }
         if(config.g2_start<=config.g2_end){
-            adjustValue(config.g2_end, 5, 99,1);
+            adjustValue(config.g2_end, 3, 99,1);
             plotGate2(1,10);
         }
         return;
@@ -2003,11 +2034,11 @@ void TestScreen::adjustCurrentLineEdit(int delta)
     else if (focused == ui->lineEdit_Delay)  adjustValue(config.delay,  0, 200, delay_offsetArr[delay_Offset_i]); // float or int
     else if (focused == ui->lineEdit_Reject) adjustValue(config.reject, 0, 99, reject_offsetArr[reject_Offset_i]);  // float or int
     else if (focused == ui->lineEdit_Angle)  adjustValue(config.Angle,  0, 90,1);  // float
-    else if (focused == ui->lineEdit_G1ST)   adjustValue(config.g1_start, 5, 99,1); // int
-    else if (focused == ui->lineEdit_G1ED)   adjustValue(config.g1_end,   5, 99,1); // int
+    else if (focused == ui->lineEdit_G1ST)   adjustValue(config.g1_start, 3, 99,1); // int
+    else if (focused == ui->lineEdit_G1ED)   adjustValue(config.g1_end,   3, 99,1); // int
     else if (focused == ui->lineEdit_TH1)    adjustValue(config.th1,      5, 99,1); // int
-    else if (focused == ui->lineEdit_G2ST)   adjustValue(config.g2_start, 5, 99,1); // int
-    else if (focused == ui->lineEdit_G2ED)   adjustValue(config.g2_end,   5, 99,1); // int
+    else if (focused == ui->lineEdit_G2ST)   adjustValue(config.g2_start, 3, 99,1); // int
+    else if (focused == ui->lineEdit_G2ED)   adjustValue(config.g2_end,   3, 99,1); // int
     else if (focused == ui->lineEdit_TH2)    adjustValue(config.th2,      5, 99,1); // int
 
     else if (focused == ui->lineEdit_CP)
@@ -2071,9 +2102,15 @@ void TestScreen::handleBackspaceInput()
     else if (focused == ui->lineEdit_Angle)    { min = 0;  max = 90; }
     else if (focused == ui->lineEdit_G1ST ||
              focused == ui->lineEdit_G1ED ||
-             focused == ui->lineEdit_TH1  ||
              focused == ui->lineEdit_G2ST ||
-             focused == ui->lineEdit_G2ED ||
+             focused == ui->lineEdit_G2ED )
+
+    {
+        min = 3;
+        max = 99;
+    }
+
+    else if (focused == ui->lineEdit_TH1  ||
              focused == ui->lineEdit_TH2)
     {
         min = 5;
@@ -2288,10 +2325,10 @@ void TestScreen::onApplyGainClicked()
      * 2. Decide gains
      * ------------------------------------------------- */
     if (selectedCh == 1) {
-        gain_ch1 = userGainVal * GAIN_FACTOR;
+        gain_ch1 = userGain * GAIN_FACTOR;
         gain_ch2 = static_cast<int>(otherCfg.Gain * GAIN_FACTOR);
     } else {
-        gain_ch2 = userGainVal* GAIN_FACTOR;
+        gain_ch2 = userGain * GAIN_FACTOR;
         gain_ch1 = static_cast<int>(selectedCfg.Gain * GAIN_FACTOR);
     }
 
@@ -2311,7 +2348,7 @@ void TestScreen::onApplyGainClicked()
         return;
     }
 
-    updatedCfg.Gain = static_cast<float>(userGainVal);  // 🔹 keep stored value scaled
+    updatedCfg.Gain = static_cast<float>(userGain);  // 🔹 keep stored value scaled
 
     if (!updateConfigFile("Config.txt", updatedCfg)) {
         qWarning() << "Failed to update config file";
@@ -2376,11 +2413,11 @@ void TestScreen::setupValidators()
     ui->lineEdit_Delay->setValidator(new QIntValidator(0, 200, this));
     ui->lineEdit_Reject->setValidator(new QIntValidator(0, 99, this));
     ui->lineEdit_Angle->setValidator(new QIntValidator(0, 90, this));
-    ui->lineEdit_G1ST->setValidator(new QIntValidator(5, 99, this));
-    ui->lineEdit_G1ED->setValidator(new QIntValidator(5, 99, this));
+    ui->lineEdit_G1ST->setValidator(new QIntValidator(3, 99, this));
+    ui->lineEdit_G1ED->setValidator(new QIntValidator(3, 99, this));
     ui->lineEdit_TH1->setValidator(new QIntValidator(5, 99, this));
-    ui->lineEdit_G2ST->setValidator(new QIntValidator(5, 99, this));
-    ui->lineEdit_G2ED->setValidator(new QIntValidator(5, 99, this));
+    ui->lineEdit_G2ST->setValidator(new QIntValidator(3, 99, this));
+    ui->lineEdit_G2ED->setValidator(new QIntValidator(3, 99, this));
     ui->lineEdit_TH2->setValidator(new QIntValidator(5, 99, this));
 }
 

@@ -476,57 +476,6 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
 
     QChar keyChar(key); // Convert received int to QChar
 
-    // quint8 specialKey = 0;
-
-    // if (key == '.' || key == '*')
-    //     specialKey = 200;
-
-    // else if (key == '-' || key == '_' || key == ' ')
-    //     specialKey = 201;
-
-    // if (specialKey)
-    // {
-    //     QString cycle;
-
-    //     if (specialKey == 200)
-    //         cycle = ".*";
-
-    //     else if (specialKey == 201)
-    //         cycle = "-_ ";
-
-    //     if (state.lastKey == specialKey &&
-    //         state.timer.isValid() &&
-    //         state.timer.elapsed() <= 1000)
-    //     {
-    //         state.pressCount =
-    //             (state.pressCount + 1) % cycle.length();
-    //     }
-    //     else
-    //     {
-    //         if (!state.lastChar.isEmpty())
-    //             state.inputBuffer += state.lastChar;
-
-    //         state.pressCount = 0;
-    //     }
-
-    //     QString selectedChar =
-    //         QString(cycle[state.pressCount]);
-
-    //     // Commit directly to buffer
-    //     state.inputBuffer += selectedChar;
-
-    //     // Reset multi-tap state
-    //     state.lastChar.clear();
-    //     state.lastKey = 0;
-    //     state.pressCount = 0;
-    //     state.timer.invalidate();
-
-    //     lineEdit->setText(state.inputBuffer);
-    //     lineEdit->setCursorPosition(state.inputBuffer.length());
-
-    //     return;
-    // }
-
     if (key == '.' || key == '*')
     {
         quint8 groupKey = 200;
@@ -562,10 +511,11 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
 
         return;
     }
-    if (key == '-' || key == '_' || key == ' ')
+    // ---------- '-' <-> '_' ----------
+    if (key == '-' || key == '_')
     {
         quint8 groupKey = 201;
-        QString cycle = "-_ ";
+        QString cycle = "-_";
 
         if (state.lastKey == groupKey &&
             state.timer.isValid() &&
@@ -583,18 +533,38 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
         }
 
         state.lastKey = groupKey;
-        state.lastChar =
-            QString(cycle.at(state.pressCount));
-
+        state.lastChar = QString(cycle.at(state.pressCount));
         state.timer.restart();
 
-        QString display =
-            state.inputBuffer +
-            state.lastChar;
+        QString display = state.inputBuffer + state.lastChar;
 
         lineEdit->setText(display);
         lineEdit->setCursorPosition(display.length());
 
+        return;
+    }
+    // ---------- SPACE ----------
+    if (key == ' ')
+    {
+        // Commit previous pending character
+        if (!state.lastChar.isEmpty())
+        {
+            state.inputBuffer += state.lastChar;
+            state.lastChar.clear();
+        }
+
+        // Insert one space
+        state.inputBuffer += ' ';
+
+        // Reset multitap state
+        state.lastKey = 0;
+        state.pressCount = 0;
+        state.timer.invalidate();
+
+        lineEdit->setText(state.inputBuffer);
+        lineEdit->setCursorPosition(state.inputBuffer.length());
+
+        qDebug() << "Special: SPACE Buffer:" << state.inputBuffer;
         return;
     }
     /* ---------------- Numeric Mode ---------------- */

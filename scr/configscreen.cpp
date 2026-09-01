@@ -10,7 +10,7 @@
 #include "QTimer"
 
 #define MAX_LINE_LEN 256
-
+static int chanlCnt=0;
 ConfigScreen::ConfigScreen(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ConfigScreen)
@@ -107,31 +107,54 @@ void ConfigScreen::handleSocketKey(quint8 key)
 {
     switch(key)
     {
-    case CH_A:
+    case CHANNEL:
+        chanlCnt++;
+        if(chanlCnt == 1){
+            currentTable = 0;
 
-        currentTable = 0;
+            currentRow = 0;
+            currentCol = 0;
 
-        currentRow = 0;
-        currentCol = 0;
+            setLogicalFocus();
 
-        setLogicalFocus();
+            qDebug() << "Focused Channel 1 Table";
+        }
+        else if(chanlCnt==2){
+            currentTable = 1;
 
-        qDebug() << "Focused Channel 1 Table";
+            currentRow = 0;
+            currentCol = 0;
 
+            setLogicalFocus();
+            chanlCnt=0;
+            qDebug() << "Focused Channel 2 Table";
+        }
         return;
+    // case CH_A:
 
-    case CH_B:
+    //     currentTable = 0;
 
-        currentTable = 1;
+    //     currentRow = 0;
+    //     currentCol = 0;
 
-        currentRow = 0;
-        currentCol = 0;
+    //     setLogicalFocus();
 
-        setLogicalFocus();
+    //     qDebug() << "Focused Channel 1 Table";
 
-        qDebug() << "Focused Channel 2 Table";
+    //     return;
 
-        return;
+    // case CH_B:
+
+    //     currentTable = 1;
+
+    //     currentRow = 0;
+    //     currentCol = 0;
+
+    //     setLogicalFocus();
+
+    //     qDebug() << "Focused Channel 2 Table";
+
+    //     return;
 
     case UP:
         moveFocus(-1, 0);

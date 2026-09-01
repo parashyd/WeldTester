@@ -17,7 +17,9 @@ extern QString Probe;
 extern QString classVal;
 extern QString FPNFP;
 extern QString OthersObservation;
-
+extern QString PrevHMBP;
+extern QString PrevPH;
+extern QString PrevClass;
 extern QString Time;
 extern QString Date;
 

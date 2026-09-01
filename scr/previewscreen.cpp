@@ -58,7 +58,9 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     ui->label_ClassVal->setText(classVal);
     ui->label_Fpval->setText(FPNFP);
     ui->label_remarksval->setText(OthersObservation);
-
+    ui->lineEdit_PrevPH->setText(PrevPH);
+    ui->lineEdit_PrevBP->setText(PrevHMBP);
+    ui->label_PrevClaVal->setText(PrevClass);
     ui->label_Chval->setText(QString::number(config.channel));
     ui->label_CalsetVal->setText(QString::number(config.calset));
 

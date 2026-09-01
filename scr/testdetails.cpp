@@ -24,7 +24,9 @@
  QString OthersObservation;
  QString Time;
  QString Date;
-
+ QString PrevHMBP;
+ QString PrevPH;
+ QString PrevClass;
 
 
 enum class InputMode {
@@ -168,6 +170,9 @@ void TestDetails::PreviewClick()
     OthersObservation = testdetails->lineEdit_OtherObservation->text();   //combo
     Date = testdetails->lineEdit_Date->text();
     Time = testdetails->lineEdit_Time->text();
+    PrevHMBP = testdetails->lineEdit_PrevHM->text();
+    PrevPH = testdetails->lineEdit_PrevPH->text();
+    PrevClass=testdetails->comboBox->currentText();
 
     emit requestPreview();
 }
@@ -261,59 +266,7 @@ void TestDetails::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
     KeyPressState &state = inputStates[lineEdit];
 
     QChar keyChar(key); // Convert received int to QChar
-    //quint8 keyVal = static_cast<quint8>(keyChar.unicode()); // For comparisons with lastKey
 
-    //-------- Handle special characters (common to all modes) --------
-    // quint8 specialKey = 0;
-
-    // if (key == '.' || key == '*')
-    //     specialKey = 200;
-
-    // else if (key == '-' || key == '_' || key == ' ')
-    //     specialKey = 201;
-
-    // if (specialKey)
-    // {
-    //     QString cycle;
-
-    //     if (specialKey == 200)
-    //         cycle = ".*";
-
-    //     else if (specialKey == 201)
-    //         cycle = "-_ ";
-
-    //     if (state.lastKey == specialKey &&
-    //         state.timer.isValid() &&
-    //         state.timer.elapsed() <= 1000)
-    //     {
-    //         state.pressCount =
-    //             (state.pressCount + 1) % cycle.length();
-    //     }
-    //     else
-    //     {
-    //         if (!state.lastChar.isEmpty())
-    //             state.inputBuffer += state.lastChar;
-
-    //         state.pressCount = 0;
-    //     }
-
-    //     QString selectedChar =
-    //         QString(cycle[state.pressCount]);
-
-    //     // Commit directly to buffer
-    //     state.inputBuffer += selectedChar;
-
-    //     // Reset multi-tap state
-    //     state.lastChar.clear();
-    //     state.lastKey = 0;
-    //     state.pressCount = 0;
-    //     state.timer.invalidate();
-
-    //     lineEdit->setText(state.inputBuffer);
-    //     lineEdit->setCursorPosition(state.inputBuffer.length());
-
-    //     return;
-    // }
     if (key == '.' || key == '*')
     {
         quint8 groupKey = 200;
@@ -349,10 +302,10 @@ void TestDetails::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
 
         return;
     }
-    if (key == '-' || key == '_' || key == ' ')
+    if (key == '-' || key == '_')
     {
         quint8 groupKey = 201;
-        QString cycle = "-_ ";
+        QString cycle = "-_";
 
         if (state.lastKey == groupKey &&
             state.timer.isValid() &&
@@ -370,21 +323,40 @@ void TestDetails::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
         }
 
         state.lastKey = groupKey;
-        state.lastChar =
-            QString(cycle.at(state.pressCount));
-
+        state.lastChar = QString(cycle.at(state.pressCount));
         state.timer.restart();
 
-        QString display =
-            state.inputBuffer +
-            state.lastChar;
+        QString display = state.inputBuffer + state.lastChar;
 
         lineEdit->setText(display);
         lineEdit->setCursorPosition(display.length());
 
         return;
     }
+    // ---------- SPACE ----------
+    if (key == ' ')
+    {
+        // Commit previous pending character
+        if (!state.lastChar.isEmpty())
+        {
+            state.inputBuffer += state.lastChar;
+            state.lastChar.clear();
+        }
 
+        // Insert one space
+        state.inputBuffer += ' ';
+
+        // Reset multitap state
+        state.lastKey = 0;
+        state.pressCount = 0;
+        state.timer.invalidate();
+
+        lineEdit->setText(state.inputBuffer);
+        lineEdit->setCursorPosition(state.inputBuffer.length());
+
+        qDebug() << "Special: SPACE Buffer:" << state.inputBuffer;
+        return;
+    }
     /* ---------------- Numeric Mode ---------------- */
     if (mode == InputMode::Numeric)
     {
@@ -576,6 +548,9 @@ void TestDetails::navigateFocus(int direction)
         testdetails->comboBox_Type,
         testdetails->comboBox_Class,
         testdetails->comboBox_FP,
+        testdetails->lineEdit_PrevHM,
+        testdetails->lineEdit_PrevPH,
+        testdetails->comboBox,
         testdetails->lineEdit_OtherObservation,
     };
 

@@ -10,12 +10,16 @@
 #include <time.h>
 #include <unistd.h>
 #include "shared_data.h"
+#include <QElapsedTimer>
+#include <QDebug>
 
 
 extern pthread_t Dpram;
 
 #define DPRAM_WORDS             65535                   //65535
-#define DPRAM_PHYS_BASE         0x80010000U
+// #define DPRAM_PHYS_BASE         0x80010000U
+#define DPRAM_PHYS_BASE         0x80010004U
+//#define DPRAM_PHYS_BASE         0x7c010004U
 #define FLAG_OFFSET   0x0    // adjust if flag is not at DPRAM[0]
 
 
@@ -189,6 +193,9 @@ void* DpramThread(void* arg)
 
     while (1)
     {
+        // QElapsedTimer timer;
+        // timer.start();
+
         // while (*flag != 1)
         //     nsleep(10 * 1000);
 
@@ -211,6 +218,9 @@ void* DpramThread(void* arg)
         memcpy(shared->buffer, temp, sizeof(temp));
         pthread_mutex_unlock(&shared->lock);
 
+        // qDebug() << "copying took"
+        //          << timer.nsecsElapsed() / 1000000.0
+        //          << "ms";
         //*flag = 2;
     }
 }

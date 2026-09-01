@@ -30,6 +30,9 @@
 #define INC                     0x13
 #define RIGHT                   0x14
 #define SK_21                   0x15
+#define GATE                    0x17
+#define REC                     0x18
+#define CHANNEL                 0x19
 
 
 
