@@ -83,7 +83,8 @@ static inline bool calculateSlice(const ConfigEntry& cfg,
     }
     else if (cfg.channel == 2)
     {
-        base = 32778;
+        //base = 32778;
+        base = 32768;
     }
     else
         return false;
