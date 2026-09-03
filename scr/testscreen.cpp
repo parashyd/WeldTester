@@ -324,7 +324,7 @@ TestScreen::TestScreen(QWidget *parent)
        ui->label_logitude->setText(GPS_GetLongitude());
     });
     // gpsUpdateTimer->start(10000); //10 sec
-    gpsUpdateTimer->start(1000); //1 sec
+    gpsUpdateTimer->start(100); //1 sec
 
 
     // Appearance
