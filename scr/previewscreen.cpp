@@ -19,7 +19,11 @@
 #include <QDebug>
 #include "mainwindow.h"
 #include "gps.h"
+#include "preview_logger.h"
 extern SharedData* shared;
+
+PreviewLogger savefile;
+PreviewHeader saveFileHeader;
 
 PreviewScreen::PreviewScreen(QWidget *parent)
     : QDialog(parent)
@@ -384,28 +388,6 @@ void PreviewScreen::setupPlotAppearance()
 
 void PreviewScreen::on_pushButton_save_clicked()
 {
-    // QString jsonFile = "testdetails.json";
-    // QFile file(jsonFile);
-    // if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    //     qWarning() << "Cannot open JSON file:" << jsonFile;
-    //     return;
-    // }
-
-    // QByteArray data = file.readAll();
-    // file.close();
-
-    // QJsonDocument doc = QJsonDocument::fromJson(data);
-    // if (doc.isNull() || !doc.isObject()) {
-    //     qWarning() << "Invalid JSON format in" << jsonFile;
-    //     return;
-    // }
-
-    // QJsonObject frameData = doc.object();
-
-    // QString wheelNo = frameData["AxleWheelNo"].toString();
-    // QString frameNo = frameData["FrameNo"].toString();
-    // QString operatorName = frameData["OperatorName"].toString();
-
     QString baseDir = "SavedData";
 
     // --- Ensure directories exist ---
@@ -417,29 +399,56 @@ void PreviewScreen::on_pushButton_save_clicked()
     if (!dir.exists(dateFolder))
         dir.mkpath(dateFolder);
 
-    // --- Capture preview of screen ---
     QPixmap pixmap = this->grab();
 
-    // --- Adjust JPG output size ---
-    QSize jpgTargetSize(800, 600); // You can change this (640x480, 1024x768, etc.)
+    QSize jpgTargetSize(640, 480);
     QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    // QString jpgFileName = QString("%1/Wheel_%2_Frame_%3.jpg")
-    //                           .arg(dateFolder)
-    //                           .arg(wheelNo)
-    //                           .arg(frameNo);
-
-    //QString jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5.jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M);
     QString jpgFileName = QString("%1/%2_%3_%4-%5_%6_CH-%7.jpg").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel);
-
-
     int temp=1;
+
     while(QFile::exists(jpgFileName))
     {
-        //jpgFileName = QString("%1/CH-%2 TP-%3 KM-%4 M-%5(%6).jpg").arg(dateFolder).arg(config.channel).arg(TP).arg(km).arg(M).arg(temp);
         jpgFileName =  QString("%1/%2_%3_%4-%5_%6_CH-%7(%8).jpg").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel).arg(temp);
         temp++;
     }
+    QString savefileName;
+
+    if(freeze)
+    {
+        savefileName = QString("%1/%2_%3_%4-%5_%6_CH-%7.wtpf").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel);
+        int temp=1;
+        while(QFile::exists(savefileName))
+        {
+            savefileName =  QString("%1/%2_%3_%4-%5_%6_CH-%7(%8).wtpf").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel).arg(temp);
+            temp++;
+        }
+        LoadSaveFileHeader();
+        if(!savefile.open(savefileName,saveFileHeader)){
+            qDebug() << "Cannot open wtpf file"  ;
+        }
+        savefile.writeFrame(yDataFreeze);
+        savefile.close();
+    }
+    else{
+        savefileName = QString("%1/%2_%3_%4-%5_%6_CH-%7.wtp").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel);
+        int temp=1;
+        while(QFile::exists(savefileName))
+        {
+            savefileName =  QString("%1/%2_%3_%4-%5_%6_CH-%7(%8).wtp").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo).arg(config.calset).arg(config.channel).arg(temp);
+            temp++;
+        }
+        LoadSaveFileHeader();
+
+        if(!savefile.open(savefileName,saveFileHeader))   {
+            qDebug() << "Cannot open wtp file"  ;
+
+        }
+        savefile.writeFrame(yData);
+        savefile.close();
+    }
+
+
+
 
     if (!scaledJpg.save(jpgFileName, "JPG", 90))
         qWarning() << "Failed to save JPG:" << jpgFileName;
@@ -519,7 +528,60 @@ void PreviewScreen::on_pushButton_save_clicked()
     }*/
 
 }
+void PreviewScreen::LoadSaveFileHeader(){
+    saveFileHeader.opName = ui->label_OPvalue->text();
+    saveFileHeader.modelUnit = ui->label_Model->text() + "-"+ ui->label_Unit->text();
+    saveFileHeader.division = ui->label_Divvalue->text();
+    saveFileHeader.section = ui->label_Secvalue->text();
+    saveFileHeader.dateTime = ui->label_Date->text()+ "&"+ ui->label_Time->text();
+    saveFileHeader.line = ui->label_LineValue->text();
+    saveFileHeader.rail = ui->label_Railvalue->text();
+    saveFileHeader.testType = ui->label_TestTypeVal->text();
+    saveFileHeader.mode = ui->label_ModeVal->text();
 
+    saveFileHeader.km = ui->label_Kmval->text();
+    saveFileHeader.m = ui->label_Mvalue->text();
+    saveFileHeader.tp = ui->label_TpVal->text();
+    saveFileHeader.loc = ui->label_LocVal->text();
+    saveFileHeader.stations = ui->label_StattionsVal->text();
+    saveFileHeader.rollMark = ui->label_RollMarkVal->text();
+    saveFileHeader.weld = ui->label_WeldVal->text();
+    saveFileHeader.probe= ui->label_ProbeVal->text();
+    saveFileHeader.calset = ui->label_CalsetVal->text();
+    saveFileHeader.ch = ui->label_Chval->text();
+
+    saveFileHeader.phg1 = ui->lineEdit_PHG1->text();
+    saveFileHeader.phg2 = ui->lineEdit_PHG2->text();
+    saveFileHeader.prevPH = ui->lineEdit_PrevPH->text();
+
+    saveFileHeader.bpg1 = ui->lineEdit_BPG1->text();
+    saveFileHeader.bpg2 = ui->lineEdit_BPG2->text();
+    saveFileHeader.prevBP = ui->lineEdit_PrevBP->text();
+
+    saveFileHeader.dg1 = ui->lineEdit_DG1->text();
+    saveFileHeader.dg2 = ui->lineEdit_DG2->text();
+
+    saveFileHeader.sdg1 = ui->lineEdit_SDG1->text();
+    saveFileHeader.sdg2 = ui->lineEdit_SDG2->text();
+
+    saveFileHeader.gain = ui->label_Gainval->text();
+    saveFileHeader.dely= ui->label_Delyval->text();
+    saveFileHeader.range = ui->label_RangeVal->text();
+    saveFileHeader.rj = ui->label_RJVal->text();
+    saveFileHeader.hm = ui->label_Hmval->text();
+    saveFileHeader.classPrevClass = ui->label_ClassVal->text()+", "+ui->label_PrevClaVal->text();
+    saveFileHeader.g1st = ui->label_G1stVal->text();
+    saveFileHeader.g1ed= ui->label_G1EDVal->text();
+    saveFileHeader.th1 = ui->label_TH1Val->text();
+    saveFileHeader.g2st = ui->label_G2stval->text();
+    saveFileHeader.g2ed= ui->label_G2EDVal->text();
+    saveFileHeader.th2 = ui->label_TH2val->text();
+
+    saveFileHeader.jogPlate= ui->label_Fpval->text();
+    saveFileHeader.angle = ui->label_angleval->text();
+    saveFileHeader.remarks= ui->label_remarksval->text();
+
+}
 
 
 

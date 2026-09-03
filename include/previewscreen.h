@@ -29,6 +29,7 @@ public:
 
 private slots:
     void on_pushButton_save_clicked();
+    void LoadSaveFileHeader();
 
 signals:
     void requestTestScreen();

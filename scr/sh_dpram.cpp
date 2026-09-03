@@ -18,8 +18,8 @@ extern pthread_t Dpram;
 
 #define DPRAM_WORDS             65535                   //65535
 // #define DPRAM_PHYS_BASE         0x80010000U
-#define DPRAM_PHYS_BASE         0x80010004U
-//#define DPRAM_PHYS_BASE         0x7c010004U
+//#define DPRAM_PHYS_BASE         0x80010004U
+#define DPRAM_PHYS_BASE         0x7c010004U
 #define FLAG_OFFSET   0x0    // adjust if flag is not at DPRAM[0]
 
 

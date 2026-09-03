@@ -309,7 +309,8 @@ DIST          = Config.txt \
 		include/testdetail0.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
-		include/wt_logger.h scr/gps.c \
+		include/wt_logger.h \
+		include/preview_logger.h scr/gps.c \
 		scr/openlog1.cpp \
 		scr/configscreen.cpp \
 		main.cpp \
@@ -720,7 +721,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/gps.h include/configscreen.h include/Audio.h include/Battery.h include/DataFile.h include/Ugpio.h include/matrix_keypad.h include/openlog.h include/previewscreen.h include/qcustomplot.h include/shared_data.h include/testdetails.h include/testscreen.h include/mainwindow.h include/testdetail0.h include/openlog1.h include/viewlogdata.h include/wt_logger.h $(DISTDIR)/
+	$(COPY_FILE) --parents include/gps.h include/configscreen.h include/Audio.h include/Battery.h include/DataFile.h include/Ugpio.h include/matrix_keypad.h include/openlog.h include/previewscreen.h include/qcustomplot.h include/shared_data.h include/testdetails.h include/testscreen.h include/mainwindow.h include/testdetail0.h include/openlog1.h include/viewlogdata.h include/wt_logger.h include/preview_logger.h $(DISTDIR)/
 	$(COPY_FILE) --parents scr/gps.c scr/openlog1.cpp scr/configscreen.cpp main.cpp scr/mainwindow.cpp scr/Audio.cpp scr/Battery.cpp scr/DataFile.cpp scr/Gain.cpp scr/gpio_init.c scr/mk_dm2.cpp scr/openlog.cpp scr/previewscreen.cpp scr/qcustomplot.cpp scr/sh_dpram.cpp scr/testdetails.cpp scr/testscreen.cpp scr/testdetail0.cpp scr/viewlogdata.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents Openlog.ui configscreen.ui mainwindow.ui openlog1.ui previewscreen.ui testdetail0.ui testdetails.ui testscreen.ui viewlogdata.ui $(DISTDIR)/
 
@@ -1023,7 +1024,8 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
-		include/gps.h
+		include/gps.h \
+		include/preview_logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o previewscreen.o scr/previewscreen.cpp
 
 qcustomplot.o: scr/qcustomplot.cpp include/qcustomplot.h
