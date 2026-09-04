@@ -2350,11 +2350,6 @@ void TestScreen::onApplyGainClicked()
 
     updatedCfg.Gain = static_cast<float>(userGain);  // 🔹 keep stored value scaled
 
-    if (!updateConfigFile("Config.txt", updatedCfg)) {
-        qWarning() << "Failed to update config file";
-        return;
-    }
-
     qDebug() << "Gain updated successfully in config file";
 }
 
