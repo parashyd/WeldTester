@@ -283,25 +283,7 @@ public:
         return true;
     }
 
-    // bool writeFrame(const QVector<double> &amplitudes)
-    // {
-    //     if (!m_fp) return false;
 
-    //     const int sampleCount = amplitudes.size();
-
-    //     uint8_t frame[sampleCount];
-    //     memset(frame, 0, sampleCount);
-
-    //     for (int i = 0; i < sampleCount; ++i)
-    //     {
-    //         frame[i] = static_cast<uint8_t>(amplitudes[i]);
-    //     }
-
-    //     fwrite(frame, 1, sampleCount, m_fp);
-
-    //     m_sampleCount = sampleCount;
-    //     m_frameWritten = true;
-    // }
     bool writeFrame(const QVector<double> &amplitudes)
     {
         if (!m_fp) return false;
