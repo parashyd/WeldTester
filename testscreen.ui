@@ -357,7 +357,7 @@
             <widget class="QLabel" name="label_logitude">
              <property name="geometry">
               <rect>
-               <x>270</x>
+               <x>240</x>
                <y>0</y>
                <width>111</width>
                <height>20</height>
@@ -383,7 +383,7 @@
             <widget class="QLabel" name="label_2">
              <property name="geometry">
               <rect>
-               <x>230</x>
+               <x>200</x>
                <y>0</y>
                <width>31</width>
                <height>18</height>
@@ -391,6 +391,19 @@
              </property>
              <property name="text">
               <string>Lon :</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_configStatus">
+             <property name="geometry">
+              <rect>
+               <x>360</x>
+               <y>0</y>
+               <width>121</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </widget>

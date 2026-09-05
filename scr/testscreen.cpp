@@ -326,6 +326,17 @@ TestScreen::TestScreen(QWidget *parent)
     // gpsUpdateTimer->start(10000); //10 sec
     gpsUpdateTimer->start(100); //1 sec
 
+    configStatusTimer = new QTimer(this);
+
+    configStatusTimer->setSingleShot(true);
+
+    connect(configStatusTimer,
+            &QTimer::timeout,
+            this,
+            [this]()
+            {
+                ui->label_configStatus->clear();
+            });
 
     // Appearance
     g1Line->setPen(QPen(QColor("#219601"), 2));  // Green
@@ -794,45 +805,31 @@ void TestScreen::onSocketReadyRead(quint8 key)
 
     case OK:  // OK key
     {
-        // Use the currently focused widget
-        QWidget* focused = m_currentFocusedWidget ? m_currentFocusedWidget : this->focusWidget();
-        if (!focused) return;
+        qDebug() << "OK Pressed";
 
-        // 1️⃣ If it's a button, click it
-        if (auto btn = qobject_cast<QPushButton*>(focused))
+        if(updateConfigFile("Config.txt",config))
         {
-            // btn->click();
+            qDebug() << "Config.txt Updated";
+            ui->label_configStatus->setText("Config updated");
+            saveCalibrationHistory();
 
-            // QStackedWidget *stackedWidget = this->parent()->findChild<QStackedWidget*>("stackedWidget");
-            // if (!stackedWidget) {
-            //     openlogScreen = new Openlog();
-            //     openlogScreen->setAttribute(Qt::WA_DeleteOnClose);
-            //     openlogScreen->show();
-            //     connect(openlogScreen, &QObject::destroyed, this, [this]() {
-            //         openlogScreen = nullptr;
-            //         setInputFieldsEnabled(true);
-            //     });
-            //     return;
-            // }
+            ui->label_configStatus->setStyleSheet(
+                "color: #00ff66;"
+                "font-size: 11px;"
+                "font-weight: bold;");
+            configStatusTimer->start(4000);
+        }else{
+            qDebug() << "Config.txt Update failed";
+            ui->label_configStatus->setText("Config update failed");
 
-            // if (!openlogScreen) {
-            //     openlogScreen = new Openlog(stackedWidget);
-            //     stackedWidget->addWidget(openlogScreen);
-            //     connect(openlogScreen, &QObject::destroyed, this, [this]() {
-            //         openlogScreen = nullptr;
-            //         setInputFieldsEnabled(true);
-            //     });
-            // }
-
-            // stackedWidget->setCurrentWidget(openlogScreen);
-            return;
-        }
-        else{
-            updateConfigFile("Config.txt",config);
+            ui->label_configStatus->setStyleSheet(
+                "color: red;"
+                "font-size: 11px;"
+                "font-weight: bold;");
+            configStatusTimer->start(4000);
         }
 
         // 2️⃣ For line edits and other widgets, just save / apply
-        qDebug() << "OK Pressed";
         // saveTo_entry();
         // autoRunConfig();
         // onApplyGainClicked();
@@ -2766,7 +2763,761 @@ void TestScreen::handleRecording()
     // logfile.setFileName(logdataFile);
     // logfile.open(QIODevice::WriteOnly);
 }
+bool TestScreen::saveCalibrationHistory()
+{
+    QString baseFolder = "SavedData";
+    //QString filePath = folderPath + "/calibration_history.json";
+    QString folderPath = QString("%1/%2%3").arg(baseFolder).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg("Calib");
 
+    // Create folder if it doesn't exist
+    QDir dir;
+
+    if (!dir.mkpath(folderPath))
+    {
+        qWarning() << "Failed to create folder:"
+                   << folderPath;
+        return false;
+    }
+
+    QString filePath = QString("%1/calibration_history.json").arg(folderPath);
+    QString jpgfilePath = QString("%1/calibration_history.jpg").arg(folderPath);
+
+    QJsonArray calibrations;
+
+    // -------------------------------------------------
+    // Read existing JSON file
+    // -------------------------------------------------
+
+    QFile file(filePath);
+
+    if (file.exists())
+    {
+        if (file.open(QIODevice::ReadOnly))
+        {
+            QByteArray data = file.readAll();
+            file.close();
+
+            QJsonParseError parseError;
+            QJsonDocument doc =
+                QJsonDocument::fromJson(data, &parseError);
+
+            if (parseError.error == QJsonParseError::NoError &&
+                doc.isObject())
+            {
+                QJsonObject root = doc.object();
+
+                if (root.contains("calibrations") &&
+                    root["calibrations"].isArray())
+                {
+                    calibrations =
+                        root["calibrations"].toArray();
+                }
+            }
+            else
+            {
+                qWarning() << "Invalid calibration JSON:"
+                           << parseError.errorString();
+            }
+        }
+        else
+        {
+            qWarning() << "Could not open:"
+                       << filePath;
+        }
+    }
+
+    // -------------------------------------------------
+    // Get current date/time
+    // -------------------------------------------------
+
+    QDateTime now = QDateTime::currentDateTime();
+
+    QString date = now.date().toString("dd-MM-yyyy");
+    QString time = now.time().toString("HH:mm:ss");
+
+    // -------------------------------------------------
+    // Current calibration
+    //
+    // Replace these with your actual variables
+    // -------------------------------------------------
+
+    int currentChannel = config.channel;
+    int currentCalset  = config.calset;
+
+    // -------------------------------------------------
+    // Create new calibration object
+    // -------------------------------------------------
+
+    QJsonObject calibration;
+
+    calibration["channel"] = currentChannel;
+    calibration["calset"]  = currentCalset;
+
+    calibration["gain"]   = config.Gain;
+    calibration["range"]  = config.range;
+    calibration["reject"] = config.reject;
+    calibration["delay"]  = config.delay;
+    calibration["angle"]  = config.Angle;
+
+    calibration["g1st"] = config.g1_start;
+    calibration["g1ed"] = config.g1_end;
+    calibration["th1"]  = config.th1;
+
+    calibration["g2st"] = config.g2_start;
+    calibration["g2ed"] = config.g2_end;
+    calibration["th2"]  = config.th2;
+
+    calibration["date"] = date;
+    calibration["time"] = time;
+
+    // -------------------------------------------------
+    // Search for existing Channel + Calset
+    // -------------------------------------------------
+
+    bool found = false;
+
+    for (int i = 0; i < calibrations.size(); ++i)
+    {
+        QJsonObject existing =
+            calibrations[i].toObject();
+
+        int existingChannel =
+            existing["channel"].toInt();
+
+        int existingCalset =
+            existing["calset"].toInt();
+
+        if (existingChannel == currentChannel &&
+            existingCalset == currentCalset)
+        {
+            // Existing record found
+            // Replace it with latest calibration
+            calibrations[i] = calibration;
+
+            found = true;
+
+            qDebug() << "Updated calibration:"
+                     << "Channel =" << currentChannel
+                     << "Calset =" << currentCalset;
+
+            break;
+        }
+    }
+
+    // -------------------------------------------------
+    // If not found, add new record
+    // -------------------------------------------------
+
+    if (!found)
+    {
+        calibrations.append(calibration);
+
+        qDebug() << "Added new calibration:"
+                 << "Channel =" << currentChannel
+                 << "Calset =" << currentCalset;
+    }
+
+    // -------------------------------------------------
+    // Create root JSON object
+    // -------------------------------------------------
+
+    QJsonObject root;
+
+    root["calibrations"] = calibrations;
+
+    // -------------------------------------------------
+    // Write JSON file
+    // -------------------------------------------------
+
+    if (!file.open(QIODevice::WriteOnly |
+                   QIODevice::Truncate))
+    {
+        qWarning() << "Failed to write:"
+                   << filePath;
+
+        return false;
+    }
+
+    QJsonDocument output(root);
+
+    file.write(output.toJson(QJsonDocument::Indented));
+
+    file.close();
+
+    qDebug() << "Calibration history saved:"
+             << filePath;
+
+    generateCalibrationHistoryJpg(filePath,jpgfilePath);
+    return true;
+
+}
+bool TestScreen::generateCalibrationHistoryJpg(const QString &jsonPath,
+                                               const QString &jpgPath)
+{
+    // -------------------------------------------------
+    // Read JSON file
+    // -------------------------------------------------
+
+    QFile jsonFile(jsonPath);
+
+    if (!jsonFile.open(QIODevice::ReadOnly))
+    {
+        qWarning() << "Could not open JSON file:"
+                   << jsonPath;
+        return false;
+    }
+
+    QByteArray data = jsonFile.readAll();
+    jsonFile.close();
+
+    QJsonParseError parseError;
+
+    QJsonDocument doc =
+        QJsonDocument::fromJson(data, &parseError);
+
+    if (parseError.error != QJsonParseError::NoError)
+    {
+        qWarning() << "JSON parse error:"
+                   << parseError.errorString();
+        return false;
+    }
+
+    if (!doc.isObject())
+    {
+        qWarning() << "JSON root is not an object";
+        return false;
+    }
+
+    QJsonObject root = doc.object();
+
+    if (!root.contains("calibrations") ||
+        !root["calibrations"].isArray())
+    {
+        qWarning() << "No calibrations array found";
+        return false;
+    }
+
+    QJsonArray calibrations =
+        root["calibrations"].toArray();
+
+    // -------------------------------------------------
+    // Separate Channel 1 and Channel 2
+    // -------------------------------------------------
+
+    QList<QJsonObject> channel1Records;
+    QList<QJsonObject> channel2Records;
+
+    for (const QJsonValue &value : calibrations)
+    {
+        if (!value.isObject())
+            continue;
+
+        QJsonObject calibration =
+            value.toObject();
+
+        int channel =
+            calibration["channel"].toInt();
+
+        if (channel == 1)
+        {
+            channel1Records.append(calibration);
+        }
+        else if (channel == 2)
+        {
+            channel2Records.append(calibration);
+        }
+    }
+
+    // -------------------------------------------------
+    // Get date from JSON
+    //
+    // Since the JPG is generated from JSON only,
+    // take the date from the first available record.
+    // -------------------------------------------------
+
+    QString calibrationDate;
+
+    if (!calibrations.isEmpty())
+    {
+        QJsonObject firstRecord =
+            calibrations[0].toObject();
+
+        calibrationDate =
+            firstRecord["date"].toString();
+    }
+
+    // -------------------------------------------------
+    // Create 640 x 480 image
+    // -------------------------------------------------
+
+    const int width = 640;
+    const int height = 480;
+
+    QImage image(
+        width,
+        height,
+        QImage::Format_RGB32
+        );
+
+    image.fill(Qt::white);
+
+    QPainter painter(&image);
+
+    painter.setRenderHint(
+        QPainter::Antialiasing,
+        false
+        );
+
+    painter.setPen(Qt::black);
+
+    // -------------------------------------------------
+    // Main title
+    // -------------------------------------------------
+
+    QFont titleFont(
+        "Arial",
+        14,
+        QFont::Bold
+        );
+
+    painter.setFont(titleFont);
+
+    painter.drawText(
+        QRect(0, 3, width, 22),
+        Qt::AlignCenter,
+        "CALIBRATION HISTORY"
+        );
+
+    // -------------------------------------------------
+    // Date
+    // -------------------------------------------------
+
+    QFont dateFont(
+        "Arial",
+        9,
+        QFont::Bold
+        );
+
+    painter.setFont(dateFont);
+
+    painter.drawText(
+        QRect(0, 25, width, 16),
+        Qt::AlignCenter,
+        QString("DATE: %1")
+            .arg(calibrationDate)
+        );
+
+    // -------------------------------------------------
+    // Layout
+    // -------------------------------------------------
+
+    const int margin = 3;
+
+    const int tableY = 45;
+
+    const int sectionWidth =
+        (width - (margin * 3)) / 2;
+
+    const int leftX =
+        margin;
+
+    const int rightX =
+        margin * 2 + sectionWidth;
+
+    // -------------------------------------------------
+    // Channel headings
+    // -------------------------------------------------
+
+    const int channelHeaderHeight = 18;
+
+    QFont channelFont(
+        "Arial",
+        9,
+        QFont::Bold
+        );
+
+    painter.setFont(channelFont);
+
+    painter.drawText(
+        QRect(
+            leftX,
+            tableY,
+            sectionWidth,
+            channelHeaderHeight
+            ),
+        Qt::AlignCenter,
+        "CHANNEL 1"
+        );
+
+    painter.drawText(
+        QRect(
+            rightX,
+            tableY,
+            sectionWidth,
+            channelHeaderHeight
+            ),
+        Qt::AlignCenter,
+        "CHANNEL 2"
+        );
+
+    // -------------------------------------------------
+    // Table configuration
+    // -------------------------------------------------
+
+    const int actualTableY =
+        tableY + channelHeaderHeight;
+
+    const int headerHeight = 22;
+
+    // Increased row height
+    const int rowHeight = 15;
+
+    /*
+        Columns:
+
+        CAL
+        GAIN
+        RNG/RJ
+        DLY/ANG
+        G1
+        G2
+        TIME
+    */
+
+    const int columnCount = 7;
+
+    QString headers[columnCount] =
+        {
+            "CAL",
+            "GAIN",
+            "RNG/RJ",
+            "DLY/ANG",
+            "G1",
+            "G2",
+            "TIME"
+        };
+
+    // -------------------------------------------------
+    // Column width weights
+    //
+    // Total weight = 100
+    // -------------------------------------------------
+
+    int columnWeight[columnCount] =
+        {
+            8,   // CAL
+            12,  // GAIN
+            14,  // RNG/RJ
+            14,  // DLY/ANG
+            16,  // G1
+            16,  // G2
+            20   // TIME
+        };
+
+    int totalWeight = 0;
+
+    for (int i = 0; i < columnCount; ++i)
+    {
+        totalWeight += columnWeight[i];
+    }
+
+    // -------------------------------------------------
+    // Draw one channel table
+    // -------------------------------------------------
+
+    auto drawChannelTable =
+        [&](int startX,
+            const QList<QJsonObject> &records)
+    {
+        int columnWidth[columnCount];
+
+        for (int i = 0; i < columnCount; ++i)
+        {
+            columnWidth[i] =
+                (sectionWidth * columnWeight[i])
+                / totalWeight;
+        }
+
+        // ---------------------------------------------
+        // Table header
+        // ---------------------------------------------
+
+        QFont headerFont(
+            "Arial",
+            7,
+            QFont::Bold
+            );
+
+        painter.setFont(headerFont);
+
+        int x = startX;
+
+        for (int col = 0;
+             col < columnCount;
+             ++col)
+        {
+            QRect cell(
+                x,
+                actualTableY,
+                columnWidth[col],
+                headerHeight
+                );
+
+            painter.setPen(
+                QPen(Qt::black, 1)
+                );
+
+            painter.drawRect(cell);
+
+            painter.drawText(
+                cell,
+                Qt::AlignCenter,
+                headers[col]
+                );
+
+            x += columnWidth[col];
+        }
+
+        // ---------------------------------------------
+        // Data font
+        // ---------------------------------------------
+
+        QFont dataFont(
+            "Arial",
+            7,
+            QFont::Normal
+            );
+
+        painter.setFont(dataFont);
+
+        // Maximum 50 records per channel
+        const int maxRows = 50;
+
+        int rowsToDraw =
+            qMin(records.size(), maxRows);
+
+        // ---------------------------------------------
+        // Draw records
+        // ---------------------------------------------
+
+        for (int row = 0;
+             row < rowsToDraw;
+             ++row)
+        {
+            const QJsonObject &calibration =
+                records[row];
+
+            QString calset =
+                QString::number(
+                    calibration["calset"].toInt()
+                    );
+
+            QString gain =
+                QString::number(
+                    calibration["gain"].toDouble()
+                    );
+
+            QString range =
+                QString::number(
+                    calibration["range"].toDouble()
+                    );
+
+            QString reject =
+                QString::number(
+                    calibration["reject"].toDouble()
+                    );
+
+            QString delay =
+                QString::number(
+                    calibration["delay"].toDouble()
+                    );
+
+            QString angle =
+                QString::number(
+                    calibration["angle"].toDouble()
+                    );
+
+            QString g1st =
+                QString::number(
+                    calibration["g1st"].toDouble()
+                    );
+
+            QString g1ed =
+                QString::number(
+                    calibration["g1ed"].toDouble()
+                    );
+
+            QString th1 =
+                QString::number(
+                    calibration["th1"].toDouble()
+                    );
+
+            QString g2st =
+                QString::number(
+                    calibration["g2st"].toDouble()
+                    );
+
+            QString g2ed =
+                QString::number(
+                    calibration["g2ed"].toDouble()
+                    );
+
+            QString th2 =
+                QString::number(
+                    calibration["th2"].toDouble()
+                    );
+
+            QString time =
+                calibration["time"].toString();
+
+            // -----------------------------------------
+            // Combine fields
+            // -----------------------------------------
+
+            QString rangeReject =
+                range + "/" + reject;
+
+            QString delayAngle =
+                delay + "/" + angle;
+
+            QString gate1 =
+                g1st + "-" +
+                g1ed + "/" +
+                th1;
+
+            QString gate2 =
+                g2st + "-" +
+                g2ed + "/" +
+                th2;
+
+            QString values[columnCount] =
+                {
+                    calset,
+                    gain,
+                    rangeReject,
+                    delayAngle,
+                    gate1,
+                    gate2,
+                    time
+                };
+
+            int y =
+                actualTableY +
+                headerHeight +
+                row * rowHeight;
+
+            x = startX;
+
+            for (int col = 0;
+                 col < columnCount;
+                 ++col)
+            {
+                QRect cell(
+                    x,
+                    y,
+                    columnWidth[col],
+                    rowHeight
+                    );
+
+                painter.setPen(
+                    QPen(Qt::black, 1)
+                    );
+
+                painter.drawRect(cell);
+
+                painter.drawText(
+                    cell,
+                    Qt::AlignCenter,
+                    values[col]
+                    );
+
+                x += columnWidth[col];
+            }
+        }
+    };
+
+    // -------------------------------------------------
+    // Draw Channel 1
+    // -------------------------------------------------
+
+    drawChannelTable(
+        leftX,
+        channel1Records
+        );
+
+    // -------------------------------------------------
+    // Draw Channel 2
+    // -------------------------------------------------
+
+    drawChannelTable(
+        rightX,
+        channel2Records
+        );
+
+    // -------------------------------------------------
+    // Footer
+    // -------------------------------------------------
+
+    int totalRecords =
+        channel1Records.size() +
+        channel2Records.size();
+
+    QFont footerFont(
+        "Arial",
+        8,
+        QFont::Bold
+        );
+
+    painter.setFont(footerFont);
+
+    painter.drawText(
+        QRect(
+            5,
+            465,
+            630,
+            12
+            ),
+        Qt::AlignCenter,
+        QString("Total calibration records: %1")
+            .arg(totalRecords)
+        );
+
+    painter.end();
+
+    // -------------------------------------------------
+    // Save JPG
+    // -------------------------------------------------
+
+    if (!image.save(
+            jpgPath,
+            "JPG",
+            95))
+    {
+        qWarning()
+        << "Failed to save JPG:"
+        << jpgPath;
+
+        return false;
+    }
+
+    qDebug()
+        << "Calibration JPG created:"
+        << jpgPath;
+
+    qDebug()
+        << "Channel 1 records:"
+        << channel1Records.size();
+
+    qDebug()
+        << "Channel 2 records:"
+        << channel2Records.size();
+
+    qDebug()
+        << "Total records:"
+        << totalRecords;
+
+    return true;
+}
 TestScreen::~TestScreen()
 {
     delete ui;

@@ -1014,9 +1014,9 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
 		ui_previewscreen.h \
+		include/qcustomplot.h \
 		include/matrix_keypad.h \
 		include/testscreen.h \
-		include/qcustomplot.h \
 		include/testdetail0.h \
 		include/mainwindow.h \
 		include/configscreen.h \

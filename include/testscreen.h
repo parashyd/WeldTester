@@ -106,6 +106,10 @@ private slots:
     void HandleGateUpDownLift(int lift);
     void HandleGateShift(int shift);
 
+    bool saveCalibrationHistory();
+    bool generateCalibrationHistoryJpg(const QString &jsonPath,
+                                       const QString &jpgPath);
+
     inline void focusGate1(int replotRequired);
     inline void focusGate2(int replotRequired);
     inline void plotGate1(int replotRequired, int ParamCalc);
@@ -143,6 +147,8 @@ private:
     QTimer *plotUpdateTimer;
     QTimer *gpsUpdateTimer;
     QTimer *BatteryUpdateTimer;
+    QTimer *configStatusTimer;
+
     QWidget *m_currentFocusedWidget = nullptr;
     QWidget* m_currentLogicalFocus = nullptr;  // currently highlighted widget
 
