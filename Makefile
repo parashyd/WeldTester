@@ -757,6 +757,7 @@ qrc_resources.cpp: resources.qrc \
 		images/pause.svg \
 		images/Pasted\ image\ (5).png \
 		images/record-button-svgrepo-com.svg \
+		images/calibWarning.png \
 		images/Pasted\ image\ (4).png \
 		images/audio-none-svgrepo-com.svg \
 		images/battery_outline.svg \

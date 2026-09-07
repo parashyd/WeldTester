@@ -109,6 +109,7 @@ private slots:
     bool saveCalibrationHistory();
     bool generateCalibrationHistoryJpg(const QString &jsonPath,
                                        const QString &jpgPath);
+    bool isCalibrationRecent(int channel, int calset);
 
     inline void focusGate1(int replotRequired);
     inline void focusGate2(int replotRequired);
@@ -148,6 +149,7 @@ private:
     QTimer *gpsUpdateTimer;
     QTimer *BatteryUpdateTimer;
     QTimer *configStatusTimer;
+    QTimer *calibWarningTimer;
 
     QWidget *m_currentFocusedWidget = nullptr;
     QWidget* m_currentLogicalFocus = nullptr;  // currently highlighted widget

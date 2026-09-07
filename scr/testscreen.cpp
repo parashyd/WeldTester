@@ -327,15 +327,23 @@ TestScreen::TestScreen(QWidget *parent)
     gpsUpdateTimer->start(100); //1 sec
 
     configStatusTimer = new QTimer(this);
-
     configStatusTimer->setSingleShot(true);
-
     connect(configStatusTimer,
             &QTimer::timeout,
             this,
             [this]()
             {
                 ui->label_configStatus->clear();
+            });
+
+    calibWarningTimer= new QTimer(this);
+    calibWarningTimer->setSingleShot(true);
+    connect(calibWarningTimer,
+            &QTimer::timeout,
+            this,
+            [this]()
+            {
+                ui->label_calibWarning->setVisible(false);
             });
 
     // Appearance
@@ -354,6 +362,7 @@ TestScreen::TestScreen(QWidget *parent)
     ui->label_DAC->setVisible(false);
     ui->lineEdit_CP->setVisible(false);
     ui->label_offset->setVisible(false);
+    ui->label_calibWarning->setVisible(false);
 
     ui->label_record->setFixedSize(30, 30);
 
@@ -640,15 +649,22 @@ void TestScreen::onSocketReadyRead(quint8 key)
     //     break;
 
     case FREEZE: // Freeze
-        if(ui->label_freeze->isVisible())
-        {
-           ui->label_freeze->setVisible(false);
+        if(isCalibrationRecent(ui->lineEdit_ch->text().toInt(),ui->lineEdit_calset->text().toInt())){
+            if(ui->label_freeze->isVisible())
+            {
+               ui->label_freeze->setVisible(false);
+            }
+            else{
+                ui->label_freeze->setVisible(true);
+            }
+            handleFreezeLogic();  // extracted to avoid long code here
         }
         else{
-            ui->label_freeze->setVisible(true);
+            ui->label_calibWarning->setVisible(true);
+            calibWarningTimer->start(5000);
         }
-        handleFreezeLogic();  // extracted to avoid long code here
         break;
+
 
     case VELOCITY:
         prepareVelocityInput(); //commented for this revision, will implement this in next release
@@ -722,12 +738,18 @@ void TestScreen::onSocketReadyRead(quint8 key)
         break;
 
     case SAVE:
-
-        if(isBuzzerOn())
-        {
-            BuzzerOn(false);
+        if(isCalibrationRecent(ui->lineEdit_ch->text().toInt(),ui->lineEdit_calset->text().toInt())){
+            if(isBuzzerOn())
+            {
+                BuzzerOn(false);
+            }
+            handleSaveFlow();
         }
-        handleSaveFlow();
+        else{
+            ui->label_calibWarning->setVisible(true);
+            calibWarningTimer->start(5000);
+        }
+
         break;
 
     case UP: // UP
@@ -751,39 +773,19 @@ void TestScreen::onSocketReadyRead(quint8 key)
         break;
 
     case REC: //using for recording
-        if(ui->label_record->isVisible())
-        {
-            ui->label_record->setVisible(false);
-            logfile.close();
+        if(isCalibrationRecent(ui->lineEdit_ch->text().toInt(),ui->lineEdit_calset->text().toInt())){
+            if(ui->label_record->isVisible())
+            {
+                ui->label_record->setVisible(false);
+                logfile.close();
+            }else{
+                ui->label_record->setVisible(true);
+                handleRecording();
+            }
         }else{
-            ui->label_record->setVisible(true);
-            handleRecording();
+            ui->label_calibWarning->setVisible(true);
+            calibWarningTimer->start(5000);
         }
-
-
-
-        // DACCnt ++;
-
-        // if(DACCnt == 1)
-        // {
-        //     ui->label_DAC->setVisible(true);
-        //     ui->lineEdit_CP->setVisible(true);  // make CP visible too
-        //     ui->lineEdit_CP->setText(QString::number(CP));
-        //     ui->lineEdit_CP->setFocus();   // <-- put focus directly on CP
-        // }
-
-        // else if(DACCnt == 2)
-        // {
-        //     ui->label_DAC->setVisible(false);
-        //     ui->lineEdit_CP->setVisible(false);
-        //     DACCnt = 0;
-        //     CP = 1 ;
-        //     DACx.clear();
-        //     DACy.clear();
-        //     DACx.resize(10);
-        //     DACy.resize(10);
-        //     DrawDACCurve();
-        // }
 
         break;
 
@@ -3518,6 +3520,102 @@ bool TestScreen::generateCalibrationHistoryJpg(const QString &jsonPath,
 
     return true;
 }
+bool TestScreen::isCalibrationRecent(int channel, int calset)
+{
+    QString baseFolder = "SavedData";
+
+    QDate today = QDate::currentDate();
+
+    // Check today + previous 3 days
+    // Example: Sep 5 -> Sep 5, Sep 4, Sep 3, Sep 2
+    for (int daysAgo = 0; daysAgo <= 3; ++daysAgo)
+    {
+        QDate checkDate = today.addDays(-daysAgo);
+
+        QString folderName =
+            checkDate.toString("dd-MM-yyyy") + "Calib";
+
+        QString filePath =
+            QString("%1/%2/calibration_history.json")
+                .arg(baseFolder)
+                .arg(folderName);
+
+        QFile file(filePath);
+
+        if (!file.exists())
+            continue;
+
+        if (!file.open(QIODevice::ReadOnly))
+        {
+            qWarning() << "Could not open calibration history:"
+                       << filePath;
+            continue;
+        }
+
+        QByteArray data = file.readAll();
+        file.close();
+
+        QJsonParseError parseError;
+
+        QJsonDocument doc =
+            QJsonDocument::fromJson(data, &parseError);
+
+        if (parseError.error != QJsonParseError::NoError)
+        {
+            qWarning() << "Invalid calibration JSON:"
+                       << filePath
+                       << parseError.errorString();
+            continue;
+        }
+
+        if (!doc.isObject())
+            continue;
+
+        QJsonObject root = doc.object();
+
+        if (!root.contains("calibrations") ||
+            !root["calibrations"].isArray())
+        {
+            continue;
+        }
+
+        QJsonArray calibrations =
+            root["calibrations"].toArray();
+
+        for (const QJsonValue &value : calibrations)
+        {
+            if (!value.isObject())
+                continue;
+
+            QJsonObject calibration =
+                value.toObject();
+
+            int existingChannel =
+                calibration["channel"].toInt();
+
+            int existingCalset =
+                calibration["calset"].toInt();
+
+            if (existingChannel == channel &&
+                existingCalset == calset)
+            {
+                qDebug() << "Recent calibration found:"
+                         << "Channel =" << channel
+                         << "Calset =" << calset
+                         << "Date =" << checkDate.toString("dd-MM-yyyy");
+
+                return true;
+            }
+        }
+    }
+
+    qDebug() << "No recent calibration found:"
+             << "Channel =" << channel
+             << "Calset =" << calset;
+
+    return false;
+}
+
 TestScreen::~TestScreen()
 {
     delete ui;
