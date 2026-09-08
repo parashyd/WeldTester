@@ -408,7 +408,7 @@ void viewLogData::handleSocketKey(quint8 key)
         emit closeviewlogdata();
         break;
 
-    case CALSET:
+    case GATE:
         if(GatePressCount == 0){
             focusGate(1);
             gatefocus=true;

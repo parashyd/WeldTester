@@ -434,14 +434,7 @@ TestScreen::TestScreen(QWidget *parent)
     // });
 
     //Added to hard code the velocity based on angle
-    connect(ui->lineEdit_Angle, &QLineEdit::textChanged, this, [this](const QString &){
-        if(config.Angle<30){
-            ui->lineEdit_Velocity->setText("5920");
-        }
-        else {
-            ui->lineEdit_Velocity->setText("3230");
-        }
-    });
+
 
     ui->label_freeze->setVisible(false);//Make Freeze disable initially
     ui->label_pause->setVisible(false);//Make pause disable initially
@@ -667,7 +660,7 @@ void TestScreen::onSocketReadyRead(quint8 key)
 
 
     case VELOCITY:
-        prepareVelocityInput(); //commented for this revision, will implement this in next release
+        //prepareVelocityInput(); //commented for this revision, will implement this in next release
         break;
 
     case ZOOM:
@@ -778,16 +771,18 @@ void TestScreen::onSocketReadyRead(quint8 key)
             {
                 ui->label_record->setVisible(false);
                 logfile.close();
+                break;
             }else{
                 ui->label_record->setVisible(true);
                 handleRecording();
+                break;
             }
         }else{
             ui->label_calibWarning->setVisible(true);
             calibWarningTimer->start(5000);
+            break;
         }
 
-        break;
 
     case SD_MODE:
 
@@ -808,6 +803,9 @@ void TestScreen::onSocketReadyRead(quint8 key)
     case OK:  // OK key
     {
         qDebug() << "OK Pressed";
+        if(calibWarningTimer->isActive()){
+            return;
+        }
 
         if(updateConfigFile("Config.txt",config))
         {
@@ -906,7 +904,9 @@ void TestScreen::onSocketReadyRead(quint8 key)
                     handleDigitInput(mapped - '0');  // '1' -> 1
                    // saveTo_entry();
                     autoRunConfig();
-                    onApplyGainClicked();
+                    if(focused==ui->lineEdit_Gain){
+                        onApplyGainClicked();
+                    }
                 }
                 else
                 {
@@ -1316,8 +1316,13 @@ void TestScreen::autoRunConfig()
     ui->lineEdit_G2ST->setText(QString::number(config.g2_start));
     ui->lineEdit_G2ED->setText(QString::number(config.g2_end));
     ui->lineEdit_TH2->setText(QString::number(config.th2));
-    ui->lineEdit_Velocity->setText(QString::number(UserVelocity, 'd', 0));
-
+    //ui->lineEdit_Velocity->setText(QString::number(UserVelocity, 'd', 0));
+        if (config.Angle>=30){
+            ui->lineEdit_Velocity->setText("3230");
+        }
+        else{
+            ui->lineEdit_Velocity->setText("5920");
+        }
     //qDebug() << "autoconf" << config.range;
 
     ui->Plot->xAxis->setRange(0, config.range);  // optional
@@ -1958,7 +1963,8 @@ void TestScreen::handleDigitInput(int digit)
     if (value < min)
         value = min;
 
-    if      (focused == ui->lineEdit_calset)
+
+    if(focused == ui->lineEdit_calset)
     {
         config.calset   = value;
         ui->lineEdit_calset->setText(QString::number(value, 'd', 0));
