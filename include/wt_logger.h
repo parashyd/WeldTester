@@ -10,6 +10,7 @@
 #include "DataFile.h"
 #include "QDateTime"
 #include "gps.h"
+
 // ═══════════════════════════════════════════════════════════════
 //  .wt  FILE FORMAT  (all values little-endian)
 //
@@ -40,7 +41,7 @@
 
 static constexpr uint32_t WT_MAGIC        = 0x574C5447u; // 'WLTG'
 // static constexpr int      WT_HEADER_SIZE  = 84;
-static constexpr int      WT_HEADER_SIZE  = 180;
+static constexpr int      WT_HEADER_SIZE  = 200;
 
 
 //static constexpr float    RANGE_FACTOR_LT30 = 3.378f;
@@ -65,11 +66,7 @@ inline int wtFrameSize(const ConfigEntry &c)
 // ─────────────────────────────────────────────────────────────
 namespace wt_detail {
 
-// Pack header into a fixed 84-byte buffer
-// inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
-//                        const ConfigEntry &c,
-//                        int32_t totalFrames,
-//                        int32_t frameSize)
+
 inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
                        const ConfigEntry &c,
                        int32_t totalFrames,
@@ -77,7 +74,9 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
                        const char *date,
                        const char *time,
                        const char *lat,
-                       const char *lon)
+                       const char *lon,
+                       const char *McNo
+                       )
 {
     memset(buf, 0, WT_HEADER_SIZE);
     int off = 0;
@@ -110,23 +109,24 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
     memcpy(buf + off, &frameSize,   4); off += 4;   // offset 80
 
     memcpy(buf + off, date, 16);
-    off += 16;
+    off += 16;// offset 96
 
     memcpy(buf + off, time, 16);
-    off += 16;
+    off += 16;// offset 112
 
     memcpy(buf + off, lat, 32);
-    off += 32;
+    off += 32;// offset 144
 
     memcpy(buf + off, lon, 32);
-    off += 32;
+    off += 32;// offset 176
+
+    memcpy(buf + off, McNo, 5);
+    off += 5;// offset 181
+
+
 }
 
-// Unpack header from a fixed 84-byte buffer
-// inline bool unpackHeader(const uint8_t buf[WT_HEADER_SIZE],
-//                          ConfigEntry &c,
-//                          int32_t &totalFrames,
-//                          int32_t &frameSize)
+
 inline bool unpackHeader(
     const uint8_t buf[WT_HEADER_SIZE],
     ConfigEntry &c,
@@ -135,7 +135,8 @@ inline bool unpackHeader(
     char startDate[16],
     char startTime[16],
     char latitude[32],
-    char longitude[32])
+    char longitude[32],
+    char machineNo[5])
 {
     int off = 0;
 
@@ -180,11 +181,16 @@ inline bool unpackHeader(
 
     memcpy(longitude, buf + off, 32);
     off += 32;
+
+    memcpy(machineNo, buf + off, 5);
+    off += 5;
+
     if (frameSize <= 0 || totalFrames < 0)
     {
         qWarning() << "[wt] Invalid frameSize or totalFrames";
         return false;
     }
+
     return true;
 }
 
@@ -201,7 +207,7 @@ public:
     ~WtLogger() { close(); }
 
     // Call when DAC button pressed to START recording
-    bool open(const QString &filePath, const ConfigEntry &config)
+    bool open(const QString &filePath, const ConfigEntry &config,const QString &machineNo)
     {
         close(); // safety
 
@@ -223,7 +229,6 @@ public:
 
         // Write header – totalFrames is 0 for now, patched on close()
         uint8_t buf[WT_HEADER_SIZE];
-        //wt_detail::packHeader(buf, config, 0, m_frameSize);
 
         QDateTime now = QDateTime::currentDateTime();
 
@@ -235,6 +240,9 @@ public:
             now.toString("HH:mm:ss")
                 .toLocal8Bit();
 
+        QByteArray machNo =
+            machineNo.toLocal8Bit();
+
         wt_detail::packHeader(
             buf,
             config,
@@ -243,7 +251,8 @@ public:
             date.constData(),
             time.constData(),
             GPS_GetLatitude(),
-            GPS_GetLongitude());
+            GPS_GetLongitude(),
+            machNo.constData());
 
         fwrite(buf, 1, WT_HEADER_SIZE, m_fp);
 
@@ -403,6 +412,10 @@ public:
     {
         return QString(m_longitude);
     }
+    QString machineNo() const
+    {
+        return QString(m_MachNo);
+    }
 private:
     bool readHeader()
     {
@@ -433,7 +446,8 @@ private:
                 m_startDate,
                 m_startTime,
                 m_latitude,
-                m_longitude))
+                m_longitude,
+                m_MachNo))
         {
             return false;
         }
@@ -452,5 +466,6 @@ private:
     char m_startTime[16] = {};
     char m_latitude[32]  = {};
     char m_longitude[32] = {};
+    char m_MachNo[5]={};
 };
 #endif    // WT_LOGGER_H

@@ -23,7 +23,7 @@ viewLogData::viewLogData(QWidget *parent)
     setupControls();
 
     // Open file immediately using the global selectedFilePath
-    if (!selectedFilePath.isEmpty())
+    if (!selectedFilePath.isEmpty()){
         openFile(selectedFilePath);
     ui->label_chval->setText(QString::number(m_reader.config().channel));
     ui->label_calsetval->setText(QString::number(m_reader.config().calset));
@@ -32,6 +32,8 @@ viewLogData::viewLogData(QWidget *parent)
     ui->label_rangeval->setText(QString::number(m_reader.config().range,'f',0));
     ui->label_DelayVal->setText(QString::number(m_reader.config().delay,'f',0));
     ui->label_Angleval->setText(QString::number(m_reader.config().Angle));
+    ui->label_McNoVal->setText(m_reader.machineNo());
+    }
     ui->lineEdit_GTST->setText(QString::number(5));
     ui->lineEdit_GTED->setText(QString::number(30));
     ui->lineEdit_TH->setText(QString::number(25));

@@ -2766,7 +2766,7 @@ void TestScreen::handleRecording()
         file.close();
     }
 
-    logfile.open(logdataFile,config);
+    logfile.open(logdataFile,config,MachNo);
 
     // logfile.setFileName(logdataFile);
     // logfile.open(QIODevice::WriteOnly);
