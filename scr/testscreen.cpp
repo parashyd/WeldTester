@@ -2710,7 +2710,7 @@ void TestScreen::handleRecording()
         qDebug() << "LogData directory created";
     }
 
-    QString dateFolder = QString("%1/%2").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy"));
+    QString dateFolder = QString("%1/%2%3").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg(Line);
     if (!dir.exists(dateFolder))
         dir.mkpath(dateFolder);
 
