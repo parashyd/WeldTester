@@ -21,32 +21,56 @@ OpenLog1::OpenLog1(QWidget *parent)
     , ui(new Ui::OpenLog1)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::FramelessWindowHint | Qt::Window );
+
+    setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
+
     loadDateFolders();
 
+    // Date folder changed
     connect(ui->dateFolderList,
-            &QListWidget::itemClicked,
+            &QListWidget::currentItemChanged,
             this,
-            &OpenLog1::onDateFolderClicked);
+            [this](QListWidgetItem *current, QListWidgetItem *)
+            {
+                if (current)
+                    onDateFolderClicked(current);
+            });
 
+    // Weld folder changed
     connect(ui->weldFolderList,
-            &QListWidget::itemClicked,
+            &QListWidget::currentItemChanged,
             this,
-            &OpenLog1::onWeldFolderClicked);
-    ui->dateFolderList->setCurrentRow(0);
+            [this](QListWidgetItem *current, QListWidgetItem *)
+            {
+                if (current)
+                    onWeldFolderClicked(current);
+            });
+
     currentFocus = 0;
+
+    // Select first date folder
+    if (ui->dateFolderList->count() > 0)
+    {
+        ui->dateFolderList->setCurrentRow(0);
+
+        // IMPORTANT:
+        // Explicitly load the first date folder's contents.
+        QListWidgetItem *firstDateItem =
+            ui->dateFolderList->item(0);
+
+        if (firstDateItem)
+            onDateFolderClicked(firstDateItem);
+    }
+
+    // Do not visually select weld/file items initially
+    ui->weldFolderList->setCurrentRow(-1);
+    ui->fileList->setCurrentRow(-1);
+
     updateFocusStyle();
 
     StatusLabelTimer = new QTimer(this);
-
     StatusLabelTimer->setSingleShot(true);
-    // QPixmap pixmap = this->grab();
 
-    // // --- Adjust JPG output size ---
-    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
-    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    // QString jpgFileName = QString("OpenLogScreen.jpg");
-    // scaledJpg.save(jpgFileName, "JPG", 100 );
     connect(StatusLabelTimer,
             &QTimer::timeout,
             this,
@@ -54,9 +78,7 @@ OpenLog1::OpenLog1(QWidget *parent)
             {
                 ui->label->clear();
             });
-
 }
-
 void OpenLog1::handleSocketKey(quint8 key)
 {
     QListWidget *currentList = nullptr;
@@ -108,7 +130,7 @@ void OpenLog1::handleSocketKey(quint8 key)
         break;
 
     case RIGHT:
-    qDebug() << "RIGHT CurrentFocus =" << currentFocus;
+
         if(currentFocus < 6)
         {
             currentFocus++;
@@ -116,18 +138,23 @@ void OpenLog1::handleSocketKey(quint8 key)
             if(currentFocus == 1)
             {
                 updateFocusStyle();
-                if(ui->weldFolderList->count() > 0)
-                    ui->weldFolderList->setCurrentRow(0);
-            }
 
+                if(ui->weldFolderList->count() > 0)
+                {
+                    ui->weldFolderList->setCurrentRow(0);
+                }
+            }
             else if(currentFocus == 2)
             {
                 updateFocusStyle();
-                if(ui->fileList->count() > 0)
-                    ui->fileList->setCurrentRow(0);
-            }
 
-            else {
+                if(ui->fileList->count() > 0)
+                {
+                    ui->fileList->setCurrentRow(0);
+                }
+            }
+            else
+            {
                 updateFocusStyle();
             }
         }
@@ -479,9 +506,36 @@ void OpenLog1::loadDateFolders()
 }
 void OpenLog1::onDateFolderClicked(QListWidgetItem *item)
 {
+    if (!item)
+        return;
+
     selectedDateFolder = item->text();
 
+    selectedWeldFolder.clear();
+    selectedFilePath.clear();
+
+    // Load weld folders for this date
     loadWeldFolders(selectedDateFolder);
+
+    // Do NOT visually select weld folder
+    ui->weldFolderList->setCurrentRow(-1);
+
+    // Do NOT visually select file
+    ui->fileList->setCurrentRow(-1);
+
+    // But automatically load files from first weld folder
+    if (ui->weldFolderList->count() > 0)
+    {
+        QString firstWeldFolder =
+            ui->weldFolderList->item(0)->text();
+
+        selectedWeldFolder = firstWeldFolder;
+
+        loadFiles(firstWeldFolder);
+    }
+
+    // Keep visual focus on date list
+    ui->dateFolderList->setFocus();
 }
 void OpenLog1::loadWeldFolders(const QString &dateFolder)
 {

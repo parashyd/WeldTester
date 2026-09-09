@@ -241,22 +241,36 @@ void Openlog::loadFolders()
 /* -------------------- LOAD IMAGES -------------------- */
 void Openlog::onFolderChanged(QListWidgetItem *item)
 {
-    if (!item) return;
+    if (!item)
+        return;
 
+    QString selectedFolder = item->text();
+
+    // Clear previous contents
     ui->listWidget_Images->clear();
 
-    QDir dir(basePath + "/" + item->text());
-    QStringList filters{"*.jpg", "*.jpeg", "*.png"};
-    QFileInfoList files = dir.entryInfoList(filters, QDir::Files, QDir::Name);
+    QDir dir(basePath + "/" + selectedFolder);
 
-    for (const auto &f : files) {
-        QListWidgetItem *it = new QListWidgetItem(f.completeBaseName());
+    QStringList filters{"*.jpg", "*.jpeg", "*.png"};
+
+    QFileInfoList files =
+        dir.entryInfoList(filters,
+                          QDir::Files,
+                          QDir::Name);
+
+    for (const auto &f : files)
+    {
+        QListWidgetItem *it =
+            new QListWidgetItem(f.completeBaseName());
+
         it->setData(Qt::UserRole, f.filePath());
+
         ui->listWidget_Images->addItem(it);
     }
 
-    if (ui->listWidget_Images->count())
-        ui->listWidget_Images->setCurrentRow(0);
+    // IMPORTANT:
+    // Do not select/highlight the first image yet.
+    ui->listWidget_Images->setCurrentRow(-1);
 }
 
 /* -------------------- IMAGE FULLSCREEN -------------------- */
@@ -351,24 +365,30 @@ void Openlog::handleRemoteKey(int key)
         break;
 
     case RIGHT:
-    qDebug() << "RIGHT CurrentFocus =" << currentFocus;
-        if(currentFocus < 5)
+
+        qDebug() << "RIGHT CurrentFocus =" << currentFocus;
+
+        if (currentFocus < 5)
         {
             currentFocus++;
 
-            if(currentFocus == 0 &&
-                ui->listWidget_Images->count() > 0)
+            if (currentFocus == 1)
             {
-                //currentFocus = 1;
+                // Move focus to image list
+                ui->listWidget_Images->setFocus();
+
+                // Select first image when entering this list
+                if (ui->listWidget_Images->count() > 0)
+                {
+                    ui->listWidget_Images->setCurrentRow(0);
+                }
 
                 updateFocusStyle();
-
-                ui->listWidget_Images->setCurrentRow(0);
             }
-            else{
-                 updateFocusStyle();
+            else
+            {
+                updateFocusStyle();
             }
-
         }
 
         break;
