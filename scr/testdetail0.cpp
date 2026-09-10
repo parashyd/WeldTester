@@ -132,7 +132,7 @@ testdetail0::testdetail0(QWidget *parent)
     inputModesTD0[ui->divEdit]=InputMode::Alphanumeric;
     inputModesTD0[ui->secEdit]=InputMode::Alphanumeric;
     inputModesTD0[ui->lineothersEdit]=InputMode::Alphanumeric;
-    inputModesTD0[ui->kmEdit]=InputMode::Numeric;
+    inputModesTD0[ui->kmEdit]=InputMode::Alphanumeric;
     inputModesTD0[ui->mtrEdit]=InputMode::Numeric;
     inputModesTD0[ui->weldNoEdit]=InputMode::Alphanumeric;
 
@@ -485,11 +485,14 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
             state.timer.isValid() &&
             state.timer.elapsed() <= 1000)
         {
+            // Same special key pressed again:
+            // . <-> *
             state.pressCount =
                 (state.pressCount + 1) % cycle.length();
         }
         else
         {
+            // Commit previous pending character
             if (!state.lastChar.isEmpty())
                 state.inputBuffer += state.lastChar;
 
@@ -568,12 +571,16 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
         return;
     }
     /* ---------------- Numeric Mode ---------------- */
+    /* ---------------- Numeric Mode ---------------- */
     if (mode == InputMode::Numeric)
     {
         QString digit;
+
         if (key >= '0' && key <= '9') {
             digit = QChar(key);
-        } else if (key >= 'A' && key <= 'Z') {
+        }
+        else if (key >= 'A' && key <= 'Z') {
+
             static QMap<QChar, QChar> letterToDigit = {
                 {'A','1'},{'B','1'},{'C','1'},
                 {'D','2'},{'E','2'},{'F','2'},
@@ -584,20 +591,55 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
                 {'T','7'},{'U','7'},{'V','7'},
                 {'W','8'},{'X','8'},{'Y','8'},{'Z','8'}
             };
+
             digit = letterToDigit.value(QChar(key), QChar());
-        } else if (key == '.') digit = ".";
-        else if (key == '-') digit = "-";
-        else if (key == '*') digit = "*";
+        }
+
+        // Do NOT handle '.', '-', '*' here.
+        // They are already handled above as special characters.
 
         if (digit.isEmpty()) {
             qDebug() << "[BLOCKED] Invalid numeric key:" << key;
             return;
         }
 
+        /*
+     * IMPORTANT:
+     * If a special character such as '.' is currently
+     * displayed as state.lastChar, commit it before
+     * adding the numeric digit.
+     *
+     * Example:
+     *     press '.'  -> lastChar = "."
+     *     press '2'  -> inputBuffer becomes "."
+     *                   then append "2"
+     *                   result = ".2"
+     */
+        if (!state.lastChar.isEmpty())
+        {
+            qDebug() << "[Numeric] Committing pending character:"
+                     << state.lastChar;
+
+            state.inputBuffer += state.lastChar;
+            state.lastChar.clear();
+        }
+
+        // Numeric digit is immediately committed
         state.inputBuffer += digit;
+
+        // Reset multi-tap state
+        state.lastKey = 0;
+        state.pressCount = 0;
+        state.timer.invalidate();
+
         lineEdit->setText(state.inputBuffer);
         lineEdit->setCursorPosition(state.inputBuffer.length());
-        qDebug() << "[UI] Numeric updated:" << lineEdit->objectName() << "→" << state.inputBuffer;
+
+        qDebug() << "[UI] Numeric updated:"
+                 << lineEdit->objectName()
+                 << "→"
+                 << state.inputBuffer;
+
         return;
     }
 
@@ -708,14 +750,26 @@ void testdetail0::handleMultiPressAlpha(quint8 key, QLineEdit *lineEdit)
 
     const QString &cycle = cycleMap[normalizedKey];
 
-    // Multi-tap logic
     if (state.lastKey == normalizedKey &&
         state.timer.isValid() &&
         state.timer.elapsed() <= 1000)
     {
-        state.pressCount = (state.pressCount + 1) % cycle.length();
-    } else {
-        if (!state.lastChar.isEmpty()) state.inputBuffer += state.lastChar;
+        // Same numeric key within timeout:
+        // continue multi-tap cycle
+        state.pressCount =
+            (state.pressCount + 1) % cycle.length();
+    }
+    else
+    {
+        // A different key was pressed.
+        // Commit the previous pending character,
+        // including '.' or '*'.
+        if (!state.lastChar.isEmpty())
+        {
+            state.inputBuffer += state.lastChar;
+            state.lastChar.clear();
+        }
+
         state.pressCount = 0;
     }
 
