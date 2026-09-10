@@ -265,6 +265,10 @@ void OpenLog1::handleSocketKey(quint8 key)
             if (!QDir().exists(machineFolder)){
                 QDir().mkpath(machineFolder);
             }
+            machineFolder = machineFolder+"/Logs";
+            if (!QDir().exists(machineFolder)){
+                QDir().mkpath(machineFolder);
+            }
             QString src =
                 basePath + "/" +
                 selectedDateFolder;
@@ -307,6 +311,11 @@ void OpenLog1::handleSocketKey(quint8 key)
 
             if (!QDir().exists(machineFolder)){
                     QDir().mkpath(machineFolder);
+            }
+
+            machineFolder = machineFolder+"/Logs";
+            if (!QDir().exists(machineFolder)){
+                QDir().mkpath(machineFolder);
             }
 
             QDir srcDir(basePath);
@@ -687,11 +696,13 @@ bool copyFolderRecursively(
                 if(fd >= 0)
                 {
                     fsync(fd);
+                    fsync(fd);
                     close(fd);
                 }
             }
         }
     }
+    sync();
     sync();
     return true;
 }

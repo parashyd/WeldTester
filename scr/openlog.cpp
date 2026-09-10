@@ -447,6 +447,12 @@ void Openlog::handleRemoteKey(int key)
                 QDir().mkpath(machineFolder);
             }
 
+            machineFolder =
+                machineFolder + "/Envelopes"  ;
+            if (!QDir().exists(machineFolder)){
+                QDir().mkpath(machineFolder);
+            }
+
             QString selectedDateFolder = ui->listWidget_Folder->currentItem()->text();
 
             QString src =
@@ -489,6 +495,12 @@ void Openlog::handleRemoteKey(int key)
             QString machineFolder =
                 usbRoot + "/WT" + MachNo;
 
+            if (!QDir().exists(machineFolder)){
+                QDir().mkpath(machineFolder);
+            }
+
+            machineFolder =
+                machineFolder + "/Envelopes"  ;
             if (!QDir().exists(machineFolder)){
                 QDir().mkpath(machineFolder);
             }
