@@ -141,15 +141,35 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>380</x>
      <y>10</y>
-     <width>371</width>
-     <height>18</height>
+     <width>251</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
     <string/>
    </property>
+  </widget>
+  <widget class="QComboBox" name="comboBox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>5</y>
+     <width>111</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>Envelopes</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Calib info</string>
+    </property>
+   </item>
   </widget>
  </widget>
  <resources/>

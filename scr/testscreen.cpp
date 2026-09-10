@@ -2714,7 +2714,7 @@ void TestScreen::handleRecording()
     if (!dir.exists(dateFolder))
         dir.mkpath(dateFolder);
 
-    QString weldFolder = QString("%1/%2/KM%3_M%4_%5_%6").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg(km).arg(M).arg(Rail).arg(WeldNo);
+    QString weldFolder = QString("%1/KM%2_M%3_%4_%5").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo);
     if (!dir.exists(weldFolder))
         dir.mkpath(weldFolder);
 

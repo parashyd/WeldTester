@@ -137,16 +137,38 @@ Openlog::Openlog(QWidget *parent)
                 ui->label->clear();
             });
 
+    connect(ui->comboBox,
+            QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this,
+            [this](int)
+            {
+                loadFolders();
+
+                // ComboBox still has focus,
+                // so no date folder should be selected.
+                ui->listWidget_Folder->setCurrentRow(-1);
+
+                // No file/image should be selected.
+                ui->listWidget_Images->clear();
+                ui->listWidget_Images->setCurrentRow(-1);
+            });
+
+    // Initial focus on comboBox
+    // Initial focus on comboBox
+    // Initial focus on comboBox
     currentFocus = 0;
 
-    ui->listWidget_Folder->setCurrentRow(0);
-    // QPixmap pixmap = this->grab();
+    ui->comboBox->setFocus();
+    ui->comboBox->setCurrentIndex(0);
 
-    // // --- Adjust JPG output size ---
-    // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
-    // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    // QString jpgFileName = QString("OpenScreen.jpg");
-    // scaledJpg.save(jpgFileName, "JPG", 100 );
+    // IMPORTANT:
+    // No date folder should be selected while
+    // focus is on the ComboBox.
+    ui->listWidget_Folder->setCurrentRow(-1);
+
+    // Images should not be selected initially.
+    ui->listWidget_Images->setCurrentRow(-1);
+
     updateFocusStyle();
 }
 
@@ -180,8 +202,45 @@ void Openlog::loadFolders()
             QDir::Dirs |
             QDir::NoDotAndDotDot);
 
-    std::sort(folders.begin(),
-              folders.end(),
+    // -----------------------------------------
+    // Filter according to ComboBox selection
+    // -----------------------------------------
+
+    bool calibSelected =
+        (ui->comboBox->currentText() == "Calib info");
+
+    QFileInfoList filteredFolders;
+
+    for (const QFileInfo &folder : folders)
+    {
+        QString folderName = folder.fileName();
+
+        if (calibSelected)
+        {
+            // Calib info -> only folders ending with "Calib"
+            if (folderName.endsWith("Calib",
+                                    Qt::CaseInsensitive))
+            {
+                filteredFolders.append(folder);
+            }
+        }
+        else
+        {
+            // Envelopes -> exclude Calib folders
+            if (!folderName.endsWith("Calib",
+                                     Qt::CaseInsensitive))
+            {
+                filteredFolders.append(folder);
+            }
+        }
+    }
+
+    // -----------------------------------------
+    // Sort folders
+    // -----------------------------------------
+
+    std::sort(filteredFolders.begin(),
+              filteredFolders.end(),
               [](const QFileInfo &a,
                  const QFileInfo &b)
               {
@@ -203,18 +262,22 @@ void Openlog::loadFolders()
                           "dd-MM-yyyy");
 
                   // Latest date first
-                  if(aDate != bDate)
+                  if (aDate != bDate)
                       return aDate > bDate;
 
                   // Same date: sort suffix
-                  QString aSuffix = aName.mid(10).toUpper();
-                  QString bSuffix = bName.mid(10).toUpper();
+                  QString aSuffix =
+                      aName.mid(10).toUpper();
+
+                  QString bSuffix =
+                      bName.mid(10).toUpper();
 
                   QMap<QString, int> priority =
                       {
                           {"UP", 0},
                           {"DN", 1},
-                          {"UD", 2}
+                          {"UD", 2},
+                          {"CALIB", 3}
                       };
 
                   int aPriority =
@@ -226,13 +289,21 @@ void Openlog::loadFolders()
                   return aPriority < bPriority;
               });
 
-    for(const QFileInfo &fi : folders)
+    // -----------------------------------------
+    // Add filtered folders to list
+    // -----------------------------------------
+
+    for (const QFileInfo &fi : filteredFolders)
     {
         ui->listWidget_Folder->addItem(
             fi.fileName());
     }
 
-    if(ui->listWidget_Folder->count() > 0)
+    // -----------------------------------------
+    // Select first folder
+    // -----------------------------------------
+
+    if (ui->listWidget_Folder->count() > 0)
     {
         ui->listWidget_Folder->setCurrentRow(0);
     }
@@ -298,15 +369,16 @@ void Openlog::handleRemoteKey(int key)
 
     switch(currentFocus)
     {
-    case 0:
+    case 1:
         currentList = ui->listWidget_Folder;
         break;
 
-    case 1:
+    case 2:
         currentList = ui->listWidget_Images;
         break;
 
     default:
+        currentList = nullptr;
         break;
     }
 
@@ -352,15 +424,36 @@ void Openlog::handleRemoteKey(int key)
 
     case UP:
 
-        if(row > 0)
-            currentList->setCurrentRow(row - 1);
+        if (currentFocus == 0)
+        {
+            int index = ui->comboBox->currentIndex();
+
+            if (index > 0)
+                ui->comboBox->setCurrentIndex(index - 1);
+        }
+        else if (currentList != nullptr)
+        {
+            if (row > 0)
+                currentList->setCurrentRow(row - 1);
+        }
 
         break;
 
+
     case DOWN:
 
-        if(row < currentList->count() - 1)
-            currentList->setCurrentRow(row + 1);
+        if (currentFocus == 0)
+        {
+            int index = ui->comboBox->currentIndex();
+
+            if (index < ui->comboBox->count() - 1)
+                ui->comboBox->setCurrentIndex(index + 1);
+        }
+        else if (currentList != nullptr)
+        {
+            if (row < currentList->count() - 1)
+                currentList->setCurrentRow(row + 1);
+        }
 
         break;
 
@@ -368,16 +461,43 @@ void Openlog::handleRemoteKey(int key)
 
         qDebug() << "RIGHT CurrentFocus =" << currentFocus;
 
-        if (currentFocus < 5)
+        if (currentFocus < 6)
         {
             currentFocus++;
 
+            // -----------------------------------------
+            // ComboBox -> Date Folder
+            // -----------------------------------------
             if (currentFocus == 1)
             {
-                // Move focus to image list
+                // Move focus to Date Folder list
+                ui->listWidget_Folder->setFocus();
+
+                if (ui->listWidget_Folder->count() > 0)
+                {
+                    // Select first date folder
+                    ui->listWidget_Folder->setCurrentRow(0);
+
+                    // Immediately load its files
+                    QListWidgetItem *firstItem =
+                        ui->listWidget_Folder->currentItem();
+
+                    if (firstItem)
+                    {
+                        onFolderChanged(firstItem);
+                    }
+                }
+
+                updateFocusStyle();
+            }
+
+            // -----------------------------------------
+            // Date Folder -> Images
+            // -----------------------------------------
+            else if (currentFocus == 2)
+            {
                 ui->listWidget_Images->setFocus();
 
-                // Select first image when entering this list
                 if (ui->listWidget_Images->count() > 0)
                 {
                     ui->listWidget_Images->setCurrentRow(0);
@@ -385,6 +505,10 @@ void Openlog::handleRemoteKey(int key)
 
                 updateFocusStyle();
             }
+
+            // -----------------------------------------
+            // Buttons
+            // -----------------------------------------
             else
             {
                 updateFocusStyle();
@@ -392,28 +516,35 @@ void Openlog::handleRemoteKey(int key)
         }
 
         break;
-
     case LEFT:
-        if(currentFocus > 0)
+
+        qDebug() << "LEFT CurrentFocus =" << currentFocus;
+
+        if (currentFocus > 0)
         {
             currentFocus--;
 
-            if(currentFocus == 1)
+            if (currentFocus == 0)
             {
-                //currentFocus = 0;
-
-                updateFocusStyle();
+                ui->comboBox->setFocus();
             }
-            else{
-                updateFocusStyle();
+            else if (currentFocus == 1)
+            {
+                ui->listWidget_Folder->setFocus();
+            }
+            else if (currentFocus == 2)
+            {
+                ui->listWidget_Images->setFocus();
             }
 
+            updateFocusStyle();
         }
+
         break;
 
     case OK:
 
-        if(currentFocus == 0)
+        if(currentFocus == 1)
         {
             QListWidgetItem *item =
                 ui->listWidget_Folder->currentItem();
@@ -422,7 +553,7 @@ void Openlog::handleRemoteKey(int key)
                 onFolderChanged(item);
         }
 
-        else if(currentFocus == 1)
+        else if(currentFocus == 2)
         {
             QListWidgetItem *item =
                 ui->listWidget_Images->currentItem();
@@ -431,80 +562,175 @@ void Openlog::handleRemoteKey(int key)
                 onImageActivated(item);
         }
 
-        else if(currentFocus == 2){ //Copy Action
+        else if(currentFocus == 3) // Copy Action
+        {
             QString usbRoot = findUsbPath();
 
-            if(usbRoot.isEmpty()){
+            if(usbRoot.isEmpty())
+            {
                 ui->label->setText(" ⚠️ No Pendrive Detected");
                 StatusLabTimer->start(2000);
                 return;
             }
 
+            // -------------------------------------------------
+            // WT<UnitNo>/Envelopes
+            // -------------------------------------------------
             QString machineFolder =
                 usbRoot + "/WT" + MachNo;
 
-            if (!QDir().exists(machineFolder)){
+            if(!QDir().exists(machineFolder))
+            {
                 QDir().mkpath(machineFolder);
             }
 
-            machineFolder =
-                machineFolder + "/Envelopes"  ;
-            if (!QDir().exists(machineFolder)){
-                QDir().mkpath(machineFolder);
+            QString envelopesFolder =
+                machineFolder + "/Envelopes";
+
+            if(!QDir().exists(envelopesFolder))
+            {
+                QDir().mkpath(envelopesFolder);
             }
 
-            QString selectedDateFolder = ui->listWidget_Folder->currentItem()->text();
+            // -------------------------------------------------
+            // Get selected date folder
+            // -------------------------------------------------
+            QListWidgetItem *selectedItem =
+                ui->listWidget_Folder->currentItem();
 
+            if(!selectedItem)
+                return;
+
+            QString selectedDateFolder =
+                selectedItem->text();
+
+            // -------------------------------------------------
+            // Decide destination:
+            //
+            // xxxxCalib -> Calibinfo
+            // xxxxUP/DN/UD -> Defects
+            // -------------------------------------------------
+            QString destinationFolder;
+
+            if(selectedDateFolder.endsWith(
+                    "Calib",
+                    Qt::CaseInsensitive))
+            {
+                destinationFolder =
+                    envelopesFolder + "/Calibinfo";
+            }
+            else
+            {
+                destinationFolder =
+                    envelopesFolder + "/Defects";
+            }
+
+            // Create destination
+            if(!QDir().exists(destinationFolder))
+            {
+                QDir().mkpath(destinationFolder);
+            }
+
+            // -------------------------------------------------
+            // Source
+            // -------------------------------------------------
             QString src =
-                basePath + "/" +
-                selectedDateFolder;
+                basePath + "/" + selectedDateFolder;
 
-            // QString dst =
-            //     uniqueFolderName(
-            //         machineFolder,
-            //         selectedDateFolder);
-            QString dst = machineFolder +"/"+selectedDateFolder;
+            // -------------------------------------------------
+            // Final destination
+            // -------------------------------------------------
+            QString dst =
+                destinationFolder + "/" + selectedDateFolder;
 
-            if(copyFolderRecursively(src,dst))
+            qDebug() << "Copy source:" << src;
+            qDebug() << "Copy destination:" << dst;
+
+            // -------------------------------------------------
+            // Copy
+            // -------------------------------------------------
+            if(copyFolderRecursively(src, dst))
             {
                 ui->label->setStyleSheet(
                     "color: #00ff66;"
                     "font-size: 11px;"
                     "font-weight: bold;");
-                ui->label->setText("Copied "+ selectedDateFolder);
-                StatusLabTimer->start(2000);
 
+                ui->label->setText(
+                    "Copied " + selectedDateFolder);
+
+                StatusLabTimer->start(2000);
             }
-            else{
+            else
+            {
                 ui->label->setStyleSheet(
                     "color: RED;"
                     "font-size: 11px;"
                     "font-weight: bold;");
-                ui->label->setText("Copying "+selectedDateFolder+" has failed");
-                StatusLabTimer->start(2000);
 
+                ui->label->setText(
+                    "Copying " +
+                    selectedDateFolder +
+                    " has failed");
+
+                StatusLabTimer->start(2000);
             }
+
             break;
         }
-        else if(currentFocus == 3){ //copy all
+        else if(currentFocus == 4) // Copy All
+        {
             QString usbRoot = findUsbPath();
 
             if(usbRoot.isEmpty())
+            {
+                ui->label->setText(" ⚠️ No Pendrive Detected");
+                StatusLabTimer->start(2000);
                 return;
+            }
 
+            // -------------------------------------------------
+            // WT<UnitNo>/Envelopes
+            // -------------------------------------------------
             QString machineFolder =
                 usbRoot + "/WT" + MachNo;
 
-            if (!QDir().exists(machineFolder)){
+            if(!QDir().exists(machineFolder))
+            {
                 QDir().mkpath(machineFolder);
             }
 
-            machineFolder =
-                machineFolder + "/Envelopes"  ;
-            if (!QDir().exists(machineFolder)){
-                QDir().mkpath(machineFolder);
+            QString envelopesFolder =
+                machineFolder + "/Envelopes";
+
+            if(!QDir().exists(envelopesFolder))
+            {
+                QDir().mkpath(envelopesFolder);
             }
 
+            // -------------------------------------------------
+            // Create both destination folders
+            // -------------------------------------------------
+            QString defectsFolder =
+                envelopesFolder + "/Defects";
+
+            QString calibInfoFolder =
+                envelopesFolder + "/Calibinfo";
+
+
+            if(!QDir().exists(defectsFolder))
+            {
+                QDir().mkpath(defectsFolder);
+            }
+
+            if(!QDir().exists(calibInfoFolder))
+            {
+                QDir().mkpath(calibInfoFolder);
+            }
+
+            // -------------------------------------------------
+            // Get ALL folders from SavedData
+            // -------------------------------------------------
             QDir srcDir(basePath);
 
             QFileInfoList folders =
@@ -512,35 +738,83 @@ void Openlog::handleRemoteKey(int key)
                     QDir::Dirs |
                     QDir::NoDotAndDotDot);
 
-            foreach(QFileInfo folder, folders)
-            {
-                // QString dst =
-                //     uniqueFolderName(
-                //         machineFolder,
-                //         folder.fileName());
+            bool allCopied = true;
 
-                QString dst = machineFolder+"/"+folder.fileName();
-                if(copyFolderRecursively(folder.absoluteFilePath(),dst))
+            // -------------------------------------------------
+            // Copy each folder according to its type
+            // -------------------------------------------------
+            for(const QFileInfo &folder : folders)
+            {
+                QString folderName =
+                    folder.fileName();
+
+                QString destinationFolder;
+
+                if(folderName.endsWith(
+                        "Calib",
+                        Qt::CaseInsensitive))
                 {
-                    ui->label->setStyleSheet(
-                        "color: #00ff66;"
-                        "font-size: 11px;"
-                        "font-weight: bold;");
-                    ui->label->setText("Copied");
-                    StatusLabTimer->start(2000);
+                    // Calibration folder
+                    destinationFolder =
+                        calibInfoFolder;
                 }
-                else{
-                    ui->label->setStyleSheet(
-                        "color: RED;"
-                        "font-size: 11px;"
-                        "font-weight: bold;");
-                    ui->label->setText("Copying has failed");
-                    StatusLabTimer->start(2000);
+                else
+                {
+                    // Normal date/defect folder
+                    destinationFolder =
+                        defectsFolder;
+                }
+
+                QString src =
+                    folder.absoluteFilePath();
+
+                QString dst =
+                    destinationFolder + "/" + folderName;
+
+                qDebug() << "Copy All source:" << src;
+                qDebug() << "Copy All destination:" << dst;
+
+                if(!copyFolderRecursively(src, dst))
+                {
+                    allCopied = false;
+
+                    qDebug()
+                        << "Failed to copy:"
+                        << folderName;
                 }
             }
+
+            // -------------------------------------------------
+            // Result
+            // -------------------------------------------------
+            if(allCopied)
+            {
+                ui->label->setStyleSheet(
+                    "color: #00ff66;"
+                    "font-size: 11px;"
+                    "font-weight: bold;");
+
+                ui->label->setText(
+                    "All folders copied successfully");
+
+                StatusLabTimer->start(2000);
+            }
+            else
+            {
+                ui->label->setStyleSheet(
+                    "color: RED;"
+                    "font-size: 11px;"
+                    "font-weight: bold;");
+
+                ui->label->setText(
+                    "Some folders failed to copy");
+
+                StatusLabTimer->start(2000);
+            }
+
             break;
         }
-        else if(currentFocus == 4){ //delete
+        else if(currentFocus == 5){ //delete
             QString selectedDateFolder = ui->listWidget_Folder->currentItem()->text();
 
             QString path =
@@ -561,7 +835,7 @@ void Openlog::handleRemoteKey(int key)
             ui->listWidget_Images->clear();
             break;
         }
-        else if(currentFocus == 5){ //delete all
+        else if(currentFocus == 6){ //delete all
             QDir dir(basePath);
 
             QFileInfoList folders =
@@ -594,6 +868,7 @@ void Openlog::handleRemoteKey(int key)
 }
 void Openlog::updateFocusStyle()
 {
+    ui->comboBox->setStyleSheet("");
     ui->listWidget_Folder->setStyleSheet("");
     ui->listWidget_Images->setStyleSheet("");
     ui->CopyButton->setStyleSheet("");
@@ -615,31 +890,41 @@ void Openlog::updateFocusStyle()
         "border-radius: 6px;"
         "}";
 
+    QString comboFocusStyle =
+        "QComboBox {"
+        "border: 2px solid #3aa0ff;"
+        "background-color: #dceeff;"
+        "border-radius: 6px;"
+        "}";
+
     switch(currentFocus)
     {
     case 0:
-        ui->listWidget_Folder->setStyleSheet(focusStyle);
+        ui->comboBox->setStyleSheet(comboFocusStyle);
         break;
 
     case 1:
-        ui->listWidget_Images->setStyleSheet(focusStyle);
+        ui->listWidget_Folder->setStyleSheet(focusStyle);
         break;
 
     case 2:
-        ui->CopyButton->setStyleSheet(focusStyle2);
+        ui->listWidget_Images->setStyleSheet(focusStyle);
         break;
 
     case 3:
-        ui->CopyAllButton->setStyleSheet(focusStyle2);
+        ui->CopyButton->setStyleSheet(focusStyle2);
         break;
 
     case 4:
-        ui->DeleteButton->setStyleSheet(focusStyle2);
+        ui->CopyAllButton->setStyleSheet(focusStyle2);
         break;
 
     case 5:
-        ui->DeleteAllButton->setStyleSheet(focusStyle2);
+        ui->DeleteButton->setStyleSheet(focusStyle2);
         break;
 
+    case 6:
+        ui->DeleteAllButton->setStyleSheet(focusStyle2);
+        break;
     }
 }
