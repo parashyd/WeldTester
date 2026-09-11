@@ -682,6 +682,8 @@ void TestScreen::onSocketReadyRead(quint8 key)
             //entry.channel = 1;
             config.channel = 1;
             autoRunConfig();
+            onApplyGainClicked();
+
         }
         else if(channelCnt == 2){
             receivedChannel = "2";
@@ -689,6 +691,8 @@ void TestScreen::onSocketReadyRead(quint8 key)
             // entry.channel = 2;
             config.channel = 2;
             autoRunConfig();
+            onApplyGainClicked();
+
             channelCnt=0;
         }
         break;
@@ -744,6 +748,7 @@ void TestScreen::onSocketReadyRead(quint8 key)
     case CALSET:
         qDebug() <<"calset Active";
         prepareCalsetInput();
+        onApplyGainClicked();
         break;
 
     case GATE:
@@ -1289,7 +1294,7 @@ void TestScreen::prepareCalsetInput()
     setLogicalFocus(ui->lineEdit_calset);
     // 🔹 Enable the widget
     ui->lineEdit_calset->setEnabled(true);
-
+    autoRunConfig();
     // 🔹 Clear or reset your input tracking
     // calsetStr.clear();
     // calsetState.pressCount = 0;
@@ -2538,7 +2543,6 @@ void TestScreen::onApplyGainClicked()
 
     updatedCfg.Gain = static_cast<float>(userGain);  // 🔹 keep stored value scaled
 
-    qDebug() << "Gain updated successfully in config file";
 }
 
 void TestScreen::loadSavedConfig()
