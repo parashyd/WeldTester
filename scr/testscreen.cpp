@@ -756,6 +756,24 @@ void TestScreen::onSocketReadyRead(quint8 key)
         CalGateCnt ++;
         if(CalGateCnt == 1)
         {
+            if (m_currentLogicalFocus)
+            {
+                m_currentLogicalFocus->setStyleSheet("");
+                m_currentLogicalFocus = nullptr;
+            }
+
+            // Remove actual Qt focus
+            QWidget *focusedWidget = this->focusWidget();
+
+            if (focusedWidget)
+            {
+                if (QLineEdit *lineEdit =
+                    qobject_cast<QLineEdit *>(focusedWidget))
+                {
+                    lineEdit->clearFocus();
+                }
+            }
+
             gate1_focus=true;
             gate2_focus=false;
             ui->lineEdit_calset->setStyleSheet("");
@@ -765,6 +783,24 @@ void TestScreen::onSocketReadyRead(quint8 key)
         }
         else if(CalGateCnt == 2)
         {
+            if (m_currentLogicalFocus)
+            {
+                m_currentLogicalFocus->setStyleSheet("");
+                m_currentLogicalFocus = nullptr;
+            }
+
+            // Remove actual Qt focus
+            QWidget *focusedWidget = this->focusWidget();
+
+            if (focusedWidget)
+            {
+                if (QLineEdit *lineEdit =
+                    qobject_cast<QLineEdit *>(focusedWidget))
+                {
+                    lineEdit->clearFocus();
+                }
+            }
+
             gate1_focus=false;
             gate2_focus=true;
             ui->lineEdit_calset->setStyleSheet("");
