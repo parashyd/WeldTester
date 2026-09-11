@@ -41,8 +41,7 @@
 
 static constexpr uint32_t WT_MAGIC        = 0x574C5447u; // 'WLTG'
 // static constexpr int      WT_HEADER_SIZE  = 84;
-static constexpr int      WT_HEADER_SIZE  = 200;
-
+static constexpr int WT_HEADER_SIZE = 220;
 
 //static constexpr float    RANGE_FACTOR_LT30 = 3.378f;
 //static constexpr float    RANGE_FACTOR_GT30 = 6.212f;
@@ -75,8 +74,8 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
                        const char *time,
                        const char *lat,
                        const char *lon,
-                       const char *McNo
-                       )
+                       const char *McNo,
+                       const char *calibrationDate)
 {
     memset(buf, 0, WT_HEADER_SIZE);
     int off = 0;
@@ -123,6 +122,10 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
     memcpy(buf + off, McNo, 5);
     off += 5;// offset 181
 
+    // Calibration date
+    memcpy(buf + off, calibrationDate, 12);
+    off += 12;     // offset 186
+
 
 }
 
@@ -136,7 +139,8 @@ inline bool unpackHeader(
     char startTime[16],
     char latitude[32],
     char longitude[32],
-    char machineNo[5])
+    char machineNo[5],
+    char calibrationDate[16])
 {
     int off = 0;
 
@@ -185,6 +189,9 @@ inline bool unpackHeader(
     memcpy(machineNo, buf + off, 5);
     off += 5;
 
+    memcpy(calibrationDate, buf + off, 16);
+    off += 16;
+
     if (frameSize <= 0 || totalFrames < 0)
     {
         qWarning() << "[wt] Invalid frameSize or totalFrames";
@@ -207,8 +214,10 @@ public:
     ~WtLogger() { close(); }
 
     // Call when DAC button pressed to START recording
-    bool open(const QString &filePath, const ConfigEntry &config,const QString &machineNo)
-    {
+    bool open(const QString &filePath,
+              const ConfigEntry &config,
+              const QString &machineNo,
+              const QString &calibrationDate)    {
         close(); // safety
 
         m_frameSize  = wtFrameSize(config);
@@ -243,6 +252,9 @@ public:
         QByteArray machNo =
             machineNo.toLocal8Bit();
 
+        QByteArray calibDate =
+            calibrationDate.toLocal8Bit();
+
         wt_detail::packHeader(
             buf,
             config,
@@ -252,7 +264,8 @@ public:
             time.constData(),
             GPS_GetLatitude(),
             GPS_GetLongitude(),
-            machNo.constData());
+            machNo.constData(),
+            calibDate.constData());
 
         fwrite(buf, 1, WT_HEADER_SIZE, m_fp);
 
@@ -416,6 +429,10 @@ public:
     {
         return QString(m_MachNo);
     }
+    QString calibrationDate() const
+    {
+        return QString(m_calibrationDate);
+    }
 private:
     bool readHeader()
     {
@@ -447,7 +464,8 @@ private:
                 m_startTime,
                 m_latitude,
                 m_longitude,
-                m_MachNo))
+                m_MachNo,
+                m_calibrationDate))
         {
             return false;
         }
@@ -467,5 +485,6 @@ private:
     char m_latitude[32]  = {};
     char m_longitude[32] = {};
     char m_MachNo[5]={};
+    char m_calibrationDate[16] = {};
 };
 #endif    // WT_LOGGER_H

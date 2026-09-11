@@ -765,23 +765,39 @@ void TestScreen::onSocketReadyRead(quint8 key)
         }
         break;
 
-    case REC: //using for recording
-        if(isCalibrationRecent(ui->lineEdit_ch->text().toInt(),ui->lineEdit_calset->text().toInt())){
-            if(ui->label_record->isVisible())
+    case REC:
+    {
+        int channel = ui->lineEdit_ch->text().toInt();
+        int calset  = ui->lineEdit_calset->text().toInt();
+
+        QString calibrationDate =
+            getRecentCalibrationDate(channel, calset);
+
+        if (!calibrationDate.isEmpty())
+        {
+            if (ui->label_record->isVisible())
             {
                 ui->label_record->setVisible(false);
                 logfile.close();
                 break;
-            }else{
+            }
+            else
+            {
                 ui->label_record->setVisible(true);
+
+                // Store/use the calibration date during recording
                 handleRecording();
+
                 break;
             }
-        }else{
+        }
+        else
+        {
             ui->label_calibWarning->setVisible(true);
             calibWarningTimer->start(5000);
             break;
         }
+    }
 
 
     case SD_MODE:
@@ -2703,44 +2719,140 @@ void TestScreen::handleRecording()
 {
     QString baseDir = "LogData";
 
-    // --- Ensure directories exist ---
     QDir dir;
-    if (!dir.exists(baseDir)){
+
+    if (!dir.exists(baseDir))
+    {
         dir.mkpath(baseDir);
         qDebug() << "LogData directory created";
     }
 
-    QString dateFolder = QString("%1/%2%3").arg(baseDir).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg(Line);
+    QString dateFolder =
+        QString("%1/%2%3")
+            .arg(baseDir)
+            .arg(QDate::currentDate().toString("dd-MM-yyyy"))
+            .arg(Line);
+
     if (!dir.exists(dateFolder))
         dir.mkpath(dateFolder);
 
-    QString weldFolder = QString("%1/KM%2_M%3_%4_%5").arg(dateFolder).arg(km).arg(M).arg(Rail).arg(WeldNo);
+    QString weldFolder =
+        QString("%1/KM%2_M%3_%4_%5")
+            .arg(dateFolder)
+            .arg(km)
+            .arg(M)
+            .arg(Rail)
+            .arg(WeldNo);
+
     if (!dir.exists(weldFolder))
         dir.mkpath(weldFolder);
 
 
-    // QString configFile =
-    //     QString("%1/Config.txt").arg(weldFolder);
-    // if(QFile::exists(configFile))
-    // {
-    //     QFile::remove(configFile);
-    // }
-    // if(QFile::copy("Config.txt", configFile))
-    // {
-    //     qDebug() << "Config.txt copied successfully";
-    // }
-    // else
-    // {
-    //     qDebug() << "Failed to copy Config.txt";
-    // }
+    // -------------------------------------------------
+    // Find the calibration used for this recording
+    // -------------------------------------------------
+
+    QString calibrationDate =
+        getRecentCalibrationDate(config.channel,
+                                 config.calset);
+
+    if (calibrationDate.isEmpty())
+    {
+        qWarning() << "No recent calibration found."
+                   << "Channel:" << config.channel
+                   << "Calset:" << config.calset;
+
+        return;
+    }
+
+    qDebug() << "Calibration used for recording:"
+             << calibrationDate;
+
+
+    // -------------------------------------------------
+    // Copy calibration folder into recording folder
+    // -------------------------------------------------
+
+    QString calibrationSource =
+        QString("SavedData/%1Calib")
+            .arg(calibrationDate);
+
+    QString calibFolder =  QString("%1/Calibinfo")
+                              .arg(weldFolder);
+    if (!dir.exists(calibFolder))
+    {
+        dir.mkpath(calibFolder);
+    }
+
+    QString calibrationDestination =
+        QString("%1/%2Calib")
+            .arg(calibFolder)
+            .arg(calibrationDate);
+
+    QDir sourceDir(calibrationSource);
+
+    if (!sourceDir.exists())
+    {
+        qWarning() << "Calibration folder does not exist:"
+                   << calibrationSource;
+    }
+    else
+    {
+        // Create destination calibration folder
+        if (!dir.mkpath(calibrationDestination))
+        {
+            qWarning() << "Failed to create calibration destination:"
+                       << calibrationDestination;
+        }
+        else
+        {
+            // Copy all files from calibration folder
+            QStringList files =
+                sourceDir.entryList(QDir::Files);
+
+            for (const QString &fileName : files)
+            {
+                QString sourceFile =
+                    sourceDir.filePath(fileName);
+
+                QString destinationFile =
+                    QDir(calibrationDestination)
+                        .filePath(fileName);
+
+                if (QFile::exists(destinationFile))
+                    QFile::remove(destinationFile);
+
+                if (!QFile::copy(sourceFile, destinationFile))
+                {
+                    qWarning()
+                    << "Failed to copy calibration file:"
+                    << sourceFile;
+                }
+                else
+                {
+                    qDebug()
+                    << "Copied calibration file:"
+                    << destinationFile;
+                }
+            }
+
+            qDebug() << "Calibration folder copied:"
+                     << calibrationDestination;
+        }
+    }
+
+
+    // -------------------------------------------------
+    // Existing testdetails copy
+    // -------------------------------------------------
 
     QString testdetailsFile =
         QString("%1/testdetails.json").arg(weldFolder);
-    if(QFile::exists(testdetailsFile))
-    {
+
+    if (QFile::exists(testdetailsFile))
         QFile::remove(testdetailsFile);
-    }
-    if(QFile::copy("testdetails.json", testdetailsFile))
+
+    if (QFile::copy("testdetails.json", testdetailsFile))
     {
         qDebug() << "testdetails.json copied successfully";
     }
@@ -2749,27 +2861,45 @@ void TestScreen::handleRecording()
         qDebug() << "Failed to copy testdetails.json";
     }
 
-    int temp=1;
-    QString logdataFile = QString("%1/%2_Ch%3_%4.wt").arg(weldFolder).arg(config.calset).arg(config.channel).arg(config.Angle);
-    while(QFile::exists(logdataFile))
+
+    // -------------------------------------------------
+    // Create WT file
+    // -------------------------------------------------
+
+    int temp = 1;
+
+    QString logdataFile =
+        QString("%1/%2_Ch%3_%4.wt")
+            .arg(weldFolder)
+            .arg(config.calset)
+            .arg(config.channel)
+            .arg(config.Angle);
+
+    while (QFile::exists(logdataFile))
     {
-        logdataFile = QString("%1/%2_Ch%3_%4(%5).wt").arg(weldFolder).arg(config.calset).arg(config.channel).arg(config.Angle).arg(temp);
+        logdataFile =
+            QString("%1/%2_Ch%3_%4(%5).wt")
+                .arg(weldFolder)
+                .arg(config.calset)
+                .arg(config.channel)
+                .arg(config.Angle)
+                .arg(temp);
+
         temp++;
     }
 
     QFile file(logdataFile);
 
-    if(file.open(QIODevice::WriteOnly))
+    if (file.open(QIODevice::WriteOnly))
     {
         qDebug() << "WT file created:" << logdataFile;
-
         file.close();
     }
 
-    logfile.open(logdataFile,config,MachNo);
-
-    // logfile.setFileName(logdataFile);
-    // logfile.open(QIODevice::WriteOnly);
+    logfile.open(logdataFile,
+                 config,
+                 MachNo,
+                 calibrationDate);
 }
 bool TestScreen::saveCalibrationHistory()
 {
@@ -3526,20 +3656,24 @@ bool TestScreen::generateCalibrationHistoryJpg(const QString &jsonPath,
 
     return true;
 }
+
 bool TestScreen::isCalibrationRecent(int channel, int calset)
 {
+    return !getRecentCalibrationDate(channel, calset).isEmpty();
+}
+QString TestScreen::getRecentCalibrationDate(int channel, int calset)
+{
     QString baseFolder = "SavedData";
-
     QDate today = QDate::currentDate();
 
     // Check today + previous 3 days
-    // Example: Sep 5 -> Sep 5, Sep 4, Sep 3, Sep 2
     for (int daysAgo = 0; daysAgo <= 3; ++daysAgo)
     {
         QDate checkDate = today.addDays(-daysAgo);
 
-        QString folderName =
-            checkDate.toString("dd-MM-yyyy") + "Calib";
+        QString dateString = checkDate.toString("dd-MM-yyyy");
+
+        QString folderName = dateString + "Calib";
 
         QString filePath =
             QString("%1/%2/calibration_history.json")
@@ -3608,9 +3742,9 @@ bool TestScreen::isCalibrationRecent(int channel, int calset)
                 qDebug() << "Recent calibration found:"
                          << "Channel =" << channel
                          << "Calset =" << calset
-                         << "Date =" << checkDate.toString("dd-MM-yyyy");
+                         << "Date =" << dateString;
 
-                return true;
+                return dateString;
             }
         }
     }
@@ -3619,7 +3753,7 @@ bool TestScreen::isCalibrationRecent(int channel, int calset)
              << "Channel =" << channel
              << "Calset =" << calset;
 
-    return false;
+    return QString();
 }
 
 TestScreen::~TestScreen()

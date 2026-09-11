@@ -110,6 +110,8 @@ private slots:
     bool generateCalibrationHistoryJpg(const QString &jsonPath,
                                        const QString &jpgPath);
     bool isCalibrationRecent(int channel, int calset);
+    QString getRecentCalibrationDate(int channel, int calset);
+
 
     inline void focusGate1(int replotRequired);
     inline void focusGate2(int replotRequired);
