@@ -109,6 +109,9 @@ private slots:
     bool saveCalibrationHistory();
     bool generateCalibrationHistoryJpg(const QString &jsonPath,
                                        const QString &jpgPath);
+
+    bool isRecording() const;
+
     bool isCalibrationRecent(int channel, int calset);
     QString getRecentCalibrationDate(int channel, int calset);
 
@@ -126,8 +129,8 @@ private:
     int lastBatteryPercent = -1;  // -1 so first update always happens
 
 
-    TestDetails *testdetails;
-    PreviewScreen *previewscreen;
+    TestDetails *testdetails = nullptr;
+    PreviewScreen *previewscreen= nullptr;
 
     QCPGraph *g1Line;
     QCPGraph *g2Line;

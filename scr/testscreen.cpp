@@ -546,6 +546,72 @@ void TestScreen::onSocketReadyRead(quint8 key)
     // quint8 key = static_cast<quint8>(data.at(0));
     qDebug() << "Received key (hex):" << QString("0x%1").arg(key, 2, 16, QLatin1Char('0')).toUpper();
 
+    // ---------------------------------------------------------
+    // RECORDING MODE KEY LOCK
+    // ---------------------------------------------------------
+    // When recording is active, ONLY these keys are allowed:
+    //
+    // 7, 8, 9
+    // RUN
+    // FREEZE
+    // SAVE
+    // UP, DOWN
+    // LEFT, RIGHT
+    // INC, DEC
+    //
+    // All other keys are ignored.
+    // ---------------------------------------------------------
+
+    if (ui->label_record->isVisible())
+    {
+        bool allowedKey =
+            (key == '7') ||
+            (key == '8') ||
+            (key == '9') ||
+            (key == RUN) ||
+            (key == FREEZE) ||
+            (key == SAVE) ||
+            (key == UP) ||
+            (key == DOWN) ||
+            (key == LEFT) ||
+            (key == RIGHT) ||
+            (key == INC) ||
+            (key == REC) ||
+            (key == DEC);
+
+        if (!allowedKey)
+        {
+            qDebug() << "[Recording] Ignoring key:"
+                     << QString("0x%1")
+                            .arg(key, 2, 16, QLatin1Char('0'));
+            return;
+        }
+
+        // Never allow a QLineEdit to retain focus
+        QWidget *focusedWidget = this->focusWidget();
+
+        if (qobject_cast<QLineEdit *>(focusedWidget))
+        {
+            focusedWidget->clearFocus();
+            ui->Plot->setFocus(Qt::OtherFocusReason);
+        }
+
+        // During recording the gate must always be selected.
+        if (!gate1_focus && !gate2_focus)
+        {
+            gate1_focus = true;
+            gate2_focus = false;
+
+            CalGateCnt = 1;
+
+            g1border->setVisible(true);
+            g2border->setVisible(false);
+
+            ui->label_offset->setVisible(false);
+
+            focusGate1(1);
+        }
+    }
     /* -----------------------------------------
      * 1) ESC key — highest priority handling
      * ----------------------------------------- */
@@ -553,12 +619,15 @@ void TestScreen::onSocketReadyRead(quint8 key)
     {
         qDebug() << "ESC key pressed";
 
-        if (previewscreen && previewscreen->isVisible()) {
-            previewscreen->close();
-            previewscreen = nullptr;
+        if (previewscreen != nullptr) {
+            if(previewscreen->isVisible()){
+                previewscreen->close();
+                previewscreen = nullptr;
+            }
             return;
         }
-        if (testdetails && testdetails->isVisible()) {
+        if (testdetails != nullptr) {
+            if(testdetails->isVisible()){
             testdetails->close();
             testdetails = nullptr;
             if(!plotUpdateTimer->isActive())
@@ -567,6 +636,7 @@ void TestScreen::onSocketReadyRead(quint8 key)
                 ui->label_pause->setVisible(false);
             }
             setInputFieldsEnabled(true);
+            }
             return;
         }
         // if (openlogScreen && openlogScreen->isVisible()) {
@@ -586,13 +656,17 @@ void TestScreen::onSocketReadyRead(quint8 key)
      * 2) Forward key to the screen currently open
      *    Priority: Preview → TestDetails → Openlog
      * ----------------------------------------- */
-    if (previewscreen && previewscreen->isVisible()) {
+    if (previewscreen != nullptr) {
+        if( previewscreen->isVisible()){
         previewscreen->handleSocketKey(static_cast<int>(key));
+        }
         return;
     }
 
-    if (testdetails && testdetails->isVisible()) {
+    if (testdetails !=nullptr ) {
+        if(testdetails->isVisible()){
         testdetails->handleSocketKey(static_cast<int>(key));
+        }
         return;
     }
 
@@ -745,22 +819,24 @@ void TestScreen::onSocketReadyRead(quint8 key)
 
         break;
 
-    case UP: // UP
-        if(gate1_focus || gate2_focus)
+    case UP:
+        if (gate1_focus || gate2_focus)
         {
             HandleGateUpDownLift(1);
         }
-        else{
+        else if (!isRecording())
+        {
             navigateFocusVertical(-1);
         }
         break;
 
-    case DOWN: // DOWN
-        if(gate1_focus || gate2_focus)
+    case DOWN:
+        if (gate1_focus || gate2_focus)
         {
             HandleGateUpDownLift(-1);
         }
-        else{
+        else if (!isRecording())
+        {
             navigateFocusVertical(1);
         }
         break;
@@ -773,24 +849,79 @@ void TestScreen::onSocketReadyRead(quint8 key)
         QString calibrationDate =
             getRecentCalibrationDate(channel, calset);
 
+        if (ui->label_record->isVisible())
+        {
+            ui->label_record->setVisible(false);
+            logfile.close();
+
+            gate1_focus=false;
+            gate2_focus=false;
+            g1border->setVisible(false);
+            g2border->setVisible(false);
+            ui->label_offset->setVisible(false);
+            g1border->data()->clear();
+            g2border->data()->clear();
+            ui->Plot->replot();
+
+            break;
+        }
+
+
+
         if (!calibrationDate.isEmpty())
         {
-            if (ui->label_record->isVisible())
-            {
-                ui->label_record->setVisible(false);
-                logfile.close();
-                break;
-            }
-            else
-            {
                 ui->label_record->setVisible(true);
 
-                // Store/use the calibration date during recording
+                // ---------------------------------------------------------
+                // Recording starts
+                // ---------------------------------------------------------
+
+                // Gate 1 must become the active gate
+                if (!gate1_focus && !gate2_focus)
+                {
+                    gate1_focus = true;
+                    gate2_focus = false;
+
+                    CalGateCnt = 1;
+
+                    g1border->setVisible(true);
+                    g2border->setVisible(false);
+
+                    ui->label_offset->setVisible(false);
+
+                    focusGate1(1);
+                }
+
+                // ---------------------------------------------------------
+                // Clear previous LineEdit logical + real focus
+                // ---------------------------------------------------------
+
+                // Remove old logical focus highlight
+                if (m_currentLogicalFocus)
+                {
+                    m_currentLogicalFocus->setStyleSheet("");
+                    m_currentLogicalFocus = nullptr;
+                }
+
+                // Remove actual Qt focus
+                QWidget *focusedWidget = this->focusWidget();
+
+                if (focusedWidget)
+                {
+                    if (QLineEdit *lineEdit =
+                        qobject_cast<QLineEdit *>(focusedWidget))
+                    {
+                        lineEdit->clearFocus();
+                    }
+                }
+
+                // Give Qt focus to the plot
+                ui->Plot->setFocus(Qt::OtherFocusReason);
+
                 handleRecording();
 
                 break;
             }
-        }
         else
         {
             ui->label_calibWarning->setVisible(true);
@@ -866,22 +997,24 @@ void TestScreen::onSocketReadyRead(quint8 key)
         break;
 
     case LEFT:
-        if(gate1_focus || gate2_focus)
+        if (gate1_focus || gate2_focus)
         {
             HandleGateShift(-1);
         }
-        else{
+        else if (!isRecording())
+        {
             FunctionLeftRight(false);
         }
         break;
 
     case RIGHT:
-        if(gate1_focus || gate2_focus)
+        if (gate1_focus || gate2_focus)
         {
             HandleGateShift(1);
         }
-        else{
-            FunctionLeftRight(true);    //increment
+        else if (!isRecording())
+        {
+            FunctionLeftRight(true);
         }
         break;
 
@@ -893,6 +1026,10 @@ void TestScreen::onSocketReadyRead(quint8 key)
             testdetails->handleSocketKey(key);
         }
 
+        if (isRecording())
+        {
+            return;
+        }
         // 🔹 Decide based on current screen whether we want digits or alphas
         QLineEdit* focused = qobject_cast<QLineEdit*>(this->focusWidget());
 
@@ -2010,8 +2147,8 @@ void TestScreen::handleDigitInput(int digit)
 void TestScreen::adjustCurrentLineEdit(int delta)
 {
     QLineEdit* focused = qobject_cast<QLineEdit*>(this->focusWidget());
-    if (!focused || !focused->isEnabled())
-        return;
+    // if (!focused || !focused->isEnabled())
+    //     return;
 
 
     auto adjustValue = [&](auto& field, int minVal, int maxVal,float off) {
@@ -3755,7 +3892,10 @@ QString TestScreen::getRecentCalibrationDate(int channel, int calset)
 
     return QString();
 }
-
+bool TestScreen::isRecording() const
+{
+    return ui->label_record->isVisible();
+}
 TestScreen::~TestScreen()
 {
     delete ui;
