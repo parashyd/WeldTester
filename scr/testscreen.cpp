@@ -546,6 +546,54 @@ void TestScreen::onSocketReadyRead(quint8 key)
     // quint8 key = static_cast<quint8>(data.at(0));
     qDebug() << "Received key (hex):" << QString("0x%1").arg(key, 2, 16, QLatin1Char('0')).toUpper();
 
+    /* -----------------------------------------
+     * 1) ESC key — highest priority handling
+     * ----------------------------------------- */
+    if (key == ESC)
+    {
+        qDebug() << "ESC key pressed";
+
+        if (previewscreen != nullptr) {
+            if(previewscreen->isVisible()){
+                previewscreen->close();
+                previewscreen = nullptr;
+            }
+            return;
+        }
+        if (testdetails != nullptr) {
+            if(testdetails->isVisible()){
+            testdetails->close();
+            testdetails = nullptr;
+            if(!plotUpdateTimer->isActive())
+            {
+                plotUpdateTimer->start(20);
+                ui->label_pause->setVisible(false);
+            }
+            setInputFieldsEnabled(true);
+            }
+            return;
+        }
+
+    }
+
+    /* -----------------------------------------
+     * 2) Forward key to the screen currently open
+     *    Priority: Preview → TestDetails → Openlog
+     * ----------------------------------------- */
+    if (previewscreen != nullptr) {
+        if( previewscreen->isVisible()){
+        previewscreen->handleSocketKey(static_cast<int>(key));
+        }
+        return;
+    }
+
+    if (testdetails !=nullptr ) {
+        if(testdetails->isVisible()){
+        testdetails->handleSocketKey(static_cast<int>(key));
+        }
+        return;
+    }
+
     // ---------------------------------------------------------
     // RECORDING MODE KEY LOCK
     // ---------------------------------------------------------
@@ -612,68 +660,14 @@ void TestScreen::onSocketReadyRead(quint8 key)
             focusGate1(1);
         }
     }
-    /* -----------------------------------------
-     * 1) ESC key — highest priority handling
-     * ----------------------------------------- */
-    if (key == ESC)
-    {
-        qDebug() << "ESC key pressed";
 
-        if (previewscreen != nullptr) {
-            if(previewscreen->isVisible()){
-                previewscreen->close();
-                previewscreen = nullptr;
-            }
-            return;
-        }
-        if (testdetails != nullptr) {
-            if(testdetails->isVisible()){
-            testdetails->close();
-            testdetails = nullptr;
-            if(!plotUpdateTimer->isActive())
-            {
-                plotUpdateTimer->start(20);
-                ui->label_pause->setVisible(false);
-            }
-            setInputFieldsEnabled(true);
-            }
-            return;
-        }
-        // if (openlogScreen && openlogScreen->isVisible()) {
-        //     openlogScreen->handleRemoteKey(key);  // ESC closes inside Openlog
-        //     return;
-        // }
-
+    if (key == ESC){
         qDebug() << "ESC pressed on TestScreen (no popup)";
         plotUpdateTimer->stop();
         BuzzerOn(false);
         emit closeTestScreen();
-
         return;
     }
-
-    /* -----------------------------------------
-     * 2) Forward key to the screen currently open
-     *    Priority: Preview → TestDetails → Openlog
-     * ----------------------------------------- */
-    if (previewscreen != nullptr) {
-        if( previewscreen->isVisible()){
-        previewscreen->handleSocketKey(static_cast<int>(key));
-        }
-        return;
-    }
-
-    if (testdetails !=nullptr ) {
-        if(testdetails->isVisible()){
-        testdetails->handleSocketKey(static_cast<int>(key));
-        }
-        return;
-    }
-
-    // if (openlogScreen && openlogScreen->isVisible()) {
-    //     openlogScreen->handleRemoteKey(static_cast<int>(key));
-    //     return;
-    // }
 
     /* -----------------------------------------
      * 3) No popup active → TestScreen key operations
