@@ -1092,9 +1092,8 @@ void TestScreen::onSocketReadyRead(quint8 key)
                     handleDigitInput(mapped - '0');  // '1' -> 1
                    // saveTo_entry();
                     autoRunConfig();
-                    if(focused==ui->lineEdit_Gain){
-                        onApplyGainClicked();
-                    }
+                    onApplyGainClicked();
+
                 }
                 else
                 {
