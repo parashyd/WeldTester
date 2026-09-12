@@ -10,6 +10,8 @@
 #include "DataFile.h"
 #include "QDateTime"
 #include "gps.h"
+#include <QFileInfo>
+#include <QRegularExpression>
 
 // ═══════════════════════════════════════════════════════════════
 //  .wt  FILE FORMAT  (all values little-endian)
@@ -40,8 +42,9 @@
 // ═══════════════════════════════════════════════════════════════
 
 static constexpr uint32_t WT_MAGIC        = 0x574C5447u; // 'WLTG'
-// static constexpr int      WT_HEADER_SIZE  = 84;
 static constexpr int WT_HEADER_SIZE = 220;
+static constexpr int WT_FLAG_OFFSET = 202;
+static constexpr int WT_FLAG_SIZE   = 16;
 
 //static constexpr float    RANGE_FACTOR_LT30 = 3.378f;
 //static constexpr float    RANGE_FACTOR_GT30 = 6.212f;
@@ -75,7 +78,8 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
                        const char *lat,
                        const char *lon,
                        const char *McNo,
-                       const char *calibrationDate)
+                       const char *calibrationDate,
+                       const char *recordingFlag)
 {
     memset(buf, 0, WT_HEADER_SIZE);
     int off = 0;
@@ -126,6 +130,9 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
     memcpy(buf + off, calibrationDate, 12);
     off += 12;     // offset 186
 
+    // Recording flag
+    memcpy(buf + off, recordingFlag, WT_FLAG_SIZE);
+    off += WT_FLAG_SIZE;
 
 }
 
@@ -140,7 +147,8 @@ inline bool unpackHeader(
     char latitude[32],
     char longitude[32],
     char machineNo[5],
-    char calibrationDate[16])
+    char calibrationDate[16],
+    char recordingFlag[16])
 {
     int off = 0;
 
@@ -192,6 +200,9 @@ inline bool unpackHeader(
     memcpy(calibrationDate, buf + off, 16);
     off += 16;
 
+    memcpy(recordingFlag, buf + off, WT_FLAG_SIZE);
+    recordingFlag[WT_FLAG_SIZE - 1] = '\0';
+
     if (frameSize <= 0 || totalFrames < 0)
     {
         qWarning() << "[wt] Invalid frameSize or totalFrames";
@@ -219,6 +230,9 @@ public:
               const QString &machineNo,
               const QString &calibrationDate)    {
         close(); // safety
+
+        m_filePath = filePath;
+        m_recordingFlag.clear();
 
         m_frameSize  = wtFrameSize(config);
         m_frameCount = 0;
@@ -255,6 +269,8 @@ public:
         QByteArray calibDate =
             calibrationDate.toLocal8Bit();
 
+        QByteArray emptyFlag(WT_FLAG_SIZE, '\0');
+
         wt_detail::packHeader(
             buf,
             config,
@@ -265,7 +281,8 @@ public:
             GPS_GetLatitude(),
             GPS_GetLongitude(),
             machNo.constData(),
-            calibDate.constData());
+            calibDate.constData(),
+            emptyFlag.constData());
 
         fwrite(buf, 1, WT_HEADER_SIZE, m_fp);
 
@@ -311,6 +328,94 @@ public:
                  << "bytes";
     }
 
+    void setFlag(const QString &flag, const QString &suffix)
+    {
+        if (!m_fp)
+            return;
+
+        m_recordingFlag = flag;
+
+        // -------------------------------------------------
+        // Store flag in the WT header
+        // -------------------------------------------------
+        char flagBuffer[WT_FLAG_SIZE] = {};
+        QByteArray flagData = flag.toLocal8Bit();
+
+        const int copySize =
+            qMin(flagData.size(), WT_FLAG_SIZE - 1);
+
+        memcpy(flagBuffer,
+               flagData.constData(),
+               copySize);
+
+        long currentPos = ftell(m_fp);
+
+        fseek(m_fp, WT_FLAG_OFFSET, SEEK_SET);
+
+        fwrite(flagBuffer,
+               1,
+               WT_FLAG_SIZE,
+               m_fp);
+
+        fflush(m_fp);
+
+        // Return to previous recording position
+        fseek(m_fp, currentPos, SEEK_SET);
+
+        // -------------------------------------------------
+        // Rename currently recording file
+        // -------------------------------------------------
+        QFileInfo info(m_filePath);
+
+        QString baseName = info.completeBaseName();
+
+        // Remove an existing flag suffix if necessary
+        baseName.remove(QRegularExpression("_(F7|F8|F9)$"));
+
+        QString newBaseName =
+            QString("%1_%2")
+                .arg(baseName)
+                .arg(suffix);
+
+        QString newFilePath =
+            info.absolutePath() + "/" +
+            newBaseName + ".wt";
+
+        // Avoid overwriting another recording
+        int counter = 1;
+
+        QString uniqueFilePath = newFilePath;
+
+        while (QFile::exists(uniqueFilePath))
+        {
+            uniqueFilePath =
+                info.absolutePath() + "/" +
+                QString("%1_%2(%3).wt")
+                    .arg(baseName)
+                    .arg(suffix)
+                    .arg(counter++);
+
+        }
+
+        if (::rename(m_filePath.toLocal8Bit().constData(),
+                     uniqueFilePath.toLocal8Bit().constData()) == 0)
+        {
+            qDebug() << "[WtLogger] Recording file renamed:"
+                     << m_filePath
+                     << "->"
+                     << uniqueFilePath;
+
+            m_filePath = uniqueFilePath;
+        }
+        else
+        {
+            qWarning() << "[WtLogger] Failed to rename recording file:"
+                       << m_filePath
+                       << "->"
+                       << uniqueFilePath;
+        }
+    }
+
     bool isOpen()     const { return m_fp != nullptr; }
     int  frameCount() const { return m_frameCount; }
     int  frameSize()  const { return m_frameSize; }
@@ -319,6 +424,8 @@ private:
     FILE *m_fp        = nullptr;
     int   m_frameSize  = 0;
     int   m_frameCount = 0;
+    QString m_filePath;
+    QString m_recordingFlag;
 };
 
 
@@ -433,6 +540,10 @@ public:
     {
         return QString(m_calibrationDate);
     }
+    QString recordingFlag() const
+    {
+        return QString(m_recordingFlag);
+    }
 private:
     bool readHeader()
     {
@@ -465,7 +576,8 @@ private:
                 m_latitude,
                 m_longitude,
                 m_MachNo,
-                m_calibrationDate))
+                m_calibrationDate,
+                m_recordingFlag))
         {
             return false;
         }
@@ -486,5 +598,6 @@ private:
     char m_longitude[32] = {};
     char m_MachNo[5]={};
     char m_calibrationDate[16] = {};
+    char m_recordingFlag[WT_FLAG_SIZE] = {};
 };
 #endif    // WT_LOGGER_H

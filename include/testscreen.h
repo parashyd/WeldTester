@@ -139,7 +139,7 @@ private:
     QCPGraph *g1border;
     QCPGraph *g2border;
 
-
+    QString recordingFlag ="";
     //QMap<QLineEdit*, KeyPressState> inputStates;
 
 

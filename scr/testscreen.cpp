@@ -697,22 +697,6 @@ void TestScreen::onSocketReadyRead(quint8 key)
         }
         break;
 
-    // case CH_A:
-    //     receivedChannel = "1";
-    //     ui->lineEdit_ch->setText(receivedChannel);
-    //     //entry.channel = 1;
-    //     config.channel = 1;
-    //     autoRunConfig();
-    //     break;
-
-    // case CH_B:
-    //     receivedChannel = "2";
-    //     ui->lineEdit_ch->setText(receivedChannel);
-    //    // entry.channel = 2;
-    //     config.channel = 2;
-    //     autoRunConfig();
-    //     break;
-
     case FREEZE: // Freeze
         if(isCalibrationRecent(ui->lineEdit_ch->text().toInt(),ui->lineEdit_calset->text().toInt())){
             if(ui->label_freeze->isVisible())
@@ -889,6 +873,11 @@ void TestScreen::onSocketReadyRead(quint8 key)
             ui->label_record->setVisible(false);
             logfile.close();
 
+            recordingFlag.clear();
+
+            ui->label_flag->clear();
+            ui->label_flag->setVisible(false);
+
             gate1_focus=false;
             gate2_focus=false;
             g1border->setVisible(false);
@@ -952,6 +941,10 @@ void TestScreen::onSocketReadyRead(quint8 key)
 
                 // Give Qt focus to the plot
                 ui->Plot->setFocus(Qt::OtherFocusReason);
+
+                recordingFlag.clear();
+                ui->label_flag->clear();
+                ui->label_flag->setVisible(false);
 
                 handleRecording();
 
@@ -1053,6 +1046,59 @@ void TestScreen::onSocketReadyRead(quint8 key)
         }
         break;
 
+    case '7':
+    {
+        if (isRecording())
+        {
+            recordingFlag = "DFWO";
+
+            ui->label_flag->setText(recordingFlag);
+            ui->label_flag->setVisible(true);
+
+            logfile.setFlag(recordingFlag, "F7");
+
+            qDebug() << "[Recording] Flag 7 ->"
+                     << recordingFlag;
+        }
+
+        break;
+    }
+
+    case '8':
+    {
+        if (isRecording())
+        {
+            recordingFlag = "DFWR";
+
+            ui->label_flag->setText(recordingFlag);
+            ui->label_flag->setVisible(true);
+
+            logfile.setFlag(recordingFlag, "F8");
+
+            qDebug() << "[Recording] Flag 8 ->"
+                     << recordingFlag;
+        }
+
+        break;
+    }
+
+    case '9':
+    {
+        if (isRecording())
+        {
+            recordingFlag = "DFWN";
+
+            ui->label_flag->setText(recordingFlag);
+            ui->label_flag->setVisible(true);
+
+            logfile.setFlag(recordingFlag, "F9");
+
+            qDebug() << "[Recording] Flag 9 ->"
+                     << recordingFlag;
+        }
+
+        break;
+    }
 
     default:
         if (testdetails && testdetails->isVisible())
