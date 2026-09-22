@@ -183,12 +183,7 @@ void MainWindow::onSocketReadyRead()
             configscreen=nullptr;
             return;
         }
-        // if(openlogScreen && openlogScreen->isVisible())
-        // {
-        //     openlogScreen->close();
-        //     openlogScreen=nullptr;
-        //     return;
-        // }
+
         if(viewlogdata && viewlogdata->isVisible())
         {
             viewlogdata->handleSocketKey(static_cast<int>(key));
@@ -198,6 +193,11 @@ void MainWindow::onSocketReadyRead()
         {
             openlog1->close();
             openlog1=nullptr;
+            return;
+        }
+        if(settingsWindow && settingsWindow->isVisible()){
+            settingsWindow->close();
+            settingsWindow =nullptr;
             return;
         }
 
@@ -235,6 +235,12 @@ void MainWindow::onSocketReadyRead()
         openlog1->handleSocketKey(static_cast<int>(key));
         return;
     }
+    if(settingsWindow && settingsWindow->isVisible())
+    {
+        settingsWindow->handleSocketKey(static_cast<int>(key));
+        return;
+    }
+
     switch (key)
     {
     case UP: case LEFT:
@@ -348,6 +354,17 @@ void MainWindow::navScreen(void)
                 });
             }
         });
+    }
+    if(m_currentLogicalFocus == ui->label_settings){
+
+        settingsWindow = new settings(this);
+        settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
+        // Prevent a dangling settingsWindow pointer after OK/Cancel/close.
+        connect(settingsWindow, &QObject::destroyed, this, [this]() {
+            settingsWindow = nullptr;
+        });
+        settingsWindow->show();
+
     }
 
 }

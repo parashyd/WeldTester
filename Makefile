@@ -70,7 +70,8 @@ SOURCES       = scr/gps.c \
 		scr/testdetails.cpp \
 		scr/testscreen.cpp \
 		scr/testdetail0.cpp \
-		scr/viewlogdata.cpp qrc_resources.cpp \
+		scr/viewlogdata.cpp \
+		scr/settings.cpp qrc_resources.cpp \
 		moc_configscreen.cpp \
 		moc_openlog.cpp \
 		moc_previewscreen.cpp \
@@ -80,7 +81,8 @@ SOURCES       = scr/gps.c \
 		moc_mainwindow.cpp \
 		moc_testdetail0.cpp \
 		moc_openlog1.cpp \
-		moc_viewlogdata.cpp
+		moc_viewlogdata.cpp \
+		moc_settings.cpp
 OBJECTS       = gps.o \
 		openlog1.o \
 		configscreen.o \
@@ -100,6 +102,7 @@ OBJECTS       = gps.o \
 		testscreen.o \
 		testdetail0.o \
 		viewlogdata.o \
+		settings.o \
 		qrc_resources.o \
 		moc_configscreen.o \
 		moc_openlog.o \
@@ -110,7 +113,8 @@ OBJECTS       = gps.o \
 		moc_mainwindow.o \
 		moc_testdetail0.o \
 		moc_openlog1.o \
-		moc_viewlogdata.o
+		moc_viewlogdata.o \
+		moc_settings.o
 DIST          = Config.txt \
 		/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/spec_pre.prf \
 		/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/common/unix.conf \
@@ -310,7 +314,8 @@ DIST          = Config.txt \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
-		include/preview_logger.h scr/gps.c \
+		include/preview_logger.h \
+		include/settings.h scr/gps.c \
 		scr/openlog1.cpp \
 		scr/configscreen.cpp \
 		main.cpp \
@@ -328,7 +333,8 @@ DIST          = Config.txt \
 		scr/testdetails.cpp \
 		scr/testscreen.cpp \
 		scr/testdetail0.cpp \
-		scr/viewlogdata.cpp
+		scr/viewlogdata.cpp \
+		scr/settings.cpp
 QMAKE_TARGET  = WeldTester
 DESTDIR       = 
 TARGET        = WeldTester
@@ -337,7 +343,7 @@ TARGET        = WeldTester
 first: all
 ####### Build rules
 
-WeldTester: ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_openlog1.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h ui_viewlogdata.h $(OBJECTS)  
+WeldTester: ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_openlog1.h ui_previewscreen.h ui_settings.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h ui_viewlogdata.h $(OBJECTS)  
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
 Makefile: WeldTester.pro /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++/qmake.conf /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/spec_pre.prf \
@@ -721,9 +727,9 @@ distdir: FORCE
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents include/gps.h include/configscreen.h include/Audio.h include/Battery.h include/DataFile.h include/Ugpio.h include/matrix_keypad.h include/openlog.h include/previewscreen.h include/qcustomplot.h include/shared_data.h include/testdetails.h include/testscreen.h include/mainwindow.h include/testdetail0.h include/openlog1.h include/viewlogdata.h include/wt_logger.h include/preview_logger.h $(DISTDIR)/
-	$(COPY_FILE) --parents scr/gps.c scr/openlog1.cpp scr/configscreen.cpp main.cpp scr/mainwindow.cpp scr/Audio.cpp scr/Battery.cpp scr/DataFile.cpp scr/Gain.cpp scr/gpio_init.c scr/mk_dm2.cpp scr/openlog.cpp scr/previewscreen.cpp scr/qcustomplot.cpp scr/sh_dpram.cpp scr/testdetails.cpp scr/testscreen.cpp scr/testdetail0.cpp scr/viewlogdata.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents Openlog.ui configscreen.ui mainwindow.ui openlog1.ui previewscreen.ui testdetail0.ui testdetails.ui testscreen.ui viewlogdata.ui $(DISTDIR)/
+	$(COPY_FILE) --parents include/gps.h include/configscreen.h include/Audio.h include/Battery.h include/DataFile.h include/Ugpio.h include/matrix_keypad.h include/openlog.h include/previewscreen.h include/qcustomplot.h include/shared_data.h include/testdetails.h include/testscreen.h include/mainwindow.h include/testdetail0.h include/openlog1.h include/viewlogdata.h include/wt_logger.h include/preview_logger.h include/settings.h $(DISTDIR)/
+	$(COPY_FILE) --parents scr/gps.c scr/openlog1.cpp scr/configscreen.cpp main.cpp scr/mainwindow.cpp scr/Audio.cpp scr/Battery.cpp scr/DataFile.cpp scr/Gain.cpp scr/gpio_init.c scr/mk_dm2.cpp scr/openlog.cpp scr/previewscreen.cpp scr/qcustomplot.cpp scr/sh_dpram.cpp scr/testdetails.cpp scr/testscreen.cpp scr/testdetail0.cpp scr/viewlogdata.cpp scr/settings.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents Openlog.ui configscreen.ui mainwindow.ui openlog1.ui previewscreen.ui settings.ui testdetail0.ui testdetails.ui testscreen.ui viewlogdata.ui $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -773,9 +779,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp
 	aarch64-tdx-linux-g++  -march=armv8-a+crypto -mbranch-protection=standard -fstack-protector-strong  -O2 -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -Werror=format-security --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -pipe  -O2 -pipe -g -feliminate-unused-debug-types  --sysroot=/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux -O2 -std=gnu++1z -Wall -Wextra -dM -E -o moc_predefs.h /opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_configscreen.cpp moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp moc_openlog1.cpp moc_viewlogdata.cpp
+compiler_moc_header_make_all: moc_configscreen.cpp moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp moc_openlog1.cpp moc_viewlogdata.cpp moc_settings.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_configscreen.cpp moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp moc_openlog1.cpp moc_viewlogdata.cpp
+	-$(DEL_FILE) moc_configscreen.cpp moc_openlog.cpp moc_previewscreen.cpp moc_qcustomplot.cpp moc_testdetails.cpp moc_testscreen.cpp moc_mainwindow.cpp moc_testdetail0.cpp moc_openlog1.cpp moc_viewlogdata.cpp moc_settings.cpp
 moc_configscreen.cpp: include/configscreen.h \
 		moc_predefs.h \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
@@ -826,6 +832,7 @@ moc_mainwindow.cpp: include/mainwindow.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
 		include/gps.h \
+		include/settings.h \
 		moc_predefs.h \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc $(DEFINES) --include '/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester/moc_predefs.h' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++ -I'/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester' -I'/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester/include' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtSvg -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtPrintSupport -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtOpenGL -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtWidgets -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtGui -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtNetwork -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtCore -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0 -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/aarch64-tdx-linux -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/backward -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include-fixed -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include include/mainwindow.h -o moc_mainwindow.cpp
@@ -850,13 +857,18 @@ moc_viewlogdata.cpp: include/viewlogdata.h \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc $(DEFINES) --include '/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester/moc_predefs.h' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++ -I'/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester' -I'/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester/include' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtSvg -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtPrintSupport -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtOpenGL -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtWidgets -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtGui -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtNetwork -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtCore -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0 -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/aarch64-tdx-linux -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/backward -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include-fixed -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include include/viewlogdata.h -o moc_viewlogdata.cpp
 
+moc_settings.cpp: include/settings.h \
+		moc_predefs.h \
+		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc
+	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/moc $(DEFINES) --include '/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester/moc_predefs.h' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/mkspecs/linux-oe-g++ -I'/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester' -I'/home/pe-rnd/workspace/Weld Tester/GIT_WeldTester/WeldTester/include' -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtSvg -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtPrintSupport -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtOpenGL -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtWidgets -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtGui -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtNetwork -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/QtCore -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0 -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/aarch64-tdx-linux -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include/c++/13.3.0/backward -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/lib/aarch64-tdx-linux/13.3.0/include -I/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/lib/aarch64-tdx-linux/gcc/aarch64-tdx-linux/13.3.0/include-fixed -I/opt/tdx-xwayland/7.3.0/sysroots/armv8a-tdx-linux/usr/include include/settings.h -o moc_settings.cpp
+
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all: ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_openlog1.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h ui_viewlogdata.h
+compiler_uic_make_all: ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_openlog1.h ui_previewscreen.h ui_settings.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h ui_viewlogdata.h
 compiler_uic_clean:
-	-$(DEL_FILE) ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_openlog1.h ui_previewscreen.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h ui_viewlogdata.h
+	-$(DEL_FILE) ui_Openlog.h ui_configscreen.h ui_mainwindow.h ui_openlog1.h ui_previewscreen.h ui_settings.h ui_testdetail0.h ui_testdetails.h ui_testscreen.h ui_viewlogdata.h
 ui_Openlog.h: Openlog.ui \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic Openlog.ui -o ui_Openlog.h
@@ -877,6 +889,10 @@ ui_previewscreen.h: previewscreen.ui \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic \
 		include/qcustomplot.h
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic previewscreen.ui -o ui_previewscreen.h
+
+ui_settings.h: settings.ui \
+		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic
+	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic settings.ui -o ui_settings.h
 
 ui_testdetail0.h: testdetail0.ui \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/uic
@@ -924,7 +940,8 @@ openlog1.o: scr/openlog1.cpp include/openlog1.h \
 		include/previewscreen.h \
 		include/testscreen.h \
 		include/configscreen.h \
-		include/openlog.h
+		include/openlog.h \
+		include/settings.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o openlog1.o scr/openlog1.cpp
 
 configscreen.o: scr/configscreen.cpp include/configscreen.h \
@@ -948,6 +965,7 @@ main.o: main.cpp include/testscreen.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
 		include/gps.h \
+		include/settings.h \
 		include/matrix_keypad.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
@@ -965,6 +983,7 @@ mainwindow.o: scr/mainwindow.cpp include/mainwindow.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
 		include/gps.h \
+		include/settings.h \
 		ui_mainwindow.h \
 		include/matrix_keypad.h \
 		include/Audio.h
@@ -1007,7 +1026,8 @@ openlog.o: scr/openlog.cpp include/openlog.h \
 		include/configscreen.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
-		include/gps.h
+		include/gps.h \
+		include/settings.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o openlog.o scr/openlog.cpp
 
 previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
@@ -1026,6 +1046,7 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
 		include/gps.h \
+		include/settings.h \
 		include/preview_logger.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o previewscreen.o scr/previewscreen.cpp
 
@@ -1050,7 +1071,8 @@ testdetails.o: scr/testdetails.cpp include/testdetails.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
-		include/gps.h
+		include/gps.h \
+		include/settings.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testdetails.o scr/testdetails.cpp
 
 testscreen.o: scr/testscreen.cpp include/testscreen.h \
@@ -1068,6 +1090,7 @@ testscreen.o: scr/testscreen.cpp include/testscreen.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
 		include/gps.h \
+		include/settings.h \
 		include/matrix_keypad.h \
 		include/Battery.h \
 		include/Audio.h
@@ -1088,7 +1111,8 @@ testdetail0.o: scr/testdetail0.cpp include/testdetail0.h \
 		include/openlog1.h \
 		include/viewlogdata.h \
 		include/wt_logger.h \
-		include/gps.h
+		include/gps.h \
+		include/settings.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o testdetail0.o scr/testdetail0.cpp
 
 viewlogdata.o: scr/viewlogdata.cpp include/viewlogdata.h \
@@ -1100,6 +1124,11 @@ viewlogdata.o: scr/viewlogdata.cpp include/viewlogdata.h \
 		ui_viewlogdata.h \
 		include/matrix_keypad.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o viewlogdata.o scr/viewlogdata.cpp
+
+settings.o: scr/settings.cpp include/settings.h \
+		ui_settings.h \
+		include/matrix_keypad.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o settings.o scr/settings.cpp
 
 qrc_resources.o: qrc_resources.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_resources.o qrc_resources.cpp
@@ -1133,6 +1162,9 @@ moc_openlog1.o: moc_openlog1.cpp
 
 moc_viewlogdata.o: moc_viewlogdata.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_viewlogdata.o moc_viewlogdata.cpp
+
+moc_settings.o: moc_settings.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_settings.o moc_settings.cpp
 
 ####### Install
 

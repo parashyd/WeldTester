@@ -31,7 +31,8 @@ SOURCES += \
     scr/testdetails.cpp \
     scr/testscreen.cpp \
     scr/testdetail0.cpp \
-    scr/viewlogdata.cpp
+    scr/viewlogdata.cpp \
+    scr/settings.cpp
 
 HEADERS += \
     include/gps.h \
@@ -52,7 +53,8 @@ HEADERS += \
     include/openlog1.h \
     include/viewlogdata.h \
     include/wt_logger.h \
-    include/preview_logger.h
+    include/preview_logger.h \
+    include/settings.h
 
 FORMS += \
     Openlog.ui \
@@ -60,6 +62,7 @@ FORMS += \
     mainwindow.ui \
     openlog1.ui \
     previewscreen.ui \
+    settings.ui \
     testdetail0.ui \
     testdetails.ui \
     testscreen.ui \

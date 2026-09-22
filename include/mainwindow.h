@@ -11,6 +11,8 @@
 #include "openlog.h"
 #include "openlog1.h"
 #include "viewlogdata.h"
+#include "settings.h"
+
 extern QString MachNo;
 
 namespace Ui {
@@ -50,6 +52,7 @@ private:
     Openlog *openlogScreen=nullptr;
     OpenLog1 *openlog1=nullptr;
     viewLogData *viewlogdata=nullptr;
+    settings *settingsWindow = nullptr;
 
     QWidget *m_currentFocusedWidget = nullptr;
     QWidget* m_currentLogicalFocus = nullptr;
