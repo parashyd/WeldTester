@@ -12,6 +12,8 @@
 #include <QFile>
 #include "testdetail0.h"
 #include "mainwindow.h"
+#include "settings.h"
+
  QString Mode;
  QString TP;
  QString LocOfDefect ;
@@ -51,8 +53,143 @@ TestDetails::TestDetails(QWidget *parent)
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
 
     testdetails->setupUi(this);
-    loadDataFromFile();
 
+    // Apply Light/Dark theme
+    const bool lightTheme =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
+
+    if (lightTheme)
+    {
+        this->setStyleSheet(R"(
+        QWidget {
+            background-color: #F2F5F8;
+            color: #1B2430;
+            font-family: "Segoe UI";
+            font-size: 11px;
+        }
+
+        QLabel {
+            color: #1B2430;
+            background: transparent;
+        }
+
+        QLineEdit {
+            background-color: #FFFFFF;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            color: #1B2430;
+            min-height: 28px;
+            padding-left: 8px;
+        }
+
+        QLineEdit:focus {
+            border: 2px solid #3AA0FF;
+            background-color: #F7FBFF;
+        }
+
+        QComboBox {
+            background-color: #FFFFFF;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            color: #1B2430;
+            min-height: 28px;
+            padding-left: 8px;
+        }
+
+        QComboBox:focus {
+            border: 2px solid #3AA0FF;
+            background-color: #F7FBFF;
+        }
+
+        QComboBox QAbstractItemView {
+            background-color: #FFFFFF;
+            color: #1B2430;
+            selection-background-color: #D7E9FA;
+            selection-color: #1B2430;
+        }
+
+        QPushButton {
+            background-color: #E3EAF1;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            color: #1B2430;
+            min-height: 20px;
+            padding: 4px 10px;
+        }
+
+        QPushButton:hover {
+            background-color: #D7E9FA;
+            border: 1px solid #3AA0FF;
+        }
+    )");
+    }
+    else
+    {
+        this->setStyleSheet(R"(
+        QWidget {
+            background-color: #2B3138;
+            color: #F2F5F8;
+            font-family: "Segoe UI";
+            font-size: 11px;
+        }
+
+        QLabel {
+            color: #D5DDE5;
+            background: transparent;
+        }
+
+        QLineEdit {
+            background-color: #46515D;
+            border: 1px solid #667381;
+            border-radius: 8px;
+            color: #F2F5F8;
+            min-height: 28px;
+            padding-left: 8px;
+        }
+
+        QLineEdit:focus {
+            border: 2px solid #4DB3FF;
+            background-color: #4E5A67;
+        }
+
+        QComboBox {
+            background-color: #46515D;
+            border: 1px solid #667381;
+            border-radius: 8px;
+            color: #F2F5F8;
+            min-height: 28px;
+            padding-left: 8px;
+        }
+
+        QComboBox:focus {
+            border: 2px solid #4DB3FF;
+            background-color: #4E5A67;
+        }
+
+        QComboBox QAbstractItemView {
+            background-color: #39424C;
+            color: #F2F5F8;
+            selection-background-color: #4E5A67;
+            selection-color: #FFFFFF;
+        }
+
+        QPushButton {
+            background-color: #55606D;
+            border: 1px solid #748191;
+            border-radius: 8px;
+            color: white;
+            min-height: 20px;
+            padding: 4px 10px;
+        }
+
+        QPushButton:hover {
+            background-color: #627081;
+            border: 1px solid #4DB3FF;
+        }
+    )");
+    }
+
+    loadDataFromFile();
     // QPixmap pixmap = this->grab();
 
     // // --- Adjust JPG output size ---
@@ -112,40 +249,53 @@ TestDetails::TestDetails(QWidget *parent)
 
 void TestDetails::setLogicalFocus(QWidget* widget)
 {
-    if (!widget) return;
+    if (!widget)
+        return;
 
-    // 1️⃣ Remove previous highlight
-    if (m_currentLogicalFocus && m_currentLogicalFocus != widget) {
-        // Reset style to default
+    const bool lightTheme =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
+
+    if (m_currentLogicalFocus && m_currentLogicalFocus != widget)
+    {
         m_currentLogicalFocus->setStyleSheet("");
     }
 
-    // 2️⃣ Apply highlight to the new widget
-    widget->setStyleSheet(
-        "background-color: rgb(120,180,255);"
-        "border: 2px solid black;"
-        );
+    if (lightTheme)
+    {
+        widget->setStyleSheet(
+            "QLineEdit, QTextEdit, QComboBox {"
+            "background-color: #DCEEFF;"
+            "border: 2px solid #3AA0FF;"
+            "color: #1B2430;"
+            "}"
+            );
+    }
+    else
+    {
+        widget->setStyleSheet(
+            "QLineEdit, QTextEdit, QComboBox {"
+            "background-color: #4E5A67;"
+            "border: 2px solid #4DB3FF;"
+            "color: #F2F5F8;"
+            "}"
+            );
+    }
 
     m_currentLogicalFocus = widget;
 
-    // 3️⃣ Optional: attempt to give real Qt focus
-    if (widget->isVisible() && widget->isEnabled()) {
-        // For Wayland, this may not guarantee OS focus, but it's harmless
+    if (widget->isVisible() && widget->isEnabled())
+    {
         widget->setFocus(Qt::OtherFocusReason);
 
-        // If it's a QLineEdit, put cursor at start
-        if (auto le = qobject_cast<QLineEdit*>(widget)) {
+        if (auto le = qobject_cast<QLineEdit*>(widget))
             le->setCursorPosition(0);
-        }
     }
 
-    // 4️⃣ Debug output
     qDebug() << "[LogicalFocus] Widget:" << widget->objectName()
              << "Visible:" << widget->isVisible()
              << "Enabled:" << widget->isEnabled()
              << "hasFocus:" << widget->hasFocus();
 }
-
 
 TestDetails::~TestDetails()
 {
@@ -614,61 +764,68 @@ void TestDetails::navigateFocus(int direction)
     QWidget *nextWidget = navWidgets[newIndex];
 
     // 🔹 Reset previous widget (restore white background)
+    const bool lightTheme =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
+
+    // Reset previous widget
     if (index >= 0 && index < navWidgets.size())
     {
         QWidget *prev = navWidgets[index];
-        // prev->setStyleSheet(
-        //     "QLineEdit, QTextEdit, QComboBox {"
-        //     "   background-color: white;"
-        //     "   border: 1px solid gray;"
-        //     "   outline: none;"
-        //     "}"
-        //     );
+
         prev->setStyleSheet("");
-        QPalette p = prev->palette();
-        p.setColor(QPalette::Base, Qt::white);
-        prev->setPalette(p);
         prev->clearFocus();
-        if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(prev)) {
+
+        if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(prev))
+        {
             lineEdit->setSelection(0, 0);
         }
-        // else if (QTextEdit *textEdit = qobject_cast<QTextEdit*>(prev)) {
-        //     textEdit->setSelection(0, 0);
-        // }
     }
 
-    // 🔹 Prepare next widget to use custom style
+    // Prepare next widget
     nextWidget->setAttribute(Qt::WA_StyledBackground, true);
     nextWidget->setFocus(Qt::TabFocusReason);
 
-    // 🔹 Apply yellow highlight to the newly focused widget
-    nextWidget->setStyleSheet(
-        "QLineEdit, QTextEdit, QComboBox {"
-        "background-color: rgb(120,180,255);"
-        "border: 1px solid black;"
-        "outline: none;"
-        "}"
-        "QLineEdit:focus, QTextEdit:focus, QComboBox:focus {"
-        "   background-color: rgb(255, 255, 150);"
-        "   border: 1px solid black;"
-        "   outline: none;"
-        "}"
-        );
+    // Apply theme-aware focus highlight
+    if (lightTheme)
+    {
+        nextWidget->setStyleSheet(
+            "QLineEdit, QTextEdit, QComboBox {"
+            "background-color: #DCEEFF;"
+            "border: 2px solid #3AA0FF;"
+            "color: #1B2430;"
+            "outline: none;"
+            "}"
+            "QLineEdit:focus, QTextEdit:focus, QComboBox:focus {"
+            "background-color: #DCEEFF;"
+            "border: 2px solid #3AA0FF;"
+            "color: #1B2430;"
+            "}"
+            );
+    }
+    else
+    {
+        nextWidget->setStyleSheet(
+            "QLineEdit, QTextEdit, QComboBox {"
+            "background-color: #4E5A67;"
+            "border: 2px solid #4DB3FF;"
+            "color: #F2F5F8;"
+            "outline: none;"
+            "}"
+            "QLineEdit:focus, QTextEdit:focus, QComboBox:focus {"
+            "background-color: #4E5A67;"
+            "border: 2px solid #4DB3FF;"
+            "color: #F2F5F8;"
+            "}"
+            );
+    }
 
-    // 🔹 Ensure palette matches stylesheet and set selection color
-    QPalette p = nextWidget->palette();
-    p.setColor(QPalette::Base, QColor(255, 255, 150));   // field background
-    p.setColor(QPalette::Highlight, QColor(255, 255, 180)); // selected text background (light yellow)
-    p.setColor(QPalette::HighlightedText, Qt::black);       // selected text color
-    nextWidget->setPalette(p);
-
-
-    // 🔹 Handle text selection for line/text edits
-    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(nextWidget)) {
+    if (QLineEdit *lineEdit = qobject_cast<QLineEdit*>(nextWidget))
+    {
         lineEdit->setCursorPosition(0);
         lineEdit->selectAll();
     }
-    else if (QTextEdit *textEdit = qobject_cast<QTextEdit*>(nextWidget)) {
+    else if (QTextEdit *textEdit = qobject_cast<QTextEdit*>(nextWidget))
+    {
         textEdit->moveCursor(QTextCursor::Start);
         textEdit->selectAll();
     }

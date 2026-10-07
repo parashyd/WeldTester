@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <algorithm>
 #include <QDate>
+#include "settings.h"
 int currentFocus = 0;
 QString selectedFilePath;
 
@@ -21,7 +22,7 @@ OpenLog1::OpenLog1(QWidget *parent)
     , ui(new Ui::OpenLog1)
 {
     ui->setupUi(this);
-
+    applyTheme();
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
 
     loadDateFolders();
@@ -413,19 +414,45 @@ void OpenLog1::updateFocusStyle()
     ui->copyAllButton->setStyleSheet("");
     ui->deleteButton->setStyleSheet("");
     ui->deleteAllButton->setStyleSheet("");
+
+    // Strong focus colours
+    const QString focusBackground = "#78B4FF";
+    const QString focusBorder     = "#000000";
+    const QString focusText       = "#000000";
+
+    // Selected item inside the focused list
+    const QString selectedBackground = "#2F6FAF";
+    const QString selectedText       = "#FFFFFF";
+
     QString focusStyle =
         "QListWidget {"
-        "border: 2px solid #3aa0ff;"
-        "background-color: #dceeff;"
-        "border-radius: 6px;"
-        "}";
+        "border: 2px solid " + focusBorder + ";"
+                        "background-color: " + focusBackground + ";"
+                            "color: " + focusText + ";"
+                      "border-radius: 6px;"
+                      "outline: none;"
+                      "}"
+
+                      "QListWidget::item {"
+                      "background-color: transparent;"
+                      "color: " + focusText + ";"
+                      "padding: 4px;"
+                      "}"
+
+                      "QListWidget::item:selected {"
+                      "background-color: " + selectedBackground + ";"
+                               "color: " + selectedText + ";"
+                         "border: 1px solid #000000;"
+                         "}";
 
     QString focusStyle2 =
         "QPushButton {"
-        "border: 2px solid #3aa0ff;"
-        "background-color: #dceeff;"
-        "border-radius: 6px;"
-        "}";
+        "border: 2px solid " + focusBorder + ";"
+                        "background-color: " + focusBackground + ";"
+                            "color: " + focusText + ";"
+                      "border-radius: 6px;"
+                      "}";
+
     switch(currentFocus)
     {
     case 0:
@@ -455,7 +482,6 @@ void OpenLog1::updateFocusStyle()
     case 6:
         ui->deleteAllButton->setStyleSheet(focusStyle2);
         break;
-
     }
 }
 // void OpenLog1::loadDateFolders()
@@ -705,6 +731,136 @@ bool copyFolderRecursively(
     sync();
     sync();
     return true;
+}
+void OpenLog1::applyTheme()
+{
+    if (settings::theme().compare("Light", Qt::CaseInsensitive) == 0)
+    {
+        setStyleSheet(
+            "QDialog {"
+            "    background-color: #F2F5F8;"
+            "    color: #1B2430;"
+            "}"
+
+            "QLabel {"
+            "    color: #1B2430;"
+            "    background: transparent;"
+            "}"
+
+            "QListWidget {"
+            "    background-color: #FFFFFF;"
+            "    color: #1B2430;"
+            "    border: 1px solid #AAB6C3;"
+            "    border-radius: 6px;"
+            "    outline: none;"
+            "}"
+
+            "QListWidget::item {"
+            "    background-color: transparent;"
+            "    color: #1B2430;"
+            "    padding: 4px;"
+            "}"
+
+            "QListWidget::item:selected {"
+            "    background-color: #2F6FAF;"
+            "    color: #FFFFFF;"
+            "}"
+
+            "QPushButton {"
+            "    background-color: #E3EAF1;"
+            "    color: #1B2430;"
+            "    border: 1px solid #AAB6C3;"
+            "    border-radius: 6px;"
+            "    padding: 4px 10px;"
+            "}"
+
+            "QPushButton:hover {"
+            "    background-color: #D7E9FA;"
+            "    border: 1px solid #3AA0FF;"
+            "}"
+
+            "QScrollBar:vertical {"
+            "    background: #E9EEF3;"
+            "    width: 12px;"
+            "}"
+
+            "QScrollBar::handle:vertical {"
+            "    background: #AAB6C3;"
+            "    border-radius: 5px;"
+            "}"
+
+            "QScrollBar::add-line:vertical,"
+            "QScrollBar::sub-line:vertical {"
+            "    background: none;"
+            "    height: 0px;"
+            "}"
+            );
+    }
+    else
+    {
+        setStyleSheet(
+            "QDialog {"
+            "    background-color: #252A30;"
+            "    color: #F2F5F8;"
+            "}"
+
+            "QLabel {"
+            "    color: #F2F5F8;"
+            "    background: transparent;"
+            "}"
+
+            "QListWidget {"
+            "    background-color: #313941;"
+            "    color: #F2F5F8;"
+            "    border: 1px solid #596573;"
+            "    border-radius: 6px;"
+            "    outline: none;"
+            "}"
+
+            "QListWidget::item {"
+            "    background-color: transparent;"
+            "    color: #F2F5F8;"
+            "    padding: 4px;"
+            "}"
+
+            "QListWidget::item:selected {"
+            "    background-color: #2F6FAF;"
+            "    color: #FFFFFF;"
+            "}"
+
+            "QPushButton {"
+            "    background-color: #46515D;"
+            "    color: #F2F5F8;"
+            "    border: 1px solid #687583;"
+            "    border-radius: 6px;"
+            "    padding: 4px 10px;"
+            "}"
+
+            "QPushButton:hover {"
+            "    background-color: #55616E;"
+            "    border: 1px solid #4DB3FF;"
+            "}"
+
+            "QScrollBar:vertical {"
+            "    background: #252A30;"
+            "    width: 12px;"
+            "}"
+
+            "QScrollBar::handle:vertical {"
+            "    background: #596573;"
+            "    border-radius: 5px;"
+            "}"
+
+            "QScrollBar::add-line:vertical,"
+            "QScrollBar::sub-line:vertical {"
+            "    background: none;"
+            "    height: 0px;"
+            "}"
+            );
+    }
+
+    // Re-apply the strong keypad focus style
+    updateFocusStyle();
 }
 OpenLog1::~OpenLog1()
 {

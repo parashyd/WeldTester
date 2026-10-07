@@ -39,6 +39,7 @@ private:
 
     void loadFiles(const QString &weldFolder);
     void updateFocusStyle();
+    void applyTheme();
 
 
 

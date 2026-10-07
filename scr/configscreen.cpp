@@ -8,6 +8,7 @@
 #include <QFile>
 #include <stdio.h>
 #include "QTimer"
+#include "settings.h"
 
 #define MAX_LINE_LEN 256
 static int chanlCnt=0;
@@ -17,6 +18,188 @@ ConfigScreen::ConfigScreen(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+
+    // ---------------------------------------------------------
+    // Apply Light / Dark theme
+    // ---------------------------------------------------------
+    const bool lightTheme =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
+
+    if (lightTheme)
+    {
+        this->setStyleSheet(R"(
+        QWidget {
+            background-color: #F2F5F8;
+            color: #1B2430;
+            font-family: "Segoe UI";
+            font-size: 11px;
+        }
+
+        QLabel {
+            color: #1B2430;
+            background: transparent;
+        }
+
+        QTableWidget {
+            background-color: #FFFFFF;
+            alternate-background-color: #F7F9FB;
+            color: #1B2430;
+            gridline-color: #C5CED8;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            selection-background-color: #DCEEFF;
+            selection-color: #1B2430;
+        }
+
+        QTableWidget::item {
+            background-color: #FFFFFF;
+            color: #1B2430;
+            padding: 3px;
+        }
+
+        QTableWidget::item:selected {
+            background-color: #DCEEFF;
+            color: #1B2430;
+            border: 1px solid #3AA0FF;
+        }
+
+        QHeaderView::section {
+            background-color: #E3EAF1;
+            color: #1B2430;
+            border: 1px solid #AAB6C3;
+            padding: 4px;
+            font-weight: bold;
+        }
+
+        QScrollBar:vertical {
+            background: #E8EDF2;
+            width: 12px;
+            margin: 0px;
+        }
+
+        QScrollBar::handle:vertical {
+            background: #AAB6C3;
+            border-radius: 5px;
+            min-height: 25px;
+        }
+
+        QScrollBar::handle:vertical:hover {
+            background: #7F91A3;
+        }
+
+        QScrollBar:horizontal {
+            background: #E8EDF2;
+            height: 12px;
+        }
+
+        QScrollBar::handle:horizontal {
+            background: #AAB6C3;
+            border-radius: 5px;
+            min-width: 25px;
+        }
+
+        QPushButton {
+            background-color: #E3EAF1;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            color: #1B2430;
+            min-height: 20px;
+            padding: 4px 10px;
+        }
+
+        QPushButton:hover {
+            background-color: #D7E9FA;
+            border: 1px solid #3AA0FF;
+        }
+    )");
+    }
+    else
+    {
+        this->setStyleSheet(R"(
+        QWidget {
+            background-color: #2B3138;
+            color: #F2F5F8;
+            font-family: "Segoe UI";
+            font-size: 11px;
+        }
+
+        QLabel {
+            color: #D5DDE5;
+            background: transparent;
+        }
+
+        QTableWidget {
+            background-color: #313941;
+            alternate-background-color: #39424C;
+            color: #F2F5F8;
+            gridline-color: #596573;
+            border: 1px solid #55606D;
+            border-radius: 8px;
+            selection-background-color: #4E5A67;
+            selection-color: #FFFFFF;
+        }
+
+        QTableWidget::item {
+            background-color: #313941;
+            color: #F2F5F8;
+            padding: 3px;
+        }
+
+        QTableWidget::item:selected {
+            background-color: #4E5A67;
+            color: #FFFFFF;
+            border: 1px solid #4DB3FF;
+        }
+
+        QHeaderView::section {
+            background-color: #39424C;
+            color: #F2F5F8;
+            border: 1px solid #55606D;
+            padding: 4px;
+            font-weight: bold;
+        }
+
+        QScrollBar:vertical {
+            background: #2B3138;
+            width: 12px;
+        }
+
+        QScrollBar::handle:vertical {
+            background: #596573;
+            border-radius: 5px;
+            min-height: 25px;
+        }
+
+        QScrollBar::handle:vertical:hover {
+            background: #748191;
+        }
+
+        QScrollBar:horizontal {
+            background: #2B3138;
+            height: 12px;
+        }
+
+        QScrollBar::handle:horizontal {
+            background: #596573;
+            border-radius: 5px;
+            min-width: 25px;
+        }
+
+        QPushButton {
+            background-color: #55606D;
+            border: 1px solid #748191;
+            border-radius: 8px;
+            color: white;
+            min-height: 20px;
+            padding: 4px 10px;
+        }
+
+        QPushButton:hover {
+            background-color: #627081;
+            border: 1px solid #4DB3FF;
+        }
+    )");
+    }
     saveMessageTimer = new QTimer(this);
 
     saveMessageTimer->setSingleShot(true);
@@ -37,12 +220,16 @@ ConfigScreen::ConfigScreen(QWidget *parent)
     // scaledJpg.save(jpgFileName, "JPG", 100 );
     loadConfigToTables();
 }
-
 void ConfigScreen::setLogicalFocus()
 {
     QTableWidget *table = activeTable();
 
+    if (!table)
+        return;
+
     table->setCurrentCell(currentRow, currentCol);
+
+    table->setFocus(Qt::OtherFocusReason);
 
     qDebug() << "Focused:"
              << "Table:" << currentTable

@@ -24,6 +24,7 @@
 #include "testdetail0.h"
 #include "wt_logger.h"
 #include <QElapsedTimer>
+#include "settings.h"
 extern "C" {
 #include "gps.h"
 }
@@ -86,167 +87,7 @@ TestScreen::TestScreen(QWidget *parent)
     , ui(new Ui::TestScreen)
 {
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);         // to disable the menu bar
-
-
-/*************************DARKER THEME*************/
-
-    this->setStyleSheet(R"(
-    QWidget {
-        background-color: #2B3138;
-        color: #F2F5F8;
-        font-family: "Segoe UI";
-        font-size: 11px;
-    }
-
-    QFrame#Header_2,
-    QFrame#formFrame,
-    QFrame#verticalFrame,
-    QFrame#horizontalFrame {
-        background-color: #39424C;
-        border: 1px solid #55606D;
-        border-radius: 12px;
-    }
-
-    QLabel {
-        color: #D5DDE5;
-        background: transparent;
-    }
-
-    QLineEdit {
-        background-color: #46515D;
-        border: 1px solid #667381;
-        border-radius: 8px;
-        color: #F2F5F8;
-        min-height: 28px;
-        padding-left: 8px;
-    }
-
-    #label_offset {
-        color: #FF9800;
-        font-weight: bold;
-    }
-
-    #label_DAC {
-        color: #EF5350;
-        font-weight: bold;
-    }
-
-    QLineEdit:focus {
-        border: 1px solid #4DB3FF;
-        background-color: #4E5A67;
-    }
-
-    QPushButton {
-        background-color: #55606D;
-        border: 1px solid #748191;
-        border-radius: 8px;
-        color: white;
-        min-height: 20px;
-        padding: 4px 10px;
-    }
-
-    QPushButton:hover {
-        border: 1px solid #4DB3FF;
-        background-color: #627081;
-    }
-
-    QPushButton#pushButton {
-        background-color: #3FA2FF;
-        font-weight: bold;
-        color: white;
-        border: 1px solid #2E8BE0;
-    }
-
-    QPushButton#pushButton:hover {
-        background-color: #5AB1FF;
-    }
-
-    QCustomPlot#Plot {
-        background-color: #313941;
-        border: 1px solid #4DB3FF;
-        border-radius: 10px;
-    }
-)");
-
-/*********************************Lighter THEME********************************/
-//     this->setStyleSheet(R"(
-//     QWidget {
-//         background-color: #C9D2DB;
-//         color: #1B2430;
-//         font-family: "Segoe UI";
-//         font-size: 11px;
-//     }
-
-//     QFrame#Header_2,
-//     QFrame#formFrame,
-//     QFrame#verticalFrame,
-//     QFrame#horizontalFrame {
-//         background-color: #AEBBC8;
-//         border: 1px solid #8796A5;
-//         border-radius: 12px;
-//     }
-
-//     QLabel {
-//         color: #2C3948;
-//         background: transparent;
-//     }
-
-//     QLineEdit {
-//         background-color: #D8E0E8;
-//         border: 1px solid #8C9AAA;
-//         border-radius: 8px;
-//         color: #1B2430;
-//         min-height: 28px;
-//         padding-left: 8px;
-//     }
-
-//     #label_offset{
-//         color: #f57c00;               /*orange*/
-//         font-weight:bold;
-//     }
-
-//     /* DAC Highlight */
-//     #label_DAC{
-//         color:#d32f2f;             /*red*/
-//         font-weight:bold;
-//     }
-//     QLineEdit:focus {
-//         border: 1px solid #2E7DFF;
-//         background-color: #E4EBF2;
-//     }
-
-//     QPushButton {
-//         background-color: #8E9DAE;
-//         border: 1px solid #6E7F91;
-//         border-radius: 8px;
-//         color: #FFFFFF;
-//         min-height: 20px;
-//         padding: 4px 10px;
-//     }
-
-//     QPushButton:hover {
-//         background-color: #7F90A3;
-//         border: 1px solid #2E7DFF;
-//     }
-
-//     QPushButton#pushButton {
-//         background-color: #2E7DFF;
-//         color: white;
-//         font-weight: bold;
-//         border: 1px solid #2567D6;
-//     }
-
-//     QPushButton#pushButton:hover {
-//         background-color: #4B92FF;
-//     }
-
-//     QCustomPlot#Plot {
-//         background-color: #BFCAD5;
-//         border: 1px solid #6F859A;
-//         border-radius: 10px;
-//     }
-// )");
-
+    applyTestScreenTheme();
     ui->setupUi(this);
     // QPixmap pixmap = this->grab();
 
@@ -272,21 +113,28 @@ TestScreen::TestScreen(QWidget *parent)
     DACy.resize(10);
 
 
+    // --------------------------------------------------
+    // Load Audio Level from Settings
+    // Settings stores audio level as 0-100%
+    // --------------------------------------------------
+    AudioLevel = settings::audioLevel();
 
-    QSettings settings(ORG_NAME, APP_NAME);
-    AudioLevel = settings.value("AudioLevel", 1).toInt(); // default = 1
+    if (AudioLevel < 0)
+        AudioLevel = 0;
 
+    if (AudioLevel > 100)
+        AudioLevel = 100;
 
+    const int duty = AudioLevel * 10000;
 
-    // Compute initial duty
-    int duty = 250000 * AudioLevel;
-    if (duty > 1000000) duty = 1000000;
     Buzzerinit();
     BuzzerDuty(duty);
 
-    m_audioPercent = (float)duty / 1000000 * 100.0f;
+    m_audioPercent = static_cast<float>(AudioLevel);
+
     ui->label_audioIndicator->update();
     ui->label_audioIndicator->installEventFilter(this);
+
     BatteryIndication();
 
     plotUpdateTimer = new QTimer(this);
@@ -507,30 +355,120 @@ void TestScreen::setLogicalFocus(QWidget* widget)
 void TestScreen::setupPlotAppearance()
 {
     ui->Plot->setFixedSize(485, 335);
-    ui->Plot->setBackground(Qt::black);
-    QSharedPointer<QCPAxisTickerFixed> xTicker(new QCPAxisTickerFixed);
+
+    const bool light =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
+
+    QColor plotBackground;
+    QColor axisColor;
+    QColor gridColor;
+    QColor subGridColor;
+
+    if (light)
+    {
+        // LIGHT THEME
+        plotBackground = QColor("#FFFFFF");
+        axisColor      = QColor("#202020");
+        gridColor      = QColor("#B8C0C8");
+        subGridColor   = QColor("#E0E5EA");
+    }
+    else
+    {
+        // DARK THEME
+        plotBackground = QColor("#000000");
+        axisColor      = QColor("#FFFFFF");
+        gridColor      = QColor("#666666");
+        subGridColor   = QColor("#303030");
+    }
+
+    ui->Plot->setBackground(plotBackground);
+
+    // ---------------- X AXIS ----------------
+
+    QSharedPointer<QCPAxisTickerFixed> xTicker(
+        new QCPAxisTickerFixed
+        );
+
     xTicker->setScaleStrategy(QCPAxisTickerFixed::ssNone);
+
     ui->Plot->xAxis->setTicker(xTicker);
-    ui->Plot->xAxis->setBasePen(QPen(Qt::white));
-    ui->Plot->xAxis->setTickPen(QPen(Qt::white));
-    ui->Plot->xAxis->setTickLabelColor(Qt::white);
-    ui->Plot->xAxis->grid()->setPen(QPen(Qt::gray));
-    ui->Plot->xAxis->grid()->setSubGridPen(QPen(Qt::darkGray));
-    ui->Plot->xAxis->setTickLabelSide(QCPAxis::lsOutside);
 
-    QSharedPointer<QCPAxisTickerFixed> yTicker(new QCPAxisTickerFixed);
+    ui->Plot->xAxis->setBasePen(
+        QPen(axisColor)
+        );
+
+    ui->Plot->xAxis->setTickPen(
+        QPen(axisColor)
+        );
+
+    ui->Plot->xAxis->setTickLabelColor(
+        axisColor
+        );
+
+    ui->Plot->xAxis->grid()->setPen(
+        QPen(gridColor)
+        );
+
+    ui->Plot->xAxis->grid()->setSubGridPen(
+        QPen(subGridColor)
+        );
+
+    ui->Plot->xAxis->setTickLabelSide(
+        QCPAxis::lsOutside
+        );
+
+
+    // ---------------- Y AXIS ----------------
+
+    QSharedPointer<QCPAxisTickerFixed> yTicker(
+        new QCPAxisTickerFixed
+        );
+
     yTicker->setScaleStrategy(QCPAxisTickerFixed::ssNone);
-    ui->Plot->yAxis->setTicker(yTicker);
-    ui->Plot->yAxis->setBasePen(QPen(Qt::white));
-    ui->Plot->yAxis->setTickPen(QPen(Qt::white));
-    ui->Plot->yAxis->setTickLabelColor(Qt::white);
-    ui->Plot->yAxis->grid()->setPen(QPen(Qt::gray));
-    ui->Plot->yAxis->grid()->setSubGridPen(QPen(Qt::darkGray));
-    ui->Plot->yAxis->setTickLabelSide(QCPAxis::lsOutside);
 
-    // Connect range change signals
-    connect(ui->Plot->xAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(updateGridInterval()));
-    connect(ui->Plot->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(updateGridInterval()));
+    ui->Plot->yAxis->setTicker(yTicker);
+
+    ui->Plot->yAxis->setBasePen(
+        QPen(axisColor)
+        );
+
+    ui->Plot->yAxis->setTickPen(
+        QPen(axisColor)
+        );
+
+    ui->Plot->yAxis->setTickLabelColor(
+        axisColor
+        );
+
+    ui->Plot->yAxis->grid()->setPen(
+        QPen(gridColor)
+        );
+
+    ui->Plot->yAxis->grid()->setSubGridPen(
+        QPen(subGridColor)
+        );
+
+    ui->Plot->yAxis->setTickLabelSide(
+        QCPAxis::lsOutside
+        );
+
+
+    // ---------------- RANGE CHANGE ----------------
+
+    connect(
+        ui->Plot->xAxis,
+        SIGNAL(rangeChanged(QCPRange)),
+        this,
+        SLOT(updateGridInterval())
+        );
+
+    connect(
+        ui->Plot->yAxis,
+        SIGNAL(rangeChanged(QCPRange)),
+        this,
+        SLOT(updateGridInterval())
+        );
+
 
     ui->Plot->xAxis->setRange(0, 100);
     ui->Plot->yAxis->setRange(0, 100);
@@ -1351,24 +1289,40 @@ void TestScreen::prepareCalsetInput()
 
 void TestScreen::adjustAudioLevel(void)
 {
+    // Audio is stored as percentage: 0-100
+    AudioLevel = settings::audioLevel();
 
-    AudioLevel++;  // increment count
-    //qDebug() << "AUD" << key;
-    if (AudioLevel > 4) AudioLevel = 0; // optional max count
+    // Move to next 25% level.
+    // This matches the four audio indicator steps.
+    if (AudioLevel < 25)
+        AudioLevel = 25;
+    else if (AudioLevel < 50)
+        AudioLevel = 50;
+    else if (AudioLevel < 75)
+        AudioLevel = 75;
+    else if (AudioLevel < 100)
+        AudioLevel = 100;
+    else
+        AudioLevel = 0;
 
-    int duty = 0;
-    if (AudioLevel > 0) {
-        duty = 250000 * AudioLevel;
-        if (duty > 1000000) duty = 1000000;
-    }
+    // Save through the same QSettings key used by Settings.
+    QSettings s(ORG_NAME, APP_NAME);
+    s.setValue("audio/level", AudioLevel);
+    s.sync();
 
-    QSettings settings("MyCompany", "MyApp");
-    settings.setValue("AudioLevel", AudioLevel);
+    // 0-100% -> 0-1,000,000 duty
+    const int duty = AudioLevel * 10000;
 
     BuzzerDuty(duty);
 
-    m_audioPercent = (float)duty / 1000000 * 100.0f;
+    m_audioPercent = static_cast<float>(AudioLevel);
+
     ui->label_audioIndicator->update();
+
+    qDebug() << "[Audio]"
+             << "Level =" << AudioLevel
+             << "%"
+             << "Duty =" << duty;
 }
 
 void TestScreen::handleSaveFlow()
@@ -1711,11 +1665,17 @@ void TestScreen::updateGraphWithData()
         updateGridInterval();
     }
 
-    if (config.channel == 1){
-        waveformGraph->setPen(QPen(Qt::magenta, 2));
+    if (config.channel == 1)
+    {
+        waveformGraph->setPen(
+            QPen(settings::channel1Color(), 2)
+            );
     }
-    else{
-        waveformGraph->setPen(QPen(Qt::yellow, 2));
+    else
+    {
+        waveformGraph->setPen(
+            QPen(settings::channel2Color(), 2)
+            );
     }
 
     if(ui->label_record->isVisible())
@@ -3974,6 +3934,172 @@ QString TestScreen::getRecentCalibrationDate(int channel, int calset)
 bool TestScreen::isRecording() const
 {
     return ui->label_record->isVisible();
+}
+void TestScreen::applyTestScreenTheme()
+{
+    const bool light =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
+
+    if (light)
+    {
+        this->setStyleSheet(R"(
+            QWidget {
+                background-color: #F2F5F8;
+                color: #1B2430;
+                font-family: "Segoe UI";
+                font-size: 11px;
+            }
+
+            QFrame#Header_2,
+            QFrame#formFrame,
+            QFrame#verticalFrame,
+            QFrame#horizontalFrame {
+                background-color: #FFFFFF;
+                border: 1px solid #C5CED8;
+                border-radius: 12px;
+            }
+
+            QLabel {
+                color: #1B2430;
+                background: transparent;
+            }
+
+            QLineEdit {
+                background-color: #FFFFFF;
+                border: 1px solid #AAB6C3;
+                border-radius: 8px;
+                color: #1B2430;
+                min-height: 28px;
+                padding-left: 8px;
+            }
+
+            QLineEdit:focus {
+                border: 1px solid #3AA0FF;
+                background-color: #F7FBFF;
+            }
+
+            QPushButton {
+                background-color: #E3EAF1;
+                border: 1px solid #AAB6C3;
+                border-radius: 8px;
+                color: #1B2430;
+                min-height: 20px;
+                padding: 4px 10px;
+            }
+
+            QPushButton:hover {
+                border: 1px solid #3AA0FF;
+                background-color: #D7E9FA;
+            }
+
+            QPushButton#pushButton {
+                background-color: #3FA2FF;
+                font-weight: bold;
+                color: white;
+                border: 1px solid #2E8BE0;
+            }
+
+            QPushButton#pushButton:hover {
+                background-color: #5AB1FF;
+            }
+
+            QCustomPlot#Plot {
+                background-color: #FFFFFF;
+                border: 1px solid #AAB6C3;
+                border-radius: 10px;
+            }
+
+            #label_offset {
+                color: #E67E00;
+                font-weight: bold;
+            }
+
+            #label_DAC {
+                color: #D93636;
+                font-weight: bold;
+            }
+        )");
+    }
+    else
+    {
+        this->setStyleSheet(R"(
+            QWidget {
+                background-color: #2B3138;
+                color: #F2F5F8;
+                font-family: "Segoe UI";
+                font-size: 11px;
+            }
+
+            QFrame#Header_2,
+            QFrame#formFrame,
+            QFrame#verticalFrame,
+            QFrame#horizontalFrame {
+                background-color: #39424C;
+                border: 1px solid #55606D;
+                border-radius: 12px;
+            }
+
+            QLabel {
+                color: #D5DDE5;
+                background: transparent;
+            }
+
+            QLineEdit {
+                background-color: #46515D;
+                border: 1px solid #667381;
+                border-radius: 8px;
+                color: #F2F5F8;
+                min-height: 28px;
+                padding-left: 8px;
+            }
+
+            QLineEdit:focus {
+                border: 1px solid #4DB3FF;
+                background-color: #4E5A67;
+            }
+
+            QPushButton {
+                background-color: #55606D;
+                border: 1px solid #748191;
+                border-radius: 8px;
+                color: white;
+                min-height: 20px;
+                padding: 4px 10px;
+            }
+
+            QPushButton:hover {
+                border: 1px solid #4DB3FF;
+                background-color: #627081;
+            }
+
+            QPushButton#pushButton {
+                background-color: #3FA2FF;
+                font-weight: bold;
+                color: white;
+                border: 1px solid #2E8BE0;
+            }
+
+            QPushButton#pushButton:hover {
+                background-color: #5AB1FF;
+            }
+
+            QCustomPlot#Plot {
+                background-color: #313941;
+                border: 1px solid #4DB3FF;
+                border-radius: 10px;
+            }
+
+            #label_offset {
+                color: #FF9800;
+                font-weight: bold;
+            }
+
+            #label_DAC {
+                color: #EF5350;
+                font-weight: bold;
+            }
+        )");
+    }
 }
 TestScreen::~TestScreen()
 {

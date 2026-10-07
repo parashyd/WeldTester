@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <QDate>
 #include <QMap>
+#include "settings.h"
 /* ============================================================
  * FULLSCREEN IMAGE VIEWER
  * ============================================================ */
@@ -74,36 +75,214 @@ Openlog::Openlog(QWidget *parent)
     ui->setupUi(this);
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window );
 
+    // ---------------------------------------------------------
+    // Apply Light / Dark theme
+    // ---------------------------------------------------------
+    const bool lightTheme =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
 
-    // /* ✅ Focus-aware styling */
-    // QString style = R"(
-    // QListWidget {
-    // color: white;
-    // background-color: #1e1e1e;
-    // border: 2px solid #444;
-    // }
+    if (lightTheme)
+    {
+        this->setStyleSheet(R"(
+        QWidget {
+            background-color: #F2F5F8;
+            color: #1B2430;
+            font-family: "Segoe UI";
+            font-size: 11px;
+        }
 
-    // QListWidget::item {
-    // padding: 6px;
-    // }
+        QLabel {
+            color: #1B2430;
+            background: transparent;
+        }
 
-    // QListWidget::item:selected {
-    // background-color: #0078d7;
-    // color: white;
-    // }
+        QComboBox {
+            background-color: #FFFFFF;
+            color: #1B2430;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            min-height: 28px;
+            padding-left: 8px;
+        }
 
-    // QListWidget:focus {
-    // border: 2px solid #00ffcc;
-    // }
+        QComboBox:hover {
+            border: 1px solid #3AA0FF;
+        }
 
-    // QListWidget:!focus {
-    // border: 2px solid #444;
-    // }
-    // )";
+        QComboBox QAbstractItemView {
+            background-color: #FFFFFF;
+            color: #1B2430;
+            selection-background-color: #DCEEFF;
+            selection-color: #1B2430;
+            border: 1px solid #AAB6C3;
+        }
 
-    // ui->listWidget_Folder->setStyleSheet(style);
-    // ui->listWidget_Images->setStyleSheet(style);
+        QListWidget {
+            background-color: #FFFFFF;
+            color: #1B2430;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            outline: none;
+        }
 
+        QListWidget::item {
+            background-color: #FFFFFF;
+            color: #1B2430;
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        QListWidget::item:selected {
+            background-color: #DCEEFF;
+            color: #1B2430;
+        }
+
+        QListWidget::item:hover {
+            background-color: #EDF6FF;
+        }
+
+        QPushButton {
+            background-color: #E3EAF1;
+            color: #1B2430;
+            border: 1px solid #AAB6C3;
+            border-radius: 8px;
+            min-height: 25px;
+            padding: 4px 10px;
+        }
+
+        QPushButton:hover {
+            background-color: #D7E9FA;
+            border: 1px solid #3AA0FF;
+        }
+
+        QScrollBar:vertical {
+            background: #E8EDF2;
+            width: 12px;
+        }
+
+        QScrollBar::handle:vertical {
+            background: #AAB6C3;
+            border-radius: 5px;
+            min-height: 25px;
+        }
+
+        QScrollBar::handle:vertical:hover {
+            background: #7F91A3;
+        }
+
+        QScrollBar:horizontal {
+            background: #E8EDF2;
+            height: 12px;
+        }
+
+        QScrollBar::handle:horizontal {
+            background: #AAB6C3;
+            border-radius: 5px;
+            min-width: 25px;
+        }
+    )");
+    }
+    else
+    {
+        this->setStyleSheet(R"(
+        QWidget {
+            background-color: #2B3138;
+            color: #F2F5F8;
+            font-family: "Segoe UI";
+            font-size: 11px;
+        }
+
+        QLabel {
+            color: #D5DDE5;
+            background: transparent;
+        }
+
+        QComboBox {
+            background-color: #46515D;
+            color: #F2F5F8;
+            border: 1px solid #667381;
+            border-radius: 8px;
+            min-height: 28px;
+            padding-left: 8px;
+        }
+
+        QComboBox:hover {
+            border: 1px solid #4DB3FF;
+        }
+
+        QComboBox QAbstractItemView {
+            background-color: #39424C;
+            color: #F2F5F8;
+            selection-background-color: #4E5A67;
+            selection-color: #FFFFFF;
+            border: 1px solid #667381;
+        }
+
+        QListWidget {
+            background-color: #313941;
+            color: #F2F5F8;
+            border: 1px solid #55606D;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        QListWidget::item {
+            background-color: #313941;
+            color: #F2F5F8;
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        QListWidget::item:selected {
+            background-color: #4E5A67;
+            color: #FFFFFF;
+        }
+
+        QListWidget::item:hover {
+            background-color: #424D59;
+        }
+
+        QPushButton {
+            background-color: #55606D;
+            color: white;
+            border: 1px solid #748191;
+            border-radius: 8px;
+            min-height: 25px;
+            padding: 4px 10px;
+        }
+
+        QPushButton:hover {
+            background-color: #627081;
+            border: 1px solid #4DB3FF;
+        }
+
+        QScrollBar:vertical {
+            background: #2B3138;
+            width: 12px;
+        }
+
+        QScrollBar::handle:vertical {
+            background: #596573;
+            border-radius: 5px;
+            min-height: 25px;
+        }
+
+        QScrollBar::handle:vertical:hover {
+            background: #748191;
+        }
+
+        QScrollBar:horizontal {
+            background: #2B3138;
+            height: 12px;
+        }
+
+        QScrollBar::handle:horizontal {
+            background: #596573;
+            border-radius: 5px;
+            min-width: 25px;
+        }
+    )");
+    }
 
     basePath = QCoreApplication::applicationDirPath() + "/SavedData";
 
@@ -868,6 +1047,7 @@ void Openlog::handleRemoteKey(int key)
 }
 void Openlog::updateFocusStyle()
 {
+    // Clear previous focus styles
     ui->comboBox->setStyleSheet("");
     ui->listWidget_Folder->setStyleSheet("");
     ui->listWidget_Images->setStyleSheet("");
@@ -876,55 +1056,78 @@ void Openlog::updateFocusStyle()
     ui->DeleteButton->setStyleSheet("");
     ui->DeleteAllButton->setStyleSheet("");
 
-    QString focusStyle =
+    // ---------------------------------------------------------
+    // Keep the previous strong focus colours
+    // ---------------------------------------------------------
+    const QString focusBackground = "#78B4FF";
+    const QString focusBorder     = "#000000";
+    const QString focusText       = "#000000";
+
+    QString listFocusStyle =
         "QListWidget {"
-        "border: 2px solid #3aa0ff;"
-        "background-color: #dceeff;"
+        "border: 2px solid #000000;"
+        "background-color: #78B4FF;"
+        "color: #000000;"
         "border-radius: 6px;"
+        "outline: none;"
+        "}"
+
+        "QListWidget::item {"
+        "background-color: transparent;"
+        "color: #000000;"
+        "padding: 4px;"
+        "}"
+
+        "QListWidget::item:selected {"
+        "background-color: #2F6FAF;"
+        "color: #FFFFFF;"
+        "border: 1px solid #000000;"
         "}";
 
-    QString focusStyle2 =
+    QString buttonFocusStyle =
         "QPushButton {"
-        "border: 2px solid #3aa0ff;"
-        "background-color: #dceeff;"
-        "border-radius: 6px;"
-        "}";
+        "border: 2px solid " + focusBorder + ";"
+                        "background-color: " + focusBackground + ";"
+                            "color: " + focusText + ";"
+                      "border-radius: 6px;"
+                      "}";
 
     QString comboFocusStyle =
         "QComboBox {"
-        "border: 2px solid #3aa0ff;"
-        "background-color: #dceeff;"
-        "border-radius: 6px;"
-        "}";
+        "border: 2px solid " + focusBorder + ";"
+                        "background-color: " + focusBackground + ";"
+                            "color: " + focusText + ";"
+                      "border-radius: 6px;"
+                      "}";
 
-    switch(currentFocus)
+    switch (currentFocus)
     {
     case 0:
         ui->comboBox->setStyleSheet(comboFocusStyle);
         break;
 
     case 1:
-        ui->listWidget_Folder->setStyleSheet(focusStyle);
+        ui->listWidget_Folder->setStyleSheet(listFocusStyle);
         break;
 
     case 2:
-        ui->listWidget_Images->setStyleSheet(focusStyle);
+        ui->listWidget_Images->setStyleSheet(listFocusStyle);
         break;
 
     case 3:
-        ui->CopyButton->setStyleSheet(focusStyle2);
+        ui->CopyButton->setStyleSheet(buttonFocusStyle);
         break;
 
     case 4:
-        ui->CopyAllButton->setStyleSheet(focusStyle2);
+        ui->CopyAllButton->setStyleSheet(buttonFocusStyle);
         break;
 
     case 5:
-        ui->DeleteButton->setStyleSheet(focusStyle2);
+        ui->DeleteButton->setStyleSheet(buttonFocusStyle);
         break;
 
     case 6:
-        ui->DeleteAllButton->setStyleSheet(focusStyle2);
+        ui->DeleteAllButton->setStyleSheet(buttonFocusStyle);
         break;
     }
 }

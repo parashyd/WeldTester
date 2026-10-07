@@ -105,6 +105,7 @@ private slots:
     void setLogicalFocus(QWidget* widget);
     void HandleGateUpDownLift(int lift);
     void HandleGateShift(int shift);
+    void applyTestScreenTheme();
 
     bool saveCalibrationHistory();
     bool generateCalibrationHistoryJpg(const QString &jsonPath,
