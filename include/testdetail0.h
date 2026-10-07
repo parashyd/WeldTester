@@ -56,7 +56,7 @@ private:
     void display_mc_no(void);
     void saveDataToFile();
     void LoadSavedData();
-
+    void applyTheme();
 
 
 signals:

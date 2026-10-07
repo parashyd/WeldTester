@@ -20,8 +20,59 @@
 #include "viewlogdata.h"
 #include "Audio.h"
 #include "gps.h"
+#include "settings.h"
+#include <QSettings>
+#include <QPixmap>
 
 QString MachNo;
+static const QString DARK_MAIN_THEME = R"(
+QMainWindow {
+    background-color: #070b10;
+}
+
+QWidget#centralwidget {
+    background-color: #070b10;
+}
+
+QLabel#label_UnitNo {
+    background-color: transparent;
+    color: white;
+}
+
+QLabel#label_logo {
+    background-color: transparent;
+    border: none;
+}
+
+QLabel[pressed="true"] {
+    background-color: #0f1720;
+    border: 2px solid #1f6feb;
+}
+)";
+static const QString LIGHT_MAIN_THEME = R"(
+QMainWindow {
+    background-color: #eef2f6;
+}
+
+QWidget#centralwidget {
+    background-color: #eef2f6;
+}
+
+QLabel#label_UnitNo {
+    background-color: transparent;
+    color: #18212b;
+}
+
+QLabel#label_logo {
+    background-color: transparent;
+    border: none;
+}
+
+QLabel[pressed="true"] {
+    background-color: #dceeff;
+    border: 2px solid #3aa0ff;
+}
+)";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -29,54 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     ui->setupUi(this);
-    this->setStyleSheet(R"(
-
-    /* ===== MAIN WINDOW ===== */
-    QMainWindow {
-        background-color: #070b10;
-    }
-    // QWidget {
-    //     background-color: #2B3138;
-    //     color: #F2F5F8;
-    //     font-family: "Segoe UI";
-    //     font-size: 11px;
-    // }
-    // QWidget {
-    // background-color: #070b10;
-    // }
-
-    // QDialog {
-    //     background-color: #070b10;
-    // }
-
-    /* ===== CENTRAL WIDGET ===== */
-    QWidget#centralwidget {
-        padding: 8px;
-    }
-    /* ===== BASE TILE STYLE (ALL LABELS) ===== */
-
-    /* ===== LOGO ===== */
-    QLabel#label_logo {
-        background: transparent;
-        border: 0px;
-    }
-
-    /* ===== PRESSED EFFECT (we simulate using dynamic property later) ===== */
-    QLabel[pressed="true"] {
-        background-color: #0f1720;
-        border: 2px solid #1f6feb;
-    }
-
-    )");
-    // QLabel {
-    //     background-color: #121821;
-    // color: #dfe7ef;
-    // border: 2px solid #2a3542;
-    //     border-radius: 10px;
-    //     font-size: 16px;
-    //     font-weight: 600;
-    //     qproperty-alignment: AlignCenter;
-    // }
+    applyMainWindowTheme();
     startSocketServer();
 
     ReadMachNo();
@@ -87,8 +91,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->label_UnitNo->setStyleSheet(
         "background-color: transparent;"
-        // "color: rgba(255, 255, 255, 100);"
-        "color: white;"
         );
     ui->label_UnitNo->setText("WT-2311D - "+MachNo);
 
@@ -270,10 +272,9 @@ void MainWindow::setLogicalFocus(QWidget* widget)
     // 2️⃣ Apply highlight to the new widget\
     // "background-color: rgb(255,255,150);"
     widget->setStyleSheet(
-        "background-color: rgb(120,180,255);"
-        "border: 2px solid white;"
+        "background-color: rgba(120,180,255,80);"
+        "border: 2px solid #3aa0ff;"
         );
-
 
     m_currentLogicalFocus = widget;
 
@@ -355,17 +356,28 @@ void MainWindow::navScreen(void)
             }
         });
     }
-    if(m_currentLogicalFocus == ui->label_settings){
+    if(m_currentLogicalFocus == ui->label_settings)if (m_currentLogicalFocus == ui->label_settings)
+        {
+            settingsWindow = new settings(this);
 
-        settingsWindow = new settings(this);
-        settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
-        // Prevent a dangling settingsWindow pointer after OK/Cancel/close.
-        connect(settingsWindow, &QObject::destroyed, this, [this]() {
-            settingsWindow = nullptr;
-        });
-        settingsWindow->show();
+            settingsWindow->setAttribute(Qt::WA_DeleteOnClose);
 
-    }
+            connect(settingsWindow,
+                    &settings::settingsChanged,
+                    this,
+                    [this]()
+                    {
+                        applyMainWindowTheme();
+                        updateMainMenuImages();
+                    });
+
+            connect(settingsWindow, &QObject::destroyed, this, [this]()
+                    {
+                        settingsWindow = nullptr;
+                    });
+
+            settingsWindow->show();
+        }
 
 }
 void MainWindow::navWidgets(int direction)
@@ -411,6 +423,68 @@ void MainWindow::navWidgets(int direction)
              << newWidget->objectName();
 }
 
+void MainWindow::applyMainWindowTheme()
+{
+    const QString currentTheme = settings::theme();
+
+    if (currentTheme.compare("Light", Qt::CaseInsensitive) == 0)
+    {
+        setStyleSheet(LIGHT_MAIN_THEME);
+    }
+    else
+    {
+        setStyleSheet(DARK_MAIN_THEME);
+    }
+
+    updateMainMenuImages();
+}
+void MainWindow::updateMainMenuImages()
+{
+    const bool light =
+        settings::theme().compare("Light", Qt::CaseInsensitive) == 0;
+
+    if (light)
+    {
+        ui->label_test->setPixmap(
+            QPixmap(":/images/light_test.png"));
+
+        ui->label_config->setPixmap(
+            QPixmap(":/images/light_config.png"));
+
+        ui->label_open->setPixmap(
+            QPixmap(":/images/light_open.png"));
+
+        ui->label_openlog->setPixmap(
+            QPixmap(":/images/light_openlog.png"));
+
+        ui->label_settings->setPixmap(
+            QPixmap(":/images/light_settings.png"));
+    }
+    else
+    {
+        ui->label_test->setPixmap(
+            QPixmap(":/images/dark_test.png"));
+
+        ui->label_config->setPixmap(
+            QPixmap(":/images/dark_config.png"));
+
+        ui->label_open->setPixmap(
+            QPixmap(":/images/dark_open.png"));
+
+        ui->label_openlog->setPixmap(
+            QPixmap(":/images/dark_openlog.png"));
+
+        ui->label_settings->setPixmap(
+            QPixmap(":/images/dark_settings.png"));
+    }
+
+    // Keep the images filling their existing QLabel areas.
+    ui->label_test->setScaledContents(true);
+    ui->label_config->setScaledContents(true);
+    ui->label_open->setScaledContents(true);
+    ui->label_openlog->setScaledContents(true);
+    ui->label_settings->setScaledContents(true);
+}
 
 MainWindow::~MainWindow()
 {

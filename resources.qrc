@@ -7,11 +7,16 @@
         <file>images/audio-none-svgrepo-com.svg</file>
         <file>images/After(1).jpg</file>
         <file>images/canvas4.png</file>
-        <file>images/Pasted image.png</file>
-        <file>images/Pasted image (5).png</file>
-        <file>images/Pasted image (4).png</file>
-        <file>images/Pasted image (3).png</file>
-        <file>images/Pasted image (2).png</file>
+        <file>images/dark_test.png</file>
+        <file>images/dark_config.png</file>
+	<file>images/dark_open.png</file>
+	<file>images/dark_openlog.png</file>
+	<file>images/dark_settings.png</file>
+        <file>images/light_test.png</file>
+	<file>images/light_config.png</file>
+	<file>images/light_open.png</file>
+	<file>images/light_openlog.png</file>
+	<file>images/light_settings.png</file> 
         <file>images/calibWarning.png</file>
     </qresource>
 </RCC>

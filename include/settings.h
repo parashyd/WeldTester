@@ -9,6 +9,9 @@
 #include <QString>
 #include <QList>
 
+extern const char *ORG_NAME;
+extern const char *APP_NAME;
+
 class QWidget;
 
 namespace Ui {

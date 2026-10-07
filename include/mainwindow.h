@@ -58,6 +58,8 @@ private:
     QWidget* m_currentLogicalFocus = nullptr;
     void startSocketServer();
     void ReadMachNo();
+    void applyMainWindowTheme();
+    void updateMainMenuImages();
 };
 
 #endif // MAINWINDOW_H

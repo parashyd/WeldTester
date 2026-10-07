@@ -273,7 +273,7 @@ TestScreen::TestScreen(QWidget *parent)
 
 
 
-    QSettings settings("MyCompany", "MyApp");
+    QSettings settings(ORG_NAME, APP_NAME);
     AudioLevel = settings.value("AudioLevel", 1).toInt(); // default = 1
 
 

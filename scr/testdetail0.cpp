@@ -11,6 +11,9 @@
 #include <QFile>
 #include "QTimer"
 #include "mainwindow.h"
+#include <QSettings>
+#include <QStyle>
+#include "settings.h"
 enum class InputMode {
     Numeric,
     Alphabetic,
@@ -30,84 +33,251 @@ QString km;
 QString M;
 QString Rail ;
 
+namespace
+{
 
+const QString DARK_TESTDETAIL_THEME = R"(
+QWidget#testdetail0 {
+    background-color: #070b10;
+    color: #f2f5f8;
+}
+
+/* Header */
+QFrame#frameHeader {
+    background-color: #0c1116;
+    border: 1px solid #1e2833;
+    border-radius: 6px;
+}
+
+/* Main frame */
+QFrame#frameMain {
+    background-color: #0e141a;
+    border: 1px solid #2a3542;
+    border-radius: 6px;
+}
+
+/* Labels */
+QLabel {
+    background: transparent;
+    color: #f2f5f8;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QLabel#label_Title {
+    background: transparent;
+    color: #f2f5f8;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Line edits */
+QLineEdit {
+    background-color: #46515D;
+    color: #F2F5F8;
+    border: 1px solid #667381;
+    border-radius: 8px;
+    min-height: 28px;
+    padding-left: 8px;
+}
+
+QLineEdit:focus {
+    background-color: #111821;
+    color: #ffffff;
+    border: 2px solid #3aa0ff;
+}
+
+/* Combo boxes */
+QComboBox {
+    background-color: #0b1015;
+    color: #ffffff;
+    border: 1px solid #2a3440;
+    border-radius: 5px;
+    padding: 4px;
+    min-height: 28px;
+}
+
+QComboBox:focus {
+    background-color: #111821;
+    color: #ffffff;
+    border: 2px solid #3aa0ff;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #121821;
+    color: #ffffff;
+    selection-background-color: #2d6cdf;
+    selection-color: #ffffff;
+    border: 1px solid #2a3542;
+}
+
+/* Test button */
+QPushButton {
+    background-color: #55606D;
+    color: #ffffff;
+    border: 1px solid #748191;
+    border-radius: 8px;
+    min-height: 20px;
+    padding: 4px 10px;
+}
+
+QPushButton:hover {
+    background-color: #627081;
+    border: 1px solid #4DB3FF;
+}
+
+QPushButton:focus {
+    background-color: #627081;
+    border: 2px solid #3aa0ff;
+    color: #ffffff;
+}
+
+QLineEdit[logicalFocus="true"],
+QComboBox[logicalFocus="true"] {
+    background-color: #78b4ff;
+    color: #101820;
+    border: 2px solid #ffffff;
+}
+QLineEdit:focus {
+    background-color: #111821;
+    color: #ffffff;
+    border: 2px solid #3aa0ff;
+}
+
+QLineEdit[logicalFocus="true"] {
+    background-color: #78b4ff;
+    color: #101820;
+    border: 2px solid #ffffff;
+}
+)";
+
+
+const QString LIGHT_TESTDETAIL_THEME = R"(
+QWidget#testdetail0 {
+    background-color: #eef2f6;
+    color: #18212b;
+}
+
+/* Header */
+QFrame#frameHeader {
+    background-color: #ffffff;
+    border: 1px solid #c5ced8;
+    border-radius: 6px;
+}
+
+/* Main frame */
+QFrame#frameMain {
+    background-color: #ffffff;
+    border: 1px solid #c5ced8;
+    border-radius: 6px;
+}
+
+/* Labels */
+QLabel {
+    background: transparent;
+    color: #18212b;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+QLabel#label_Title {
+    background: transparent;
+    color: #18212b;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Line edits */
+QLineEdit {
+    background-color: #ffffff;
+    color: #18212b;
+    border: 1px solid #aeb8c4;
+    border-radius: 8px;
+    min-height: 28px;
+    padding-left: 8px;
+}
+
+QLineEdit:focus {
+    background-color: #ffffff;
+    color: #18212b;
+    border: 2px solid #3976c9;
+}
+
+/* Combo boxes */
+QComboBox {
+    background-color: #ffffff;
+    color: #18212b;
+    border: 1px solid #aeb8c4;
+    border-radius: 5px;
+    padding: 4px;
+    min-height: 28px;
+}
+
+QComboBox:focus {
+    background-color: #ffffff;
+    color: #18212b;
+    border: 2px solid #3976c9;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #ffffff;
+    color: #18212b;
+    selection-background-color: #9ec5ff;
+    selection-color: #18212b;
+    border: 1px solid #aeb8c4;
+}
+
+/* Test button */
+QPushButton {
+    background-color: #ffffff;
+    color: #18212b;
+    border: 1px solid #aeb8c4;
+    border-radius: 8px;
+    min-height: 20px;
+    padding: 4px 10px;
+}
+
+QPushButton:hover {
+    background-color: #f3f7fb;
+    border: 1px solid #3976c9;
+}
+
+QPushButton:focus {
+    background-color: #dceeff;
+    border: 2px solid #3976c9;
+    color: #18212b;
+}
+QLineEdit[logicalFocus="true"],
+QComboBox[logicalFocus="true"] {
+    background-color: #dceeff;
+    color: #18212b;
+    border: 2px solid #3aa0ff;
+}
+QLineEdit:focus {
+    background-color: #ffffff;
+    color: #18212b;
+    border: 2px solid #3976c9;
+}
+
+QLineEdit[logicalFocus="true"] {
+    background-color: #dceeff;
+    color: #18212b;
+    border: 2px solid #3aa0ff;
+}
+)";
+
+}
 testdetail0::testdetail0(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::testdetail0)
 {
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-
-    this->setStyleSheet(R"(
-
-    /* ===== ROOT ===== */
-    QWidget#testdetail0 {
-        background-color: #06090d;
-    }
-
-    /* ===== FRAMES (SUBTLE, NOT HEAVY) ===== */
-    QFrame#frameHeader {
-        background-color: #0c1116;
-        border-bottom: 1px solid #1e2833;
-    }
-
-    QFrame#frameMain {
-        background-color: #0e141a;
-        border: 1px solid #1e2833;
-        border-radius: 6px;
-    }
-
-    QLabel {
-        background-color: #121821;
-        color: #dfe7ef;
-        border: 2px solid #2a3542;
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: 600;
-        qproperty-alignment: AlignCenter;
-    }
-
-    QLabel#label_Title {
-        background: transparent;
-        border: 0px;
-    }
-    /* ===== INPUT FIELDS (REFINED ONLY) ===== */
-    QComboBox {
-        background-color: #0b1015;
-        color: #ffffff;
-        border: 1px solid #2a3440;
-        border-radius: 5px;
-        padding: 4px;
-    }
-    QLineEdit {
-        background-color: #46515D;
-        border: 1px solid #667381;
-        border-radius: 8px;
-        color: #F2F5F8;
-        min-height: 28px;
-        padding-left: 8px;
-    }
-    /* ===== FOCUS (VERY IMPORTANT UX) ===== */
-    QLineEdit:focus, QComboBox:focus {
-        border: 1px solid #4aa3ff;
-        background-color: #111821;
-    }
-
-    QPushButton {
-        background-color: #55606D;
-        border: 1px solid #748191;
-        border-radius: 8px;
-        color: white;
-        min-height: 20px;
-        padding: 4px 10px;
-    }
-
-    QPushButton:hover {
-        border: 1px solid #4DB3FF;
-        background-color: #627081;
-    }
-
-)");
+    applyTheme();
     QPixmap pixmap = this->grab();
 
     // --- Adjust JPG output size ---
@@ -169,40 +339,39 @@ void testdetail0::display_mc_no(void){
     ui->unitEdit->setText(MachNo);
     qDebug() << "Mach No : "<<MachNo;
 }
-void testdetail0::setLogicalFocus(QWidget* widget)
+void testdetail0::setLogicalFocus(QWidget *widget)
 {
-    if (!widget) return;
+    if (!widget)
+        return;
 
-    // 1️ Remove previous highlight
-    if (m_currentLogicalFocus && m_currentLogicalFocus != widget) {
-        // Reset style to default
-        m_currentLogicalFocus->setStyleSheet("");
+    // Remove focus state from previous widget
+    if (m_currentLogicalFocus && m_currentLogicalFocus != widget)
+    {
+        m_currentLogicalFocus->setProperty("logicalFocus", false);
+        m_currentLogicalFocus->style()->unpolish(m_currentLogicalFocus);
+        m_currentLogicalFocus->style()->polish(m_currentLogicalFocus);
+        m_currentLogicalFocus->update();
     }
 
-    // 2️⃣ Apply highlight to the new widget\
-    // "background-color: rgb(255,255,150);"
-    widget->setStyleSheet(
-        "background-color: rgb(120,180,255);"
-        "border: 2px solid black;"
-        );
+    // Apply focus state
+    widget->setProperty("logicalFocus", true);
 
-
+    widget->style()->unpolish(widget);
+    widget->style()->polish(widget);
+    widget->update();
 
     m_currentLogicalFocus = widget;
 
-    // 3️⃣ Optional: attempt to give real Qt focus
-    if (widget->isVisible() && widget->isEnabled()) {
-        // For Wayland, this may not guarantee OS focus, but it's harmless
+    if (widget->isVisible() && widget->isEnabled())
+    {
         widget->setFocus(Qt::OtherFocusReason);
 
-        if (auto le = qobject_cast<QLineEdit*>(widget)) {
+        if (auto le = qobject_cast<QLineEdit*>(widget))
             le->setCursorPosition(0);
-        }
-
     }
 
-    // 4️⃣ Debug output
-    qDebug() << "[LogicalFocus] Widget:" << widget->objectName()
+    qDebug() << "[LogicalFocus] Widget:"
+             << widget->objectName()
              << "Visible:" << widget->isVisible()
              << "Enabled:" << widget->isEnabled()
              << "hasFocus:" << widget->hasFocus();
@@ -818,7 +987,21 @@ void testdetail0::handleBackspaceInput()
     }
 
 }
+void testdetail0::applyTheme()
+{
+    const QString currentTheme = settings::theme();
 
+    if (currentTheme.compare("Light", Qt::CaseInsensitive) == 0)
+    {
+        setStyleSheet(LIGHT_TESTDETAIL_THEME);
+        qDebug() << "[TestDetails] Light theme applied";
+    }
+    else
+    {
+        setStyleSheet(DARK_TESTDETAIL_THEME);
+        qDebug() << "[TestDetails] Dark theme applied";
+    }
+}
 
 testdetail0::~testdetail0()
 {

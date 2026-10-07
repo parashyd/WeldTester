@@ -758,19 +758,24 @@ compiler_rcc_clean:
 	-$(DEL_FILE) qrc_resources.cpp
 qrc_resources.cpp: resources.qrc \
 		/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/rcc \
-		images/Pasted\ image\ (2).png \
+		images/light_openlog.png \
+		images/battery_outline.svg \
+		images/dark_test.png \
+		images/audio-none-svgrepo-com.svg \
+		images/dark_openlog.png \
+		images/light_config.png \
+		images/dark_config.png \
+		images/calibWarning.png \
+		images/light_open.png \
+		images/After(1).jpg \
+		images/dark_settings.png \
+		images/light_test.png \
+		images/light_settings.png \
+		images/record-button-svgrepo-com.svg \
+		images/canvas4.png \
 		images/audio.jpeg \
 		images/pause.svg \
-		images/Pasted\ image\ (5).png \
-		images/record-button-svgrepo-com.svg \
-		images/calibWarning.png \
-		images/Pasted\ image\ (4).png \
-		images/audio-none-svgrepo-com.svg \
-		images/battery_outline.svg \
-		images/Pasted\ image\ (3).png \
-		images/canvas4.png \
-		images/After(1).jpg \
-		images/Pasted\ image.png
+		images/dark_open.png
 	/opt/tdx-xwayland/7.3.0/sysroots/x86_64-tdxsdk-linux/usr/bin/rcc -name resources resources.qrc -o qrc_resources.cpp
 
 compiler_moc_predefs_make_all: moc_predefs.h
@@ -1035,9 +1040,9 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
 		ui_previewscreen.h \
+		include/qcustomplot.h \
 		include/matrix_keypad.h \
 		include/testscreen.h \
-		include/qcustomplot.h \
 		include/testdetail0.h \
 		include/mainwindow.h \
 		include/configscreen.h \
