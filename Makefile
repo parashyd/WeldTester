@@ -953,7 +953,8 @@ configscreen.o: scr/configscreen.cpp include/configscreen.h \
 		ui_configscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
-		include/matrix_keypad.h
+		include/matrix_keypad.h \
+		include/settings.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o configscreen.o scr/configscreen.cpp
 
 main.o: main.cpp include/testscreen.h \

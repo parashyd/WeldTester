@@ -47,7 +47,11 @@ PreviewScreen::PreviewScreen(QWidget *parent)
     ui->label_OPvalue->setText(OperatorName);
     ui->label_Divvalue->setText(Division);
     ui->label_Secvalue->setText(Section);
+    if(Line!="Others"){
     ui->label_LineValue->setText(Line);
+    }else{
+        ui->label_LineValue->setText(LineOthers);
+    }
     ui->label_Railvalue->setText(Rail);
     ui->label_TestTypeVal->setText(Testtype);
     ui->label_ModeVal->setText(Mode);

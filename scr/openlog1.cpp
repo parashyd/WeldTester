@@ -484,6 +484,7 @@ void OpenLog1::updateFocusStyle()
         break;
     }
 }
+
 // void OpenLog1::loadDateFolders()
 // {
 //     ui->dateFolderList->clear();

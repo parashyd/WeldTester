@@ -158,7 +158,7 @@ QColor settings::channel2Color()
 int settings::audioLevel()
 {
     QSettings s(ORG_NAME, APP_NAME);
-    return s.value("audio/level", 70).toInt();
+    return s.value("audio/level", 75).toInt();
 }
 
 QString settings::dateFormat()

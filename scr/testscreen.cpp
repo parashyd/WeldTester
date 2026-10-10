@@ -157,12 +157,12 @@ TestScreen::TestScreen(QWidget *parent)
     ui->label_latitude->setStyleSheet(
         "background-color: transparent;"
         // "color: rgba(255, 255, 255, 100);"
-        "color: white;"
+        //"color: white;"
         );
     ui->label_logitude->setStyleSheet(
         "background-color: transparent;"
         // "color: rgba(255, 255, 255, 100);"
-        "color: white;"
+        //"color: white;"
         );
 
     ui->label_latitude->setText("Waiting...");
@@ -2903,11 +2903,21 @@ void TestScreen::handleRecording()
         qDebug() << "LogData directory created";
     }
 
-    QString dateFolder =
+    QString dateFolder;
+
+    if(Line!="Others"){
+    dateFolder =
         QString("%1/%2%3")
             .arg(baseDir)
             .arg(QDate::currentDate().toString("dd-MM-yyyy"))
             .arg(Line);
+    }else{
+        dateFolder =
+            QString("%1/%2%3")
+                .arg(baseDir)
+                .arg(QDate::currentDate().toString("dd-MM-yyyy"))
+                .arg(LineOthers);
+    }
 
     if (!dir.exists(dateFolder))
         dir.mkpath(dateFolder);
@@ -4018,6 +4028,13 @@ void TestScreen::applyTestScreenTheme()
                 color: #D93636;
                 font-weight: bold;
             }
+            #label_latitude {
+                color: #1B2430;
+            }
+            #label_logitude {
+                color: #1B2430;
+            }
+
         )");
     }
     else
@@ -4097,6 +4114,12 @@ void TestScreen::applyTestScreenTheme()
             #label_DAC {
                 color: #EF5350;
                 font-weight: bold;
+            }
+            #label_latitude {
+                color: #D5DDE5;
+            }
+            #label_logitude {
+                color: #D5DDE5;
             }
         )");
     }

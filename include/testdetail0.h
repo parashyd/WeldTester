@@ -17,6 +17,8 @@ extern QString WeldNo;
 extern QString km;
 extern QString M;
 extern QString Rail ;
+extern QString LineOthers ;
+
 
 
 namespace Ui {

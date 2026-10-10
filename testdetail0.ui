@@ -448,7 +448,7 @@
        </item>
        <item>
         <property name="text">
-         <string>LH/RH</string>
+         <string>LH&amp;RH</string>
         </property>
        </item>
       </widget>

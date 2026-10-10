@@ -32,6 +32,8 @@ QString WeldNo;
 QString km;
 QString M;
 QString Rail ;
+QString LineOthers;
+
 
 namespace
 {
@@ -413,7 +415,7 @@ void testdetail0::navFocus(int direction)
     int newIndex = index + direction;
     if(current == ui->lineCombo)
     {
-        if(ui->lineCombo->currentIndex()== 7 )
+        if(ui->lineCombo->currentText()== "Others" )
         {
             ui->lineothersEdit->setVisible(true);
         }
@@ -527,6 +529,9 @@ void testdetail0::saveDataToFile()
     Division = ui->divEdit->text();
     Section = ui->secEdit->text();
     Line = ui->lineCombo->currentText();
+    if(ui->lineothersEdit->isVisible()){
+    LineOthers =ui->lineothersEdit->text();
+    }
     Testtype = ui->testTypeCombo->currentText();
     WeldNo = ui->weldNoEdit->text();
     km = ui->kmEdit->text();
