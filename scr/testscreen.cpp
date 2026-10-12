@@ -2054,7 +2054,8 @@ void TestScreen::navigateFocusVertical(int direction)
         newWidget == ui->lineEdit_TH1 ||
         newWidget == ui->lineEdit_G2ST ||
         newWidget == ui->lineEdit_G2ED ||
-        newWidget == ui->lineEdit_TH2
+        newWidget == ui->lineEdit_TH2  ||
+        newWidget == ui->comboBox_pos
         )
     {
         ui->label_offset->setVisible(false);
@@ -2357,6 +2358,17 @@ void TestScreen::handleBackspaceInput()
 void TestScreen::FunctionLeftRight(bool increment)
 {
     QLineEdit* focused = qobject_cast<QLineEdit*>(focusWidget());
+    if(qobject_cast<QComboBox*>(focusWidget()) == ui->comboBox_pos){
+        int count = ui->comboBox_pos->count();
+        int currentIndex = ui->comboBox_pos->currentIndex();
+        if(increment){
+            int newIndex = qBound(0, currentIndex + 1, count - 1);
+            ui->comboBox_pos->setCurrentIndex(newIndex);
+        }else{
+            int newIndex = qBound(0, currentIndex - 1, count - 1);
+            ui->comboBox_pos->setCurrentIndex(newIndex);
+        }
+    }
     if(focused == ui->lineEdit_Gain)
     {
         if(increment){
