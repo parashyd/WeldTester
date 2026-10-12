@@ -2017,6 +2017,7 @@ void TestScreen::navigateFocusVertical(int direction)
         ui->lineEdit_Delay,
         ui->lineEdit_Reject,
         ui->lineEdit_Angle,
+        ui->comboBox_pos,
         ui->lineEdit_G1ST,
         ui->lineEdit_G1ED,
         ui->lineEdit_TH1,
