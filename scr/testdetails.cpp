@@ -232,6 +232,20 @@ TestDetails::TestDetails(QWidget *parent)
     testdetails->lineEdit_Mtr->setText(M);
     testdetails->comboBox_Rail->setCurrentText(Rail);
 
+    QString savedPosition = QString::fromLocal8Bit(config.position).trimmed();
+    // Handle a trailing comma if the parser includes it.
+    if (savedPosition.endsWith(','))
+        savedPosition.chop(1);
+
+    const int positionIndex = testdetails->comboBox_LocOfDefect->findText(
+        savedPosition,
+        Qt::MatchFixedString | Qt::MatchCaseSensitive);
+
+    if (positionIndex >= 0)
+        testdetails->comboBox_LocOfDefect->setCurrentIndex(positionIndex);
+    else
+        qWarning() << "Unknown position in Config.txt:" << savedPosition;
+
     testdetails->comboBox_LocOfDefect->setEditable(false);
     testdetails->comboBox_Probe->setEditable(false);
 

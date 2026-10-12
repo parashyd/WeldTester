@@ -32,14 +32,15 @@ int getconfig(int userCalset, int userChannel, ConfigEntry* matchedConfig)
 
     while (fgets(configLine, sizeof(configLine), configFile))
     {
-        fields = sscanf(configLine, "%d,%d,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf,%f",
+        fields = sscanf(configLine,
+                        "%d,%d,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf,%f,%9[^\r\n]",
                         &temp.calset, &temp.channel,
                         &temp.range, &temp.delay, &temp.reject,
                         &temp.g1_start, &temp.g1_end, &temp.th1,
                         &temp.g2_start, &temp.g2_end, &temp.th2,
-                        &temp.Gain, &temp.Angle);
+                        &temp.Gain, &temp.Angle, temp.position);
 
-        if (fields == 13 && temp.calset == userCalset && temp.channel == userChannel) {
+        if (fields == 14 && temp.calset == userCalset && temp.channel == userChannel) {
             *matchedConfig = temp;
             matchFound = 1;
             break;

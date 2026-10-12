@@ -920,6 +920,9 @@ void TestScreen::onSocketReadyRead(quint8 key)
             return;
         }
 
+        const QByteArray selectedPosition = ui->comboBox_pos->currentText().trimmed().toLocal8Bit();
+        qstrncpy(config.position, selectedPosition.constData(), sizeof(config.position));
+
         if(updateConfigFile("Config.txt",config))
         {
             qDebug() << "Config.txt Updated";
@@ -1512,6 +1515,21 @@ void TestScreen::autoRunConfig()
         }
     //qDebug() << "autoconf" << config.range;
 
+    QString savedPosition = QString::fromLocal8Bit(config.position).trimmed();
+
+        // Handle a trailing comma if the parser includes it.
+    if (savedPosition.endsWith(','))
+        savedPosition.chop(1);
+
+    const int positionIndex = ui->comboBox_pos->findText(
+            savedPosition,
+            Qt::MatchFixedString | Qt::MatchCaseSensitive);
+
+    if (positionIndex >= 0)
+        ui->comboBox_pos->setCurrentIndex(positionIndex);
+    else
+        qWarning() << "Unknown position in Config.txt:" << savedPosition;
+
     ui->Plot->xAxis->setRange(0, config.range);  // optional
     ui->Plot->yAxis->setRange(0, 100);
 
@@ -1819,6 +1837,7 @@ inline void TestScreen::focusGate2(int replotRequired)
 
 bool TestScreen::updateConfigFile(const QString &filePath, const ConfigEntry &updatedConfig)
 {
+
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "Cannot open config file for reading:" << file.errorString();
@@ -1829,11 +1848,22 @@ bool TestScreen::updateConfigFile(const QString &filePath, const ConfigEntry &up
     QTextStream in(&file);
     bool lineUpdated = false;
 
+    const QString selectedPosition =
+        QString::fromLocal8Bit(updatedConfig.position).trimmed();
+
+    if (selectedPosition != "Head" &&
+        selectedPosition != "Web" &&
+        selectedPosition != "Flange") {
+        qWarning() << "Invalid position selected:" << selectedPosition;
+        file.close();
+        return false;
+    }
+
     while (!in.atEnd()) {
         QString line = in.readLine();
         QStringList parts = line.trimmed().split(",", Qt::SkipEmptyParts);
 
-        if (parts.size() == 13) {
+        if (parts.size() == 14) {
             int calset = parts[0].toInt();
             int channel = parts[1].toInt();
 
@@ -1850,7 +1880,7 @@ bool TestScreen::updateConfigFile(const QString &filePath, const ConfigEntry &up
                 double gain = updatedConfig.Gain;
 
                 // Update config line
-                line = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,")
+                line = QString("%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,")
                            .arg(calset)
                            .arg(channel)
                            .arg(static_cast<int>(range))
@@ -1863,7 +1893,8 @@ bool TestScreen::updateConfigFile(const QString &filePath, const ConfigEntry &up
                            .arg(updatedConfig.g2_end)
                            .arg(updatedConfig.th2)
                            .arg(static_cast<double>(gain))
-                           .arg(static_cast<int>(updatedConfig.Angle));
+                           .arg(static_cast<int>(updatedConfig.Angle))
+                           .arg(selectedPosition);
                 lineUpdated = true;
             }
         }
@@ -2364,9 +2395,13 @@ void TestScreen::FunctionLeftRight(bool increment)
         if(increment){
             int newIndex = qBound(0, currentIndex + 1, count - 1);
             ui->comboBox_pos->setCurrentIndex(newIndex);
+            const QByteArray selectedPosition = ui->comboBox_pos->currentText().trimmed().toLocal8Bit();
+            qstrncpy(config.position, selectedPosition.constData(), sizeof(config.position));
         }else{
             int newIndex = qBound(0, currentIndex - 1, count - 1);
             ui->comboBox_pos->setCurrentIndex(newIndex);
+            const QByteArray selectedPosition = ui->comboBox_pos->currentText().trimmed().toLocal8Bit();
+            qstrncpy(config.position, selectedPosition.constData(), sizeof(config.position));
         }
     }
     if(focused == ui->lineEdit_Gain)

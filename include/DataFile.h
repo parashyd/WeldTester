@@ -25,6 +25,7 @@ typedef struct {
     int th2;
     double Gain;
     float Angle;
+    char position[10];  // Head, Web, or Flange
 } ConfigEntry;
 
 #define GAIN_FACTOR  2.0
