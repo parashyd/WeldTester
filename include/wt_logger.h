@@ -43,8 +43,12 @@
 
 static constexpr uint32_t WT_MAGIC        = 0x574C5447u; // 'WLTG'
 static constexpr int WT_HEADER_SIZE = 220;
-static constexpr int WT_FLAG_OFFSET = 202;
-static constexpr int WT_FLAG_SIZE   = 16;
+// Header layout: recording flag occupies bytes 197..212; position uses
+// the final 7 bytes (213..219), without changing the existing header size.
+static constexpr int WT_FLAG_OFFSET     = 197;
+static constexpr int WT_FLAG_SIZE       = 16;
+static constexpr int WT_POSITION_OFFSET = 213;
+static constexpr int WT_POSITION_SIZE   = 7;
 
 //static constexpr float    RANGE_FACTOR_LT30 = 3.378f;
 //static constexpr float    RANGE_FACTOR_GT30 = 6.212f;
@@ -79,7 +83,8 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
                        const char *lon,
                        const char *McNo,
                        const char *calibrationDate,
-                       const char *recordingFlag)
+                       const char *recordingFlag,
+                       const char *position)
 {
     memset(buf, 0, WT_HEADER_SIZE);
     int off = 0;
@@ -134,6 +139,10 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
     memcpy(buf + off, recordingFlag, WT_FLAG_SIZE);
     off += WT_FLAG_SIZE;
 
+    // Position is stored in the 7 unused bytes at the end of the header.
+    if (position)
+        strncpy(reinterpret_cast<char *>(buf + WT_POSITION_OFFSET),
+                position, WT_POSITION_SIZE - 1);
 }
 
 
@@ -148,7 +157,8 @@ inline bool unpackHeader(
     char longitude[32],
     char machineNo[5],
     char calibrationDate[16],
-    char recordingFlag[16])
+    char recordingFlag[16],
+    char position[WT_POSITION_SIZE])
 {
     int off = 0;
 
@@ -197,11 +207,16 @@ inline bool unpackHeader(
     memcpy(machineNo, buf + off, 5);
     off += 5;
 
-    memcpy(calibrationDate, buf + off, 16);
-    off += 16;
+    // Calibration date occupies 12 bytes in the on-disk format.
+    memcpy(calibrationDate, buf + off, 12);
+    calibrationDate[12] = '\0';
+    off += 12;
 
     memcpy(recordingFlag, buf + off, WT_FLAG_SIZE);
     recordingFlag[WT_FLAG_SIZE - 1] = '\0';
+
+    memcpy(position, buf + WT_POSITION_OFFSET, WT_POSITION_SIZE);
+    position[WT_POSITION_SIZE - 1] = '\0';
 
     if (frameSize <= 0 || totalFrames < 0)
     {
@@ -269,6 +284,8 @@ public:
         QByteArray calibDate =
             calibrationDate.toLocal8Bit();
 
+        QByteArray positionData = QByteArray(config.position).trimmed();
+
         QByteArray emptyFlag(WT_FLAG_SIZE, '\0');
 
         wt_detail::packHeader(
@@ -282,7 +299,8 @@ public:
             GPS_GetLongitude(),
             machNo.constData(),
             calibDate.constData(),
-            emptyFlag.constData());
+            emptyFlag.constData(),
+            positionData.constData());
 
         fwrite(buf, 1, WT_HEADER_SIZE, m_fp);
 
@@ -544,6 +562,11 @@ public:
     {
         return QString(m_recordingFlag);
     }
+
+    QString position() const
+    {
+        return QString::fromLocal8Bit(m_position).trimmed();
+    }
 private:
     bool readHeader()
     {
@@ -577,7 +600,8 @@ private:
                 m_longitude,
                 m_MachNo,
                 m_calibrationDate,
-                m_recordingFlag))
+                m_recordingFlag,
+                m_position))
         {
             return false;
         }
@@ -599,5 +623,6 @@ private:
     char m_MachNo[5]={};
     char m_calibrationDate[16] = {};
     char m_recordingFlag[WT_FLAG_SIZE] = {};
+    char m_position[WT_POSITION_SIZE] = {};
 };
 #endif    // WT_LOGGER_H

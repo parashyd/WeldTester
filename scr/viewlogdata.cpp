@@ -37,6 +37,9 @@ viewLogData::viewLogData(QWidget *parent)
     ui->lineEdit_GTST->setText(QString::number(5));
     ui->lineEdit_GTED->setText(QString::number(30));
     ui->lineEdit_TH->setText(QString::number(25));
+    ui->label_flagVal->setText(m_reader.recordingFlag());
+    ui->label_20->setText(m_reader.position());
+
     GTST = ui->lineEdit_GTST->text().toInt();
     GTED = ui->lineEdit_GTED->text().toInt();
     TH = ui->lineEdit_TH->text().toInt();
@@ -49,6 +52,7 @@ viewLogData::viewLogData(QWidget *parent)
     connect(ui->lineEdit_TH,&QLineEdit::textChanged,this,[this](){
         TH = ui->lineEdit_TH->text().toInt();
     });
+
     // QPixmap pixmap = this->grab();
 
     // // --- Adjust JPG output size ---
