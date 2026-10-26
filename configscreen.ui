@@ -15,7 +15,7 @@
     <rect>
      <x>180</x>
      <y>3</y>
-     <width>265</width>
+     <width>281</width>
      <height>18</height>
     </rect>
    </property>
@@ -47,13 +47,13 @@
     <number>50</number>
    </property>
    <property name="columnCount">
-    <number>11</number>
+    <number>12</number>
    </property>
    <attribute name="horizontalHeaderMinimumSectionSize">
     <number>20</number>
    </attribute>
    <attribute name="horizontalHeaderDefaultSectionSize">
-    <number>55</number>
+    <number>48</number>
    </attribute>
    <attribute name="verticalHeaderMinimumSectionSize">
     <number>15</number>
@@ -166,6 +166,11 @@
      <string>ANG</string>
     </property>
    </column>
+   <column>
+    <property name="text">
+     <string>POS</string>
+    </property>
+   </column>
   </widget>
   <widget class="QTableWidget" name="configTable_2">
    <property name="geometry">
@@ -188,7 +193,7 @@
     <number>50</number>
    </property>
    <property name="columnCount">
-    <number>11</number>
+    <number>12</number>
    </property>
    <attribute name="horizontalHeaderVisible">
     <bool>true</bool>
@@ -197,7 +202,7 @@
     <number>20</number>
    </attribute>
    <attribute name="horizontalHeaderDefaultSectionSize">
-    <number>55</number>
+    <number>48</number>
    </attribute>
    <attribute name="verticalHeaderVisible">
     <bool>true</bool>
@@ -311,6 +316,11 @@
    <column>
     <property name="text">
      <string>ANG</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>POS</string>
     </property>
    </column>
   </widget>

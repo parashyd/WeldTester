@@ -5,6 +5,7 @@
 #include "matrix_keypad.h"
 #include <QDebug>
 #include <QTableWidgetItem>
+#include <QComboBox>
 #include <QFile>
 #include <stdio.h>
 #include "QTimer"
@@ -211,13 +212,34 @@ ConfigScreen::ConfigScreen(QWidget *parent)
             {
                 ui->statuslabel->clear();
             });
-  //  QPixmap pixmap = this->grab();
+    //  QPixmap pixmap = this->grab();
 
     // --- Adjust JPG output size ---
     // QSize jpgTargetSize(640, 480); // You can change this (640x480, 1024x768, etc.)
     // QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     // QString jpgFileName = QString("ConfigScreen.jpg");
     // scaledJpg.save(jpgFileName, "JPG", 100 );
+    // Position column: only allow Head, Web, or Flange.
+    const QStringList positions = {"Head", "Web", "Flange"};
+    for (QTableWidget *table : {ui->configTable, ui->configTable_2})
+    {
+        table->setColumnCount(12);
+        table->setHorizontalHeaderItem(11, new QTableWidgetItem("POS"));
+        table->setColumnWidth(11, 76);
+        for (int row = 0; row < table->rowCount(); ++row)
+        {
+            QComboBox *positionCombo = new QComboBox(table);
+            positionCombo->addItems(positions);
+            positionCombo->setCurrentText("Head");
+            positionCombo->setFocusPolicy(Qt::StrongFocus);
+            positionCombo->setStyleSheet(
+                "QComboBox { padding: 2px; border: 1px solid #AAB6C3; }"
+                "QComboBox:focus { border: 2px solid #3AA0FF; }"
+                "QComboBox QAbstractItemView { selection-background-color: #DCEEFF; }");
+            table->setCellWidget(row, 11, positionCombo);
+        }
+    }
+
     loadConfigToTables();
 }
 void ConfigScreen::setLogicalFocus()
@@ -229,7 +251,27 @@ void ConfigScreen::setLogicalFocus()
 
     table->setCurrentCell(currentRow, currentCol);
 
-    table->setFocus(Qt::OtherFocusReason);
+
+    if (currentCol == 11)
+    {
+        // POS column: give focus to its combo box.
+        QComboBox *positionCombo =
+            qobject_cast<QComboBox *>(
+                table->cellWidget(currentRow, 11));
+
+        if (positionCombo)
+        {
+            positionCombo->setFocus(Qt::OtherFocusReason);
+
+            qDebug() << "POS focused:"
+                     << "Row:" << currentRow
+                     << "Value:" << positionCombo->currentText();
+        }
+    }
+    else
+    {
+        table->setFocus(Qt::OtherFocusReason);
+    }
 
     qDebug() << "Focused:"
              << "Table:" << currentTable
@@ -269,7 +311,7 @@ void ConfigScreen::moveFocus(int dRow, int dCol)
         // }
         // else
         // {
-            currentCol = activeTable()->columnCount()-1;
+        currentCol = activeTable()->columnCount()-1;
         // }
     }
 
@@ -278,12 +320,12 @@ void ConfigScreen::moveFocus(int dRow, int dCol)
         // if(currentTable == 0)
         // {
         //     currentTable = 1;
-            currentCol = 0;
+        currentCol = 0;
         // }
         // else
         // {
-            // currentCol =
-            //     activeTable()->columnCount() - 1;
+        // currentCol =
+        //     activeTable()->columnCount() - 1;
         // }
     }
 
@@ -317,31 +359,31 @@ void ConfigScreen::handleSocketKey(quint8 key)
             qDebug() << "Focused Channel 2 Table";
         }
         return;
-    // case CH_A:
+        // case CH_A:
 
-    //     currentTable = 0;
+        //     currentTable = 0;
 
-    //     currentRow = 0;
-    //     currentCol = 0;
+        //     currentRow = 0;
+        //     currentCol = 0;
 
-    //     setLogicalFocus();
+        //     setLogicalFocus();
 
-    //     qDebug() << "Focused Channel 1 Table";
+        //     qDebug() << "Focused Channel 1 Table";
 
-    //     return;
+        //     return;
 
-    // case CH_B:
+        // case CH_B:
 
-    //     currentTable = 1;
+        //     currentTable = 1;
 
-    //     currentRow = 0;
-    //     currentCol = 0;
+        //     currentRow = 0;
+        //     currentCol = 0;
 
-    //     setLogicalFocus();
+        //     setLogicalFocus();
 
-    //     qDebug() << "Focused Channel 2 Table";
+        //     qDebug() << "Focused Channel 2 Table";
 
-    //     return;
+        //     return;
 
     case UP:
         moveFocus(-1, 0);
@@ -464,6 +506,10 @@ void ConfigScreen::saveConfigFile()
         QString angle =
             ui->configTable->item(row,10)->text();
 
+        QComboBox *positionCombo =
+            qobject_cast<QComboBox *>(ui->configTable->cellWidget(row, 11));
+        QString position = positionCombo ? positionCombo->currentText() : "Head";
+
         out
             << row+1 << ","
             << 1 << ","
@@ -477,7 +523,8 @@ void ConfigScreen::saveConfigFile()
             << g2e << ","
             << th2 << ","
             << gain << ","
-            << angle << ",\n";
+            << angle << ","
+            << position << ",\n";
     }
 
     // for(int row=0; row<10; row++)
@@ -516,6 +563,10 @@ void ConfigScreen::saveConfigFile()
         QString angle =
             ui->configTable_2->item(row,10)->text();
 
+        QComboBox *positionCombo =
+            qobject_cast<QComboBox *>(ui->configTable_2->cellWidget(row, 11));
+        QString position = positionCombo ? positionCombo->currentText() : "Head";
+
         out
             << row+1 << ","
             << 2 << ","
@@ -529,7 +580,8 @@ void ConfigScreen::saveConfigFile()
             << g2e << ","
             << th2 << ","
             << gain << ","
-            << angle << ",\n";
+            << angle << ","
+            << position << ",\n";
     }
 
     file.close();
@@ -546,24 +598,62 @@ void ConfigScreen::saveConfigFile()
 
 void ConfigScreen::adjustValue(int delta)
 {
-    QTableWidget *table =
-        activeTable();
+    QTableWidget *table = activeTable();
 
-    QTableWidgetItem *item =
-        table->item(
-            currentRow,
-            currentCol);
-
-    if(!item)
+    if (!table)
         return;
 
-    int value =
-        item->text().toInt();
+
+    // INC/DEC should change the position only when the Position
+    // combo box itself currently has focus.
+    // Handle POS combo box.
+    if (currentCol == 11)
+    {
+        QComboBox *positionCombo =
+            qobject_cast<QComboBox *>(
+                table->cellWidget(currentRow, 11));
+
+        if (positionCombo && positionCombo->count() > 0)
+        {
+            int nextIndex = positionCombo->currentIndex() + delta;
+
+            // Wrap around at either end.
+            if (nextIndex < 0)
+                nextIndex = positionCombo->count() - 1;
+            else if (nextIndex >= positionCombo->count())
+                nextIndex = 0;
+
+            positionCombo->setCurrentIndex(nextIndex);
+
+            qDebug() << "POS INC/DEC:"
+                     << "Table:" << currentTable
+                     << "Row:" << currentRow
+                     << "Index:" << positionCombo->currentIndex()
+                     << "Text:" << positionCombo->currentText();
+        }
+        else
+        {
+            qDebug() << "POS combo not found at row:" << currentRow;
+        }
+
+        return;
+    }
+
+    // Existing numeric-cell behavior.
+    QTableWidgetItem *item =
+        table->item(currentRow, currentCol);
+
+    if (!item)
+        return;
+
+    bool ok = false;
+    int value = item->text().toInt(&ok);
+
+    if (!ok)
+        value = 0;
 
     value += delta;
-
-    item->setText(
-        QString::number(value));
+    item->setText(QString::number(value));
 }
 
 void ConfigScreen::loadConfigToTables()
@@ -573,6 +663,7 @@ void ConfigScreen::loadConfigToTables()
     char configLine[MAX_LINE_LEN];
 
     ConfigEntry temp;
+    char position[16] = {};
 
     int fields;
 
@@ -586,8 +677,9 @@ void ConfigScreen::loadConfigToTables()
 
     while(fgets(configLine, sizeof(configLine), configFile))
     {
+        memset(position, 0, sizeof(position));
         fields = sscanf(configLine,
-                        "%d,%d,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf,%f",
+                        "%d,%d,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf,%f,%15[^,\r\n]",
 
                         &temp.calset,
                         &temp.channel,
@@ -605,10 +697,21 @@ void ConfigScreen::loadConfigToTables()
                         &temp.th2,
 
                         &temp.Gain,
-                        &temp.Angle);
+                        &temp.Angle,
+                        position);
 
-        if(fields != 13)
+        if(fields < 13)
             continue;
+
+        QString savedPosition = (fields >= 14)
+                                    ? QString::fromLocal8Bit(position).trimmed()
+                                    : QString("Head");
+        if (savedPosition != "Head" &&
+            savedPosition != "Web" &&
+            savedPosition != "Flange")
+        {
+            savedPosition = "Head";
+        }
 
         int row = temp.calset - 1;
 
@@ -657,6 +760,11 @@ void ConfigScreen::loadConfigToTables()
 
         table->setItem(row, 10,
                        new QTableWidgetItem(QString::number(temp.Angle)));
+
+        QComboBox *positionCombo =
+            qobject_cast<QComboBox *>(table->cellWidget(row, 11));
+        if (positionCombo)
+            positionCombo->setCurrentText(savedPosition);
     }
 
     fclose(configFile);
