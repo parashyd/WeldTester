@@ -2941,7 +2941,8 @@ void TestScreen::showBlankScreen()
 
 void TestScreen::handleRecording()
 {
-    QString baseDir = "LogData";
+    //QString baseDir = "LogData";
+    QString baseDir = SD_CARD + "LogData";
 
     QDir dir;
 

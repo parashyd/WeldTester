@@ -284,7 +284,9 @@ Openlog::Openlog(QWidget *parent)
     )");
     }
 
-    basePath = QCoreApplication::applicationDirPath() + "/SavedData";
+    //basePath = QCoreApplication::applicationDirPath() + "/SavedData";
+
+    basePath = SD_CARD + "SavedData";
 
     /* --- Watch folders --- */
     watcher->addPath(basePath);

@@ -26,7 +26,7 @@ public:
 
 private:
     Ui::OpenLog1 *ui;
-    QString basePath = "LogData";
+    QString basePath;
 
     QString selectedDateFolder;
 

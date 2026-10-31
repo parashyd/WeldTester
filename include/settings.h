@@ -11,7 +11,7 @@
 
 extern const char *ORG_NAME;
 extern const char *APP_NAME;
-
+const QString SD_CARD = "/media/mmcblk1p1/";
 class QWidget;
 
 namespace Ui {

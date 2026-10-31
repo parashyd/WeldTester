@@ -392,8 +392,8 @@ void PreviewScreen::setupPlotAppearance()
 
 void PreviewScreen::on_pushButton_save_clicked()
 {
-    QString baseDir = "SavedData";
-
+    //QString baseDir = "SavedData";
+    QString baseDir = SD_CARD + "SavedData";
     // --- Ensure directories exist ---
     QDir dir;
     if (!dir.exists(baseDir))
