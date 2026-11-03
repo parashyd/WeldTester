@@ -597,6 +597,52 @@ void TestScreen::onSocketReadyRead(quint8 key)
 
             focusGate1(1);
         }
+
+        if(key=='7')
+        {
+            recordingFlag = "DFWO";
+
+            ui->label_flag->setText(recordingFlag);
+            ui->label_flag->setVisible(true);
+
+            logfile.setFlag(recordingFlag, "F7");
+
+            qDebug() << "[Recording] Flag 7 ->"
+                         << recordingFlag;
+
+        }
+
+        if(key == '8')
+        {
+
+            recordingFlag = "DFWR";
+
+            ui->label_flag->setText(recordingFlag);
+            ui->label_flag->setVisible(true);
+
+            logfile.setFlag(recordingFlag, "F8");
+
+            qDebug() << "[Recording] Flag 8 ->"
+                         << recordingFlag;
+
+
+        }
+
+        if(key=='9')
+        {
+
+            recordingFlag = "DFWN";
+
+            ui->label_flag->setText(recordingFlag);
+            ui->label_flag->setVisible(true);
+
+            logfile.setFlag(recordingFlag, "F9");
+
+            qDebug() << "[Recording] Flag 9 ->"
+                     << recordingFlag;
+        }
+
+
     }
 
     if (key == ESC){
@@ -986,60 +1032,6 @@ void TestScreen::onSocketReadyRead(quint8 key)
             FunctionLeftRight(true);
         }
         break;
-
-    case '7':
-    {
-        if (isRecording())
-        {
-            recordingFlag = "DFWO";
-
-            ui->label_flag->setText(recordingFlag);
-            ui->label_flag->setVisible(true);
-
-            logfile.setFlag(recordingFlag, "F7");
-
-            qDebug() << "[Recording] Flag 7 ->"
-                     << recordingFlag;
-        }
-
-        break;
-    }
-
-    case '8':
-    {
-        if (isRecording())
-        {
-            recordingFlag = "DFWR";
-
-            ui->label_flag->setText(recordingFlag);
-            ui->label_flag->setVisible(true);
-
-            logfile.setFlag(recordingFlag, "F8");
-
-            qDebug() << "[Recording] Flag 8 ->"
-                     << recordingFlag;
-        }
-
-        break;
-    }
-
-    case '9':
-    {
-        if (isRecording())
-        {
-            recordingFlag = "DFWN";
-
-            ui->label_flag->setText(recordingFlag);
-            ui->label_flag->setVisible(true);
-
-            logfile.setFlag(recordingFlag, "F9");
-
-            qDebug() << "[Recording] Flag 9 ->"
-                     << recordingFlag;
-        }
-
-        break;
-    }
 
     default:
         if (testdetails && testdetails->isVisible())
