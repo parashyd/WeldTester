@@ -198,8 +198,8 @@ TestScreen::TestScreen(QWidget *parent)
     g1Line->setPen(QPen(QColor("#219601"), 2));  // Green
     g2Line->setPen(QPen(QColor("#0818ff"), 2));  // Blue
     //waveformGraph->setPen(QPen(Qt::yellow, 2));
-    g1border->setPen(QPen(Qt::white, 6));
-    g2border->setPen(QPen(Qt::white, 6));
+    g1border->setPen(QPen(QColor("#008080"), 6));
+    g2border->setPen(QPen(QColor("#008080"), 6));
     g1border->setVisible(false);
     g2border->setVisible(false);
 
@@ -3123,10 +3123,16 @@ void TestScreen::handleRecording()
         file.close();
     }
 
+    QColor col  = settings::channel1Color();
+    if(config.channel == 2 ){
+        QColor col = settings::channel2Color();
+    }
+
     logfile.open(logdataFile,
                  config,
                  MachNo,
-                 calibrationDate);
+                 calibrationDate,
+                 col);
 }
 bool TestScreen::saveCalibrationHistory()
 {

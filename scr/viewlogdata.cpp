@@ -91,11 +91,12 @@ void viewLogData::setupPlot()
 
     m_wave = ui->PLOT->addGraph();
     m_wave->setLineStyle(QCPGraph::lsLine);
-    m_wave->setPen(QPen(Qt::yellow, 2));
+
+    m_wave->setPen(QPen(m_reader.channelColor(), 2));
 
     gborder = ui->PLOT->addGraph();
     gborder->setLineStyle(QCPGraph::lsLine);
-    gborder->setPen(QPen(Qt::white, 6));
+    gborder->setPen(QPen(QColor("#008080"), 6));
 
     gate = ui->PLOT->addGraph();
     gate->setLineStyle(QCPGraph::lsLine);

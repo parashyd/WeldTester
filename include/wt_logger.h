@@ -1,4 +1,4 @@
-#ifndef WT_LOGGER_H
+    #ifndef WT_LOGGER_H
 #define WT_LOGGER_H
 #pragma once
 #include <cstdio>
@@ -7,6 +7,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QDebug>
+#include <QColor>
 #include "DataFile.h"
 #include "QDateTime"
 #include "gps.h"
@@ -43,12 +44,15 @@
 
 static constexpr uint32_t WT_MAGIC        = 0x574C5447u; // 'WLTG'
 static constexpr int WT_HEADER_SIZE = 220;
-// Header layout: recording flag occupies bytes 197..212; position uses
-// the final 7 bytes (213..219), without changing the existing header size.
-static constexpr int WT_FLAG_OFFSET     = 197;
-static constexpr int WT_FLAG_SIZE       = 16;
+
+static constexpr int WT_FLAG_OFFSET = 197;
+static constexpr int WT_FLAG_SIZE = 3;
+
+static constexpr int WT_COLOR_OFFSET = 200;
+static constexpr int WT_COLOR_SIZE = 4;
+
 static constexpr int WT_POSITION_OFFSET = 213;
-static constexpr int WT_POSITION_SIZE   = 7;
+static constexpr int WT_POSITION_SIZE = 7;
 
 //static constexpr float    RANGE_FACTOR_LT30 = 3.378f;
 //static constexpr float    RANGE_FACTOR_GT30 = 6.212f;
@@ -84,6 +88,7 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
                        const char *McNo,
                        const char *calibrationDate,
                        const char *recordingFlag,
+                       const QColor &channelColor,
                        const char *position)
 {
     memset(buf, 0, WT_HEADER_SIZE);
@@ -139,6 +144,9 @@ inline void packHeader(uint8_t buf[WT_HEADER_SIZE],
     memcpy(buf + off, recordingFlag, WT_FLAG_SIZE);
     off += WT_FLAG_SIZE;
 
+    QRgb colorValue = channelColor.rgba();
+    memcpy(buf + WT_COLOR_OFFSET, &colorValue, WT_COLOR_SIZE);
+
     // Position is stored in the 7 unused bytes at the end of the header.
     if (position)
         strncpy(reinterpret_cast<char *>(buf + WT_POSITION_OFFSET),
@@ -158,6 +166,7 @@ inline bool unpackHeader(
     char machineNo[5],
     char calibrationDate[16],
     char recordingFlag[16],
+    QColor &channelColor,
     char position[WT_POSITION_SIZE])
 {
     int off = 0;
@@ -215,6 +224,10 @@ inline bool unpackHeader(
     memcpy(recordingFlag, buf + off, WT_FLAG_SIZE);
     recordingFlag[WT_FLAG_SIZE - 1] = '\0';
 
+    QRgb colorValue;
+    memcpy(&colorValue, buf + WT_COLOR_OFFSET, WT_COLOR_SIZE);
+    channelColor = QColor::fromRgba(colorValue);
+
     memcpy(position, buf + WT_POSITION_OFFSET, WT_POSITION_SIZE);
     position[WT_POSITION_SIZE - 1] = '\0';
 
@@ -243,7 +256,8 @@ public:
     bool open(const QString &filePath,
               const ConfigEntry &config,
               const QString &machineNo,
-              const QString &calibrationDate)    {
+              const QString &calibrationDate,
+              const QColor &channelColor)  {
         close(); // safety
 
         m_filePath = filePath;
@@ -288,6 +302,7 @@ public:
 
         QByteArray emptyFlag(WT_FLAG_SIZE, '\0');
 
+
         wt_detail::packHeader(
             buf,
             config,
@@ -300,6 +315,7 @@ public:
             machNo.constData(),
             calibDate.constData(),
             emptyFlag.constData(),
+            channelColor,
             positionData.constData());
 
         fwrite(buf, 1, WT_HEADER_SIZE, m_fp);
@@ -567,6 +583,8 @@ public:
     {
         return QString::fromLocal8Bit(m_position).trimmed();
     }
+
+    QColor channelColor() const { return m_channelColor; }
 private:
     bool readHeader()
     {
@@ -601,6 +619,7 @@ private:
                 m_MachNo,
                 m_calibrationDate,
                 m_recordingFlag,
+                m_channelColor,
                 m_position))
         {
             return false;
@@ -623,6 +642,7 @@ private:
     char m_MachNo[5]={};
     char m_calibrationDate[16] = {};
     char m_recordingFlag[WT_FLAG_SIZE] = {};
+    QColor m_channelColor;
     char m_position[WT_POSITION_SIZE] = {};
 };
 #endif    // WT_LOGGER_H
