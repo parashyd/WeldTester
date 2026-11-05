@@ -332,10 +332,13 @@ void PreviewScreen::plotGraphFromFilePS()
 
     ui->Plot->addGraph();
     if (config.channel == 1){
-         ui->Plot->graph(2)->setPen(QPen(Qt::magenta, 2));
+
+         ui->Plot->graph(2)->setPen(QPen(settings::channel1Color(), 2));
+
     }
     else{
-         ui->Plot->graph(2)->setPen(QPen(Qt::yellow, 2));
+        ui->Plot->graph(2)->setPen(QPen(settings::channel2Color(), 2));
+
     }
 
     if(freeze){
