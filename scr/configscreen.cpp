@@ -458,7 +458,7 @@ void ConfigScreen::saveConfigFile()
     QPixmap scaledJpg = pixmap.scaled(jpgTargetSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     QString jpgFileName = QString("ConfigScreen.jpg");
     scaledJpg.save(jpgFileName, "JPG", 100 );
-    QFile file("Config.txt");
+    QFile file(SD_CARD1+"Config.txt");
 
     if(!file.open(
             QIODevice::WriteOnly |
@@ -667,7 +667,8 @@ void ConfigScreen::loadConfigToTables()
 
     int fields;
 
-    configFile = fopen("Config.txt", "r");
+    QString configpath = SD_CARD1 + "Config.txt";
+    configFile = fopen(configpath.toLocal8Bit().constData(), "r");
 
     if(!configFile)
     {

@@ -46,9 +46,9 @@ static constexpr uint32_t WT_MAGIC        = 0x574C5447u; // 'WLTG'
 static constexpr int WT_HEADER_SIZE = 220;
 
 static constexpr int WT_FLAG_OFFSET = 197;
-static constexpr int WT_FLAG_SIZE = 3;
+static constexpr int WT_FLAG_SIZE = 5;
 
-static constexpr int WT_COLOR_OFFSET = 200;
+static constexpr int WT_COLOR_OFFSET = 202;
 static constexpr int WT_COLOR_SIZE = 4;
 
 static constexpr int WT_POSITION_OFFSET = 213;

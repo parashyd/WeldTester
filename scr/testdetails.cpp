@@ -950,7 +950,7 @@ void TestDetails::closePreview()
 
 void TestDetails::saveDataToFile()
 {
-    QFile file("testdetails.json");
+    QFile file(SD_CARD1+"testdetails.json");
 
     QJsonObject obj;
     if(file.open(QIODevice::ReadOnly))
@@ -994,7 +994,7 @@ void TestDetails::saveDataToFile()
 
 void TestDetails::loadDataFromFile()
 {
-    QFile file("testdetails.json");
+    QFile file(SD_CARD1+"testdetails.json");
     if (!file.exists()) {
         return;
     }

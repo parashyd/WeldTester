@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <QVector>
 #include <QPointF>
+#include "settings.h"
 
 extern SharedData* shared;
 
@@ -22,7 +23,8 @@ int getconfig(int userCalset, int userChannel, ConfigEntry* matchedConfig)
     char configLine[MAX_LINE_LEN];
 
     // configFile = fopen("/run/media/mmcblk1p1/Config.txt", "r");
-    configFile = fopen("Config.txt", "r");
+    QString configpath = SD_CARD1 + "Config.txt";
+    configFile = fopen(configpath.toLocal8Bit().constData(), "r");
 
     if (!configFile)
     {

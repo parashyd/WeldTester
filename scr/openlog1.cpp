@@ -25,7 +25,7 @@ OpenLog1::OpenLog1(QWidget *parent)
     applyTheme();
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
     //basePath = "LogData";
-    basePath = SD_CARD+"LogData";
+    basePath = SD_CARD2+"LogData";
     loadDateFolders();
 
     // Date folder changed

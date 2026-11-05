@@ -1002,7 +1002,8 @@ Battery.o: scr/Battery.cpp include/Battery.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Battery.o scr/Battery.cpp
 
 DataFile.o: scr/DataFile.cpp include/DataFile.h \
-		include/shared_data.h
+		include/shared_data.h \
+		include/settings.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o DataFile.o scr/DataFile.cpp
 
 Gain.o: scr/Gain.cpp include/Ugpio.h \
@@ -1041,9 +1042,9 @@ previewscreen.o: scr/previewscreen.cpp include/previewscreen.h \
 		include/DataFile.h \
 		include/shared_data.h \
 		ui_previewscreen.h \
-		include/qcustomplot.h \
 		include/matrix_keypad.h \
 		include/testscreen.h \
+		include/qcustomplot.h \
 		include/testdetail0.h \
 		include/mainwindow.h \
 		include/configscreen.h \

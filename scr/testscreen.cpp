@@ -127,7 +127,6 @@ TestScreen::TestScreen(QWidget *parent)
 
     const int duty = AudioLevel * 10000;
 
-    Buzzerinit();
     BuzzerDuty(duty);
 
     m_audioPercent = static_cast<float>(AudioLevel);
@@ -969,7 +968,7 @@ void TestScreen::onSocketReadyRead(quint8 key)
         const QByteArray selectedPosition = ui->comboBox_pos->currentText().trimmed().toLocal8Bit();
         qstrncpy(config.position, selectedPosition.constData(), sizeof(config.position));
 
-        if(updateConfigFile("Config.txt",config))
+        if(updateConfigFile(SD_CARD1+"Config.txt",config))
         {
             qDebug() << "Config.txt Updated";
             ui->label_configStatus->setText("Config updated");
@@ -2593,7 +2592,7 @@ void TestScreen::onApplyGainClicked()
 void TestScreen::loadSavedConfig()
 {
     // QFile file("/run/media/mmcblk1p1/config_saved.json");
-    QFile file("config_saved.json");
+    QFile file(SD_CARD1 + "config_saved.json");
 
     if (!file.exists() || !file.open(QIODevice::ReadOnly)) return;
 
@@ -2934,7 +2933,7 @@ void TestScreen::showBlankScreen()
 void TestScreen::handleRecording()
 {
     //QString baseDir = "LogData";
-    QString baseDir = SD_CARD + "LogData";
+    QString baseDir = SD_CARD2 + "LogData";
 
     QDir dir;
 
@@ -3001,7 +3000,7 @@ void TestScreen::handleRecording()
     // -------------------------------------------------
 
     QString calibrationSource =
-        QString("SavedData/%1Calib")
+        QString(SD_CARD2+"SavedData/%1Calib")
             .arg(calibrationDate);
 
     QString calibFolder =  QString("%1/Calibinfo")
@@ -3136,7 +3135,7 @@ void TestScreen::handleRecording()
 }
 bool TestScreen::saveCalibrationHistory()
 {
-    QString baseFolder = "SavedData";
+    QString baseFolder = SD_CARD2 + "SavedData";
     //QString filePath = folderPath + "/calibration_history.json";
     QString folderPath = QString("%1/%2%3").arg(baseFolder).arg(QDate::currentDate().toString("dd-MM-yyyy")).arg("Calib");
 
@@ -3896,7 +3895,7 @@ bool TestScreen::isCalibrationRecent(int channel, int calset)
 }
 QString TestScreen::getRecentCalibrationDate(int channel, int calset)
 {
-    QString baseFolder = "SavedData";
+    QString baseFolder = SD_CARD2 + "SavedData";
     QDate today = QDate::currentDate();
 
     // Check today + previous 3 days

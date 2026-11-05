@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 void MainWindow::ReadMachNo(){
-    QFile file("BIN.BIN");
+    QFile file(SD_CARD1 + "BIN.BIN");
 
     if (!file.open(QIODevice::ReadOnly))
     {

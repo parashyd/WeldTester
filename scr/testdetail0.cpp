@@ -493,7 +493,7 @@ void testdetail0::adjustComboBoxIndex(int delta)
 
 void testdetail0::saveDataToFile()
 {
-    QFile file("testdetails.json");
+    QFile file(SD_CARD1+"testdetails.json");
     QJsonObject obj;
 
     if(file.open(QIODevice::ReadOnly))
