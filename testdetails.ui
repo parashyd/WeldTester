@@ -386,43 +386,7 @@
      </widget>
     </item>
     <item row="4" column="4">
-     <widget class="QComboBox" name="comboBox_Probe">
-      <item>
-       <property name="text">
-        <string>0°</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>17.5°</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>37°</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>45°</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>70°</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>2x70</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>2x45</string>
-       </property>
-      </item>
-     </widget>
+     <widget class="QLineEdit" name="lineEdit_Probe"/>
     </item>
    </layout>
   </widget>

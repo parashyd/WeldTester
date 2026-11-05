@@ -226,7 +226,20 @@ TestDetails::TestDetails(QWidget *parent)
     testdetails->lineEdit_CH->setText(QString::number(config.channel));
     testdetails->lineEdit_Calset->setText(QString::number(config.calset));
 
-    testdetails->comboBox_Probe->setCurrentIndex(config.Angle);                  // Angle (correction)
+    if(config.channel==2){
+        testdetails->lineEdit_Probe->setText(QString::number(config.Angle));        // Angle (correction)
+    }else if(config.channel==1){
+
+        if(config.Angle==45){
+            testdetails->lineEdit_Probe->setText("2x45");        // Angle (correction)
+        }
+        else if(config.Angle==70){
+            testdetails->lineEdit_Probe->setText("2x70");        // Angle (correction)
+        }
+        else{
+            testdetails->lineEdit_Probe->setText(QString::number(config.Angle));
+        }
+    }
     testdetails->comboBox_Mode->setCurrentText(DC_SC_mode);
     testdetails->lineEdit_Km->setText(km);
     testdetails->lineEdit_Mtr->setText(M);
@@ -247,7 +260,6 @@ TestDetails::TestDetails(QWidget *parent)
         qWarning() << "Unknown position in Config.txt:" << savedPosition;
 
     testdetails->comboBox_LocOfDefect->setEditable(false);
-    testdetails->comboBox_Probe->setEditable(false);
 
     inputModes[testdetails->lineEdit_Stations] = InputMode::Alphabetic;
     inputModes[testdetails->lineEdit_Km] = InputMode::Alphanumeric;
@@ -328,7 +340,7 @@ void TestDetails::PreviewClick()
     stations = testdetails->lineEdit_Stations->text();
     rollmark = testdetails->comboBox_Rollmark1->currentText() + testdetails->comboBox_kg->currentText() + testdetails->comboBox_Month->currentText() + testdetails->lineEdit_Rollmarkyear->text();
     weld = testdetails->comboBox_WeldType->currentText() + "-" + testdetails->lineEdit_Weldno->text();
-    Probe = testdetails->comboBox_Probe->currentText();
+    Probe = testdetails->lineEdit_Probe->text();
     classVal = testdetails->comboBox_Class->currentText();
     FPNFP = testdetails->comboBox_FP->currentText();
     OthersObservation = testdetails->lineEdit_OtherObservation->text();   //combo
@@ -753,7 +765,7 @@ void TestDetails::navigateFocus(int direction)
         testdetails->lineEdit_Stations,
         testdetails->comboBox_Rail,
         testdetails->lineEdit_Weldno,
-        testdetails->comboBox_Probe,
+        testdetails->lineEdit_Probe,
         testdetails->comboBox_Rollmark1,
         testdetails->comboBox_kg,
         testdetails->comboBox_Month,
@@ -974,7 +986,7 @@ void TestDetails::saveDataToFile()
     obj["kg"] = testdetails->comboBox_kg->currentText();
     obj["Month"] = testdetails->comboBox_Month->currentText();
     obj["RollMarkYear"]=testdetails->lineEdit_Rollmarkyear->text();
-    obj["Probe"] = testdetails->comboBox_Probe->currentText();
+    obj["Probe"] = testdetails->lineEdit_Probe->text();
     obj["Mode"] = testdetails->comboBox_Mode->currentText();
     obj["LocOfDefect"] = testdetails->comboBox_LocOfDefect->currentText();
     obj["Type"] = testdetails->comboBox_Type->currentText();
@@ -1019,7 +1031,7 @@ void TestDetails::loadDataFromFile()
         testdetails->comboBox_kg->setCurrentText(obj["kg"].toString());
         testdetails->comboBox_Month->setCurrentText(obj["Month"].toString());
         testdetails->lineEdit_Rollmarkyear->setText(obj["RollMarkYear"].toString());
-        testdetails->comboBox_Probe->setCurrentText(obj["Probe"].toString());
+        testdetails->lineEdit_Probe->setText(obj["Probe"].toString());
         testdetails->comboBox_Mode->setCurrentText(obj["Mode"].toString());
         testdetails->comboBox_LocOfDefect->setCurrentText(obj["LocOfDefect"].toString());
         testdetails->comboBox_Type->setCurrentText(obj["Type"].toString());

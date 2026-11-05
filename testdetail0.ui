@@ -417,7 +417,7 @@
      <item row="1" column="3">
       <widget class="QLabel" name="label_weldno">
        <property name="text">
-        <string>Weld No</string>
+        <string>Weld / Asset No</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignBottom|Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft</set>
