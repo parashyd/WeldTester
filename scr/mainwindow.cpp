@@ -85,6 +85,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     ReadMachNo();
 
+    int buz = Buzzerinit();
+    if(buz == 0)
+        qDebug()<<"Buzzer initialised succesfully";
+    else
+        qDebug()<<"Buzzer initialised failed";
+
     int ret = GPS_Init();
     qDebug() << "GPS_Init =" << ret;
 
