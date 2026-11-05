@@ -25,14 +25,14 @@ viewLogData::viewLogData(QWidget *parent)
     // Open file immediately using the global selectedFilePath
     if (!selectedFilePath.isEmpty()){
         openFile(selectedFilePath);
-    ui->label_chval->setText(QString::number(m_reader.config().channel));
-    ui->label_calsetval->setText(QString::number(m_reader.config().calset));
-    ui->label_gainval->setText(QString::number(m_reader.config().Gain,'f',0));
-    ui->label_Rejectval->setText(QString::number(m_reader.config().reject,'f',0));
-    ui->label_rangeval->setText(QString::number(m_reader.config().range,'f',0));
-    ui->label_DelayVal->setText(QString::number(m_reader.config().delay,'f',0));
-    ui->label_Angleval->setText(QString::number(m_reader.config().Angle));
-    ui->label_McNoVal->setText(m_reader.machineNo());
+        ui->label_chval->setText(QString::number(m_reader.config().channel));
+        ui->label_calsetval->setText(QString::number(m_reader.config().calset));
+        ui->label_gainval->setText(QString::number(m_reader.config().Gain,'f',0));
+        ui->label_Rejectval->setText(QString::number(m_reader.config().reject,'f',0));
+        ui->label_rangeval->setText(QString::number(m_reader.config().range,'f',0));
+        ui->label_DelayVal->setText(QString::number(m_reader.config().delay,'f',0));
+        ui->label_Angleval->setText(QString::number(m_reader.config().Angle));
+        ui->label_McNoVal->setText(m_reader.machineNo());
     }
     ui->lineEdit_GTST->setText(QString::number(5));
     ui->lineEdit_GTED->setText(QString::number(30));
@@ -306,7 +306,7 @@ inline void viewLogData::plotGate(int replotRequired)
     }
     gate->data()->clear();
     gate->setData(QVector<double>{st, ed},
-                    QVector<double>{(double)th, (double)th});
+                  QVector<double>{(double)th, (double)th});
     if(replotRequired)
         ui->PLOT->replot();
 }
@@ -319,9 +319,28 @@ void viewLogData::onPlayPause()
     if (!m_reader.isOpen()) return;
 
     if (m_paused)
+    {
+        // If playback has reached the end, RUN starts it again from frame 0.
+        if (m_reader.atEnd() ||
+            m_reader.currentFrame() >= m_reader.totalFrames())
+        {
+            m_reader.seekToFrame(0);
+
+            if (ui->slider_Scrub)
+            {
+                QSignalBlocker blocker(ui->slider_Scrub);
+                ui->slider_Scrub->setValue(0);
+            }
+
+            updateTimeLabel();
+        }
+
         startPlayback();
+    }
     else
+    {
         pausePlayback();
+    }
 }
 
 void viewLogData::onStop()
@@ -359,6 +378,37 @@ void viewLogData::onScrubMoved(int value)
         m_reader.seekToFrame(value); // rewind back so onScrubReleased starts here
         renderFrame(frame);
     }
+    updateTimeLabel();
+}
+
+void viewLogData::movePlaybackSlider(int direction)
+{
+    if (!m_reader.isOpen() || !ui->slider_Scrub)
+        return;
+
+    const int newValue = qBound(
+        ui->slider_Scrub->minimum(),
+        ui->slider_Scrub->value() + direction,
+        ui->slider_Scrub->maximum());
+
+    if (newValue == ui->slider_Scrub->value())
+        return;
+
+    {
+        QSignalBlocker blocker(ui->slider_Scrub);
+        ui->slider_Scrub->setValue(newValue);
+    }
+
+    // Preview the selected frame without consuming it from the reader.
+    m_reader.seekToFrame(newValue);
+    QByteArray frame = m_reader.readNextFrame();
+
+    if (!frame.isEmpty())
+    {
+        renderFrame(frame);
+        m_reader.seekToFrame(newValue);
+    }
+
     updateTimeLabel();
 }
 
@@ -431,16 +481,24 @@ void viewLogData::handleSocketKey(quint8 key)
         }
         break;
     case LEFT:
-        if(gatefocus)
+        if (gatefocus)
         {
             HandleGateShift(-1);
+        }
+        else
+        {
+            movePlaybackSlider(-1);
         }
         break;
 
     case RIGHT:
-        if(gatefocus)
+        if (gatefocus)
         {
             HandleGateShift(1);
+        }
+        else
+        {
+            movePlaybackSlider(1);
         }
         break;
     case UP: // UP
@@ -481,7 +539,7 @@ inline void viewLogData::focusGate(int replotRequired)
     gborder->data()->clear();
     gborder->data()->clear();
     gborder->setData(QVector<double>{gStart, gEnd},
-                      QVector<double>{(double)TH, (double)TH});
+                     QVector<double>{(double)TH, (double)TH});
 
     if(replotRequired)
         ui->PLOT->replot();

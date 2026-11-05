@@ -43,6 +43,7 @@ private:
     void renderFrame(const QByteArray &frame);
     void updateGridInterval();
     void updateTimeLabel();
+    void movePlaybackSlider(int direction);
     void HandleGateShift(int shift);
     void HandleGateUpDownLift(int lift);
     void adjustGatewidth(int delta);
