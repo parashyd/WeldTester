@@ -540,7 +540,7 @@ void testdetail0::saveDataToFile()
 }
 void testdetail0::LoadSavedData()
 {
-    QFile file("testdetails.json");
+    QFile file(SD_CARD1+"testdetails.json");
     if (!file.exists()) {
         return;
     }
