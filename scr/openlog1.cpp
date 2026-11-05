@@ -164,7 +164,7 @@ void OpenLog1::handleSocketKey(quint8 key)
         break;
 
     case LEFT:
-    qDebug() << "LEFT CurrentFocus =" << currentFocus;
+        qDebug() << "LEFT CurrentFocus =" << currentFocus;
         if(currentFocus > 0)
         {
             currentFocus--;
@@ -181,230 +181,230 @@ void OpenLog1::handleSocketKey(quint8 key)
             else{
                 updateFocusStyle();
 
-        }
-
-        break;
-
-    case OK:
-
-        // DATE FOLDER SELECTED
-        if(currentFocus == 0)
-        {
-            QListWidgetItem *item =
-                ui->dateFolderList->currentItem();
-
-            if(item)
-            {
-                onDateFolderClicked(item);
-
-                currentFocus = 1;
-
-                updateFocusStyle();
-
-                if(ui->weldFolderList->count() > 0)
-                    ui->weldFolderList->setCurrentRow(0);
             }
+
             break;
-        }
 
-        // WELD FOLDER SELECTED
-        else if(currentFocus == 1)
-        {
-            QListWidgetItem *item =
-                ui->weldFolderList->currentItem();
+        case OK:
 
-            if(item)
+            // DATE FOLDER SELECTED
+            if(currentFocus == 0)
             {
-                onWeldFolderClicked(item);
+                QListWidgetItem *item =
+                    ui->dateFolderList->currentItem();
 
-                currentFocus = 2;
+                if(item)
+                {
+                    onDateFolderClicked(item);
 
-                updateFocusStyle();
+                    currentFocus = 1;
 
-                if(ui->fileList->count() > 0)
-                    ui->fileList->setCurrentRow(0);
+                    updateFocusStyle();
+
+                    if(ui->weldFolderList->count() > 0)
+                        ui->weldFolderList->setCurrentRow(0);
+                }
+                break;
             }
-            break;
-        }
 
-        // FILE SELECTED
-        else if(currentFocus == 2)
-        {
-            QListWidgetItem *item =
-                ui->fileList->currentItem();
-
-            if(item)
+            // WELD FOLDER SELECTED
+            else if(currentFocus == 1)
             {
-                selectedFilePath=QString("%1/%2/%3/%4")
-                                       .arg(basePath)
-                                       .arg(selectedDateFolder)
-                                       .arg(selectedWeldFolder)
-                                       .arg(item->text());
+                QListWidgetItem *item =
+                    ui->weldFolderList->currentItem();
 
+                if(item)
+                {
+                    onWeldFolderClicked(item);
 
-                emit requestViewLogData();
+                    currentFocus = 2;
 
-                qDebug() << "Selected File:"
-                         << item->text();
+                    updateFocusStyle();
 
-                // preview logic here
-            }
-            break;
-        }
-        else if(currentFocus == 3) //copy
-        {
-            QString usbRoot = findUsbPath();
-
-            if(usbRoot.isEmpty()){
-                ui->label->setText(" ⚠️ No Pendrive Detected");
-                StatusLabelTimer->start(2000);
-                return;
+                    if(ui->fileList->count() > 0)
+                        ui->fileList->setCurrentRow(0);
+                }
+                break;
             }
 
-            QString machineFolder =
-                usbRoot + "/WT" + MachNo;
-
-            if (!QDir().exists(machineFolder)){
-                QDir().mkpath(machineFolder);
-            }
-            machineFolder = machineFolder+"/Logs";
-            if (!QDir().exists(machineFolder)){
-                QDir().mkpath(machineFolder);
-            }
-            QString src =
-                basePath + "/" +
-                selectedDateFolder;
-
-            // QString dst =
-            //     uniqueFolderName(
-            //         machineFolder,
-            //         selectedDateFolder);
-            QString dst = machineFolder +"/"+selectedDateFolder;
-            if(copyFolderRecursively(src,dst))
+            // FILE SELECTED
+            else if(currentFocus == 2)
             {
-                ui->label->setStyleSheet(
-                    "color: #00ff66;"
-                    "font-size: 11px;"
-                    "font-weight: bold;");
-                ui->label->setText("Copied "+ selectedDateFolder);
-                StatusLabelTimer->start(2000);
+                QListWidgetItem *item =
+                    ui->fileList->currentItem();
 
+                if(item)
+                {
+                    selectedFilePath=QString("%1/%2/%3/%4")
+                    .arg(basePath)
+                        .arg(selectedDateFolder)
+                        .arg(selectedWeldFolder)
+                        .arg(item->text());
+
+
+                    emit requestViewLogData();
+
+                    qDebug() << "Selected File:"
+                             << item->text();
+
+                    // preview logic here
+                }
+                break;
             }
-            else{
-                ui->label->setStyleSheet(
-                    "color: RED;"
-                    "font-size: 11px;"
-                    "font-weight: bold;");
-                ui->label->setText("Copying "+selectedDateFolder+" has failed");
-                StatusLabelTimer->start(2000);
+            else if(currentFocus == 3) //copy
+            {
+                QString usbRoot = findUsbPath();
 
-            }
-            break;
-        }
-        else if(currentFocus == 4) //copy all
-        {
-            QString usbRoot = findUsbPath();
+                if(usbRoot.isEmpty()){
+                    ui->label->setText(" ⚠️ No Pendrive Detected");
+                    StatusLabelTimer->start(2000);
+                    return;
+                }
 
-            if(usbRoot.isEmpty())
-                return;
+                QString machineFolder =
+                    usbRoot + "/WT" + MachNo;
 
-            QString machineFolder =
-                usbRoot + "/WT" + MachNo;
-
-            if (!QDir().exists(machineFolder)){
+                if (!QDir().exists(machineFolder)){
                     QDir().mkpath(machineFolder);
-            }
+                }
+                machineFolder = machineFolder+"/Logs";
+                if (!QDir().exists(machineFolder)){
+                    QDir().mkpath(machineFolder);
+                }
+                QString src =
+                    basePath + "/" +
+                    selectedDateFolder;
 
-            machineFolder = machineFolder+"/Logs";
-            if (!QDir().exists(machineFolder)){
-                QDir().mkpath(machineFolder);
-            }
-
-            QDir srcDir(basePath);
-
-            QFileInfoList folders =
-                srcDir.entryInfoList(
-                    QDir::Dirs |
-                    QDir::NoDotAndDotDot);
-
-            foreach(QFileInfo folder, folders)
-            {
                 // QString dst =
                 //     uniqueFolderName(
                 //         machineFolder,
-                //         folder.fileName());
-                QString dst = machineFolder +"/"+folder.fileName();
-
-                if(copyFolderRecursively(folder.absoluteFilePath(),dst))
+                //         selectedDateFolder);
+                QString dst = machineFolder +"/"+selectedDateFolder;
+                if(copyFolderRecursively(src,dst))
                 {
                     ui->label->setStyleSheet(
                         "color: #00ff66;"
                         "font-size: 11px;"
                         "font-weight: bold;");
-                    ui->label->setText("Copied ");
+                    ui->label->setText("Copied "+ selectedDateFolder);
                     StatusLabelTimer->start(2000);
+
                 }
                 else{
                     ui->label->setStyleSheet(
                         "color: RED;"
                         "font-size: 11px;"
                         "font-weight: bold;");
-                    ui->label->setText("Copying has failed");
+                    ui->label->setText("Copying "+selectedDateFolder+" has failed");
                     StatusLabelTimer->start(2000);
+
                 }
+                break;
             }
-            break;
-        }
-        else if(currentFocus == 5) //delete
-        {
-            QString path =
-                basePath + "/" +
-                selectedDateFolder;
-
-            QDir(path).removeRecursively();
-
-            ui->label->setStyleSheet(
-                "color: RED;"
-                "font-size: 11px;"
-                "font-weight: bold;");
-            ui->label->setText("Deleted "+selectedDateFolder);
-            StatusLabelTimer->start(2000);
-
-            loadDateFolders();
-
-            ui->weldFolderList->clear();
-            ui->fileList->clear();
-            break;
-        }
-        else if(currentFocus == 6) //delete all
-        {
-            QDir dir(basePath);
-
-            QFileInfoList folders =
-                dir.entryInfoList(
-                    QDir::Dirs |
-                    QDir::NoDotAndDotDot);
-
-            foreach(QFileInfo folder, folders)
+            else if(currentFocus == 4) //copy all
             {
-                QDir(folder.absoluteFilePath())
-                .removeRecursively();
-            }
-            ui->label->setStyleSheet(
-                "color: Red;"
-                "font-size: 11px;"
-                "font-weight: bold;");
-            ui->label->setText("Deleted all Date folders successfully");
-            StatusLabelTimer->start(2000);
-            loadDateFolders();
+                QString usbRoot = findUsbPath();
 
-            ui->weldFolderList->clear();
-            ui->fileList->clear();
+                if(usbRoot.isEmpty())
+                    return;
+
+                QString machineFolder =
+                    usbRoot + "/WT" + MachNo;
+
+                if (!QDir().exists(machineFolder)){
+                    QDir().mkpath(machineFolder);
+                }
+
+                machineFolder = machineFolder+"/Logs";
+                if (!QDir().exists(machineFolder)){
+                    QDir().mkpath(machineFolder);
+                }
+
+                QDir srcDir(basePath);
+
+                QFileInfoList folders =
+                    srcDir.entryInfoList(
+                        QDir::Dirs |
+                        QDir::NoDotAndDotDot);
+
+                foreach(QFileInfo folder, folders)
+                {
+                    // QString dst =
+                    //     uniqueFolderName(
+                    //         machineFolder,
+                    //         folder.fileName());
+                    QString dst = machineFolder +"/"+folder.fileName();
+
+                    if(copyFolderRecursively(folder.absoluteFilePath(),dst))
+                    {
+                        ui->label->setStyleSheet(
+                            "color: #00ff66;"
+                            "font-size: 11px;"
+                            "font-weight: bold;");
+                        ui->label->setText("Copied ");
+                        StatusLabelTimer->start(2000);
+                    }
+                    else{
+                        ui->label->setStyleSheet(
+                            "color: RED;"
+                            "font-size: 11px;"
+                            "font-weight: bold;");
+                        ui->label->setText("Copying has failed");
+                        StatusLabelTimer->start(2000);
+                    }
+                }
+                break;
+            }
+            else if(currentFocus == 5) //delete
+            {
+                QString path =
+                    basePath + "/" +
+                    selectedDateFolder;
+
+                QDir(path).removeRecursively();
+
+                ui->label->setStyleSheet(
+                    "color: RED;"
+                    "font-size: 11px;"
+                    "font-weight: bold;");
+                ui->label->setText("Deleted "+selectedDateFolder);
+                StatusLabelTimer->start(2000);
+
+                loadDateFolders();
+
+                ui->weldFolderList->clear();
+                ui->fileList->clear();
+                break;
+            }
+            else if(currentFocus == 6) //delete all
+            {
+                QDir dir(basePath);
+
+                QFileInfoList folders =
+                    dir.entryInfoList(
+                        QDir::Dirs |
+                        QDir::NoDotAndDotDot);
+
+                foreach(QFileInfo folder, folders)
+                {
+                    QDir(folder.absoluteFilePath())
+                    .removeRecursively();
+                }
+                ui->label->setStyleSheet(
+                    "color: Red;"
+                    "font-size: 11px;"
+                    "font-weight: bold;");
+                ui->label->setText("Deleted all Date folders successfully");
+                StatusLabelTimer->start(2000);
+                loadDateFolders();
+
+                ui->weldFolderList->clear();
+                ui->fileList->clear();
+                break;
+            }
             break;
         }
-        break;
     }
-}
 }
 void OpenLog1::updateFocusStyle()
 {
@@ -486,22 +486,7 @@ void OpenLog1::updateFocusStyle()
     }
 }
 
-// void OpenLog1::loadDateFolders()
-// {
-//     ui->dateFolderList->clear();
-
-//     QDir dir(basePath);
-
-//     QFileInfoList folderList =
-//         dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot,
-//                           QDir::Name);
-
-//     for(const QFileInfo &info : folderList)
-//     {
-//         ui->dateFolderList->addItem(info.fileName());
-//     }
-// }
-void OpenLog1::loadDateFolders()
+ void OpenLog1::loadDateFolders()
 {
     ui->dateFolderList->clear();
 
@@ -512,35 +497,38 @@ void OpenLog1::loadDateFolders()
             QDir::Dirs |
             QDir::NoDotAndDotDot);
 
+    // Folder format: dd-MM-yyyy followed by line value (DN, UP, X_OVER, etc.)
+    // Sort using only the date portion, with the latest date first.
     std::sort(folderList.begin(),
               folderList.end(),
-              [](const QFileInfo &a,
-                 const QFileInfo &b)
+              [](const QFileInfo &a, const QFileInfo &b)
               {
-                  QDate da =
-                      QDate::fromString(
-                          a.fileName(),
-                          "dd-MM-yyyy");
+                  QDate dateA = QDate::fromString(
+                      a.fileName().left(10),
+                      "dd-MM-yyyy");
 
-                  QDate db =
-                      QDate::fromString(
-                          b.fileName(),
-                          "dd-MM-yyyy");
+                  QDate dateB = QDate::fromString(
+                      b.fileName().left(10),
+                      "dd-MM-yyyy");
 
-                  return da > db;   // Latest first
+                  if (dateA != dateB)
+                      return dateA > dateB;
+
+                  // If dates are equal, sort folder names alphabetically.
+                  return a.fileName() < b.fileName();
               });
 
-    for(const QFileInfo &info : folderList)
+    for (const QFileInfo &info : folderList)
     {
-        ui->dateFolderList->addItem(
-            info.fileName());
+        ui->dateFolderList->addItem(info.fileName());
     }
 
-    if(ui->dateFolderList->count() > 0)
+    if (ui->dateFolderList->count() > 0)
     {
         ui->dateFolderList->setCurrentRow(0);
     }
 }
+
 void OpenLog1::onDateFolderClicked(QListWidgetItem *item)
 {
     if (!item)
